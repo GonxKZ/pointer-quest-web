@@ -699,10 +699,10 @@ arr.reset();  // delete[] llamado automáticamente`}</CodeBlock>
             <CodeBlock>{`// Inicialización cero (más lenta)
 auto safe = std::make_unique<int[]>(1000000);
 
-// Sin inicializar (más rápida para casos específicos)  
+// Sin inicializar (más rápida para casos específicos)
 auto fast = std::make_unique_for_overwrite<int[]>(1000000);
 // ¡Debe inicializar manualmente antes de usar!
-std::fill_n(fast.get(), 1000000, 0);</CodeBlock>
+std::fill_n(fast.get(), 1000000, 0);`}</CodeBlock>
           </TheorySection>
         </ControlPanel>
       </MainContent>

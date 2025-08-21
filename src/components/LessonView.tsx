@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import CodeEditor from './CodeEditor';
+import CodeEditor, { Terminal } from './CodeEditor';
 import MemoryVisualizer from './MemoryVisualizer';
 // import ErrorModal from './ErrorModal'; // Not used
 
@@ -99,7 +99,697 @@ nullptr representa un puntero que no apunta a ningún objeto válido.
     ]
   },
 
-  // Más lecciones se agregarán aquí...
+  3: {
+    title: "Punteros en Heap - new y delete",
+    description: "Aprende a gestionar memoria dinámica con new y delete",
+    difficulty: 'beginner',
+    code: `#include <iostream>
+
+int main() {
+    // Crear un entero en el heap
+    int* ptr = new int(42);
+
+    std::cout << "Valor: " << *ptr << std::endl;
+    std::cout << "Dirección: " << ptr << std::endl;
+
+    // Modificar el valor
+    *ptr = 100;
+    std::cout << "Nuevo valor: " << *ptr << std::endl;
+
+    // Liberar la memoria
+    delete ptr;
+    ptr = nullptr;  // Buenas prácticas
+
+    return 0;
+}`,
+    explanation: `
+La gestión dinámica de memoria permite crear objetos que persisten más allá del scope actual.
+
+• **new int(42)** - Reserva memoria en el heap y la inicializa
+• **delete ptr** - Libera la memoria reservada
+• El heap es una región de memoria más grande pero más lenta
+• Es responsabilidad del programador gestionar esta memoria
+• Los memory leaks ocurren cuando no se libera la memoria
+    `,
+    guidelines: [
+      "Siempre empareja new con delete",
+      "Pon el puntero a nullptr después de delete",
+      "Usa delete[] para arrays",
+      "Evita memory leaks verificando liberaciones"
+    ]
+  },
+
+  4: {
+    title: "Punteros a Arrays",
+    description: "Domina el uso de punteros con arrays",
+    difficulty: 'intermediate',
+    code: `#include <iostream>
+
+int main() {
+    int arr[5] = {10, 20, 30, 40, 50};
+    int* ptr = arr;  // Puntero al primer elemento
+
+    std::cout << "Array usando índices:" << std::endl;
+    for(int i = 0; i < 5; i++) {
+        std::cout << arr[i] << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Array usando punteros:" << std::endl;
+    for(int i = 0; i < 5; i++) {
+        std::cout << *(ptr + i) << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "ptr[2] = " << ptr[2] << std::endl;
+    std::cout << "*(ptr + 2) = " << *(ptr + 2) << std::endl;
+
+    return 0;
+}`,
+    explanation: `
+Los arrays y punteros están íntimamente relacionados en C++.
+
+• **int* ptr = arr** - Un array se puede tratar como un puntero
+• ***(ptr + i)** - Acceso usando aritmética de punteros
+• **ptr[i]** - Sintaxis equivalente al acceso con arrays
+• Los arrays se desintegran a punteros cuando se pasan a funciones
+• El nombre del array es un puntero constante al primer elemento
+    `,
+    guidelines: [
+      "Usa la notación de arrays cuando trabajes con arrays",
+      "Usa aritmética de punteros solo cuando sea necesario",
+      "Ten cuidado con los límites del array",
+      "Recuerda que los arrays se convierten en punteros"
+    ]
+  },
+
+  5: {
+    title: "Punteros Constantes",
+    description: "Entiende las diferentes formas de const con punteros",
+    difficulty: 'intermediate',
+    code: `#include <iostream>
+
+int main() {
+    int x = 42;
+    int y = 100;
+
+    // Puntero a constante (no puedo cambiar el valor apuntado)
+    const int* ptr1 = &x;
+    // *ptr1 = 50;  // Error: no se puede modificar
+    ptr1 = &y;     // OK: puedo cambiar a qué apunta
+
+    // Puntero constante (no puedo cambiar a qué apunta)
+    int* const ptr2 = &x;
+    *ptr2 = 50;    // OK: puedo cambiar el valor
+    // ptr2 = &y;   // Error: no puedo cambiar la dirección
+
+    // Puntero constante a constante
+    const int* const ptr3 = &x;
+    // *ptr3 = 50;  // Error
+    // ptr3 = &y;   // Error
+
+    std::cout << "x = " << x << std::endl;
+    return 0;
+}`,
+    explanation: `
+const se puede aplicar al puntero, al valor apuntado, o a ambos.
+
+• **const int* ptr** - Puntero a constante (el valor no se puede cambiar)
+• **int* const ptr** - Puntero constante (la dirección no se puede cambiar)
+• **const int* const ptr** - Ambas restricciones
+• Usar const mejora la seguridad y permite optimizaciones
+• Es especialmente útil en parámetros de función
+    `,
+    guidelines: [
+      "Usa const siempre que sea posible",
+      "Punteros a constantes para datos que no deben modificarse",
+      "Punteros constantes para punteros que no deben reasignarse",
+      "Documenta claramente qué significa cada const"
+    ]
+  },
+
+  6: {
+    title: "Punteros Dobles",
+    description: "Trabaja con punteros que apuntan a otros punteros",
+    difficulty: 'intermediate',
+    code: `#include <iostream>
+
+int main() {
+    int x = 42;
+    int* ptr = &x;      // Puntero normal
+    int** ptr2 = &ptr;  // Puntero a puntero
+
+    std::cout << "Valor de x: " << x << std::endl;
+    std::cout << "Valor a través de ptr: " << *ptr << std::endl;
+    std::cout << "Valor a través de ptr2: " << **ptr2 << std::endl;
+
+    std::cout << "Dirección de x: " << &x << std::endl;
+    std::cout << "Dirección en ptr: " << ptr << std::endl;
+    std::cout << "Dirección en ptr2: " << ptr2 << std::endl;
+
+    // Modificar a través de puntero doble
+    **ptr2 = 100;
+    std::cout << "Nuevo valor de x: " << x << std::endl;
+
+    return 0;
+}`,
+    explanation: `
+Los punteros dobles son útiles para estructuras de datos dinámicas.
+
+• **int** - Entero
+• **int*** - Puntero a entero
+• **int*** - Puntero a puntero a entero
+• **&ptr** - Obtiene la dirección del puntero
+• ***ptr2** - Desreferencia el puntero doble
+• Útiles para arrays de strings, matrices, etc.
+    `,
+    guidelines: [
+      "Ten cuidado con múltiples niveles de desreferencia",
+      "Verifica que cada nivel no sea nullptr",
+      "Usa typedefs para mejorar legibilidad",
+      "Dibuja diagramas de memoria para entender el flujo"
+    ]
+  },
+
+  7: {
+    title: "Punteros de Función",
+    description: "Aprende a usar punteros que apuntan a funciones",
+    difficulty: 'advanced',
+    code: `#include <iostream>
+
+// Función simple
+int suma(int a, int b) {
+    return a + b;
+}
+
+int resta(int a, int b) {
+    return a - b;
+}
+
+int main() {
+    // Declarar puntero a función
+    int (*operacion)(int, int);
+
+    // Asignar función
+    operacion = suma;
+    std::cout << "Suma: " << operacion(5, 3) << std::endl;
+
+    // Cambiar a otra función
+    operacion = resta;
+    std::cout << "Resta: " << operacion(5, 3) << std::endl;
+
+    // Usando typedef para claridad
+    typedef int (*OperacionPtr)(int, int);
+    OperacionPtr op = suma;
+
+    return 0;
+}`,
+    explanation: `
+Los punteros de función permiten pasar funciones como parámetros.
+
+• **int (*ptr)(int, int)** - Puntero a función que recibe dos int y retorna int
+• **ptr = funcion** - Asignar función al puntero
+• **ptr(args)** - Llamar a la función a través del puntero
+• Útiles para callbacks, estrategias, y polimorfismo en tiempo de ejecución
+• Las funciones se desintegran a punteros automáticamente
+    `,
+    guidelines: [
+      "Usa typedefs para simplificar la sintaxis",
+      "Verifica que el puntero no sea nullptr antes de llamar",
+      "Documenta claramente la signatura de la función",
+      "Considera std::function como alternativa moderna"
+    ]
+  },
+
+  8: {
+    title: "Smart Pointers - unique_ptr",
+    description: "Descubre los punteros inteligentes que gestionan automáticamente la memoria",
+    difficulty: 'intermediate',
+    code: `#include <iostream>
+#include <memory>
+
+int main() {
+    // Crear unique_ptr
+    std::unique_ptr<int> ptr1 = std::make_unique<int>(42);
+
+    std::cout << "Valor: " << *ptr1 << std::endl;
+
+    // Transferir ownership
+    std::unique_ptr<int> ptr2 = std::move(ptr1);
+
+    if (!ptr1) {
+        std::cout << "ptr1 es nullptr después del move" << std::endl;
+    }
+
+    std::cout << "Valor a través de ptr2: " << *ptr2 << std::endl;
+
+    // La memoria se libera automáticamente al final del scope
+    return 0;
+}`,
+    explanation: `
+Los smart pointers evitan memory leaks al gestionar automáticamente la memoria.
+
+• **unique_ptr** - Propiedad exclusiva de la memoria
+• **make_unique<T>()** - Función helper para crear unique_ptr
+• **std::move()** - Transfiere la propiedad
+• **reset()** - Libera la memoria manualmente
+• No se puede copiar, solo mover
+    `,
+    guidelines: [
+      "Usa make_unique en lugar de new",
+      "Prefiere unique_ptr sobre raw pointers",
+      "Usa std::move para transferir propiedad",
+      "No te preocupes por delete - es automático"
+    ]
+  },
+
+  9: {
+    title: "Smart Pointers - shared_ptr",
+    description: "Aprende sobre punteros compartidos con conteo de referencias",
+    difficulty: 'advanced',
+    code: `#include <iostream>
+#include <memory>
+
+int main() {
+    // Crear shared_ptr
+    std::shared_ptr<int> ptr1 = std::make_shared<int>(42);
+
+    std::cout << "Valor: " << *ptr1 << std::endl;
+    std::cout << "Conteo de referencias: " << ptr1.use_count() << std::endl;
+
+    // Crear otra referencia
+    {
+        std::shared_ptr<int> ptr2 = ptr1;
+        std::cout << "Conteo después de ptr2: " << ptr1.use_count() << std::endl;
+        std::cout << "Valor a través de ptr2: " << *ptr2 << std::endl;
+    } // ptr2 se destruye aquí
+
+    std::cout << "Conteo final: " << ptr1.use_count() << std::endl;
+
+    return 0;
+}`,
+    explanation: `
+shared_ptr permite múltiples propietarios de la misma memoria.
+
+• **shared_ptr** - Propiedad compartida con conteo de referencias
+• **use_count()** - Número de shared_ptr que apuntan al mismo objeto
+• **make_shared<T>()** - Crea objeto y shared_ptr eficientemente
+• La memoria se libera cuando el último shared_ptr se destruye
+• Útil para estructuras de datos complejas
+    `,
+    guidelines: [
+      "Usa make_shared para mejor rendimiento",
+      "Ten cuidado con ciclos de referencias",
+      "Usa weak_ptr para romper ciclos",
+      "Monitoriza use_count() para debugging"
+    ]
+  },
+
+  10: {
+    title: "Smart Pointers - weak_ptr",
+    description: "Entiende los punteros débiles para evitar ciclos de referencias",
+    difficulty: 'advanced',
+    code: `#include <iostream>
+#include <memory>
+
+class Nodo {
+public:
+    std::shared_ptr<Nodo> siguiente;
+    std::weak_ptr<Nodo> anterior;  // Evita ciclo
+
+    Nodo(int valor) : valor(valor) {}
+    ~Nodo() { std::cout << "Nodo " << valor << " destruido" << std::endl; }
+
+    int valor;
+};
+
+int main() {
+    auto nodo1 = std::make_shared<Nodo>(1);
+    auto nodo2 = std::make_shared<Nodo>(2);
+
+    // Crear referencias (sin ciclos)
+    nodo1->siguiente = nodo2;
+    nodo2->anterior = nodo1;  // weak_ptr no crea ciclo
+
+    // Acceder a través de weak_ptr
+    if (auto ptr = nodo2->anterior.lock()) {
+        std::cout << "Valor del anterior: " << ptr->valor << std::endl;
+    }
+
+    return 0;
+}`,
+    explanation: `
+weak_ptr resuelve el problema de ciclos de referencias en shared_ptr.
+
+• **weak_ptr** - Referencia no-propietaria a un objeto shared_ptr
+• **lock()** - Intenta obtener un shared_ptr temporal
+• No incrementa el use_count()
+• Útil para observers y caches
+• Previene memory leaks por ciclos
+    `,
+    guidelines: [
+      "Usa weak_ptr para relaciones no-propietarias",
+      "Siempre verifica con lock() antes de usar",
+      "Útil en listas doblemente enlazadas",
+      "Ideal para implementar observer pattern"
+    ]
+  },
+
+  11: {
+    title: "Arrays Dinámicos",
+    description: "Gestiona arrays de tamaño dinámico con new[] y delete[]",
+    difficulty: 'intermediate',
+    code: `#include <iostream>
+
+int main() {
+    // Crear array dinámico
+    int* arr = new int[5];
+
+    // Inicializar
+    for(int i = 0; i < 5; i++) {
+        arr[i] = (i + 1) * 10;
+    }
+
+    // Usar
+    std::cout << "Array dinámico:" << std::endl;
+    for(int i = 0; i < 5; i++) {
+        std::cout << arr[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // Liberar memoria (importante: delete[], no delete)
+    delete[] arr;
+    arr = nullptr;
+
+    return 0;
+}`,
+    explanation: `
+Los arrays dinámicos permiten crear arrays de tamaño conocido en runtime.
+
+• **new int[5]** - Reserva memoria para 5 enteros
+• **delete[] arr** - Libera el array completo
+• **arr[i]** - Acceso normal a elementos
+• El tamaño debe conocerse en tiempo de ejecución
+• No se puede redimensionar después de creado
+    `,
+    guidelines: [
+      "Usa delete[] para arrays dinámicos",
+      "No mezcles delete con delete[]",
+      "Considera std::vector como alternativa moderna",
+      "Verifica el tamaño antes de acceder"
+    ]
+  },
+
+  12: {
+    title: "Punteros y Polimorfismo",
+    description: "Aprovecha el polimorfismo con punteros a clases base",
+    difficulty: 'advanced',
+    code: `#include <iostream>
+
+class Animal {
+public:
+    virtual void hablar() {
+        std::cout << "???" << std::endl;
+    }
+    virtual ~Animal() = default;
+};
+
+class Perro : public Animal {
+public:
+    void hablar() override {
+        std::cout << "¡Guau!" << std::endl;
+    }
+};
+
+class Gato : public Animal {
+public:
+    void hablar() override {
+        std::cout << "¡Miau!" << std::endl;
+    }
+};
+
+int main() {
+    // Array de punteros a Animal
+    Animal* animales[3];
+
+    animales[0] = new Perro();
+    animales[1] = new Gato();
+    animales[2] = new Animal();
+
+    // Polimorfismo en acción
+    for(int i = 0; i < 3; i++) {
+        animales[i]->hablar();
+        delete animales[i];
+    }
+
+    return 0;
+}`,
+    explanation: `
+El polimorfismo permite tratar objetos de diferentes tipos de forma uniforme.
+
+• **virtual** - Habilita polimorfismo
+• **override** - Indica que se sobreescribe un método virtual
+• **Animal*** - Puntero a clase base puede apuntar a clases derivadas
+• La función correcta se llama según el tipo real del objeto
+• Esencial para diseño orientado a objetos
+    `,
+    guidelines: [
+      "Usa virtual para métodos que pueden sobreescribirse",
+      "No olvides virtual en el destructor de la clase base",
+      "Usa override para claridad",
+      "Entiende slicing vs polimorfismo"
+    ]
+  },
+
+  13: {
+    title: "Punteros y Templates",
+    description: "Crea código genérico que funciona con cualquier tipo de puntero",
+    difficulty: 'advanced',
+    code: `#include <iostream>
+#include <memory>
+
+template <typename T>
+void mostrar_info(T* ptr) {
+    if (ptr) {
+        std::cout << "Valor: " << *ptr << std::endl;
+        std::cout << "Dirección: " << ptr << std::endl;
+    } else {
+        std::cout << "Puntero nulo" << std::endl;
+    }
+}
+
+template <typename T>
+class Contenedor {
+private:
+    T* datos;
+    size_t tamano;
+
+public:
+    Contenedor(size_t n) : tamano(n) {
+        datos = new T[n];
+    }
+
+    ~Contenedor() {
+        delete[] datos;
+    }
+
+    T& operator[](size_t i) {
+        return datos[i];
+    }
+};
+
+int main() {
+    int x = 42;
+    mostrar_info(&x);
+
+    double y = 3.14;
+    mostrar_info(&y);
+
+    Contenedor<int> cont(5);
+    cont[0] = 10;
+    cont[1] = 20;
+
+    std::cout << "Elemento 0: " << cont[0] << std::endl;
+
+    return 0;
+}`,
+    explanation: `
+Los templates permiten crear código genérico que funciona con cualquier tipo.
+
+• **template <typename T>** - Define un template
+• **T*** - Puntero a cualquier tipo T
+• Se puede usar con cualquier tipo que soporte las operaciones requeridas
+• Excelente para crear contenedores genéricos
+• Los templates se instancian en tiempo de compilación
+    `,
+    guidelines: [
+      "Usa templates para código reutilizable",
+      "Especifica claramente los requerimientos del tipo T",
+      "Considera especializaciones cuando sea necesario",
+      "Los templates no afectan el rendimiento en runtime"
+    ]
+  },
+
+  14: {
+    title: "Punteros en Structs",
+    description: "Trabaja con punteros dentro de estructuras de datos",
+    difficulty: 'intermediate',
+    code: `#include <iostream>
+
+struct Nodo {
+    int dato;
+    Nodo* siguiente;  // Puntero al siguiente nodo
+};
+
+void imprimir_lista(Nodo* cabeza) {
+    Nodo* actual = cabeza;
+    while (actual != nullptr) {
+        std::cout << actual->dato << " -> ";
+        actual = actual->siguiente;
+    }
+    std::cout << "nullptr" << std::endl;
+}
+
+int main() {
+    // Crear lista enlazada
+    Nodo* cabeza = new Nodo{1, nullptr};
+    cabeza->siguiente = new Nodo{2, nullptr};
+    cabeza->siguiente->siguiente = new Nodo{3, nullptr};
+
+    imprimir_lista(cabeza);
+
+    // Liberar memoria
+    while (cabeza != nullptr) {
+        Nodo* temp = cabeza;
+        cabeza = cabeza->siguiente;
+        delete temp;
+    }
+
+    return 0;
+}`,
+    explanation: `
+Los structs pueden contener punteros para crear estructuras de datos dinámicas.
+
+• **Nodo*** - Puntero a struct Nodo
+• **->** - Operador de acceso a miembro a través de puntero
+• Se pueden crear listas, árboles, grafos, etc.
+• Es responsabilidad del programador gestionar la memoria
+• Las estructuras autorreferenciales son muy comunes
+    `,
+    guidelines: [
+      "Usa -> para acceder a miembros a través de punteros",
+      "Gestiona correctamente la memoria de structs con punteros",
+      "Considera smart pointers para estructuras complejas",
+      "Dibuja diagramas para entender las conexiones"
+    ]
+  },
+
+  15: {
+    title: "Punteros y Memoria",
+    description: "Entiende cómo los punteros interactúan con la memoria del sistema",
+    difficulty: 'advanced',
+    code: `#include <iostream>
+#include <iomanip>
+
+int main() {
+    // Variables locales (stack)
+    int stack_var = 42;
+    int* stack_ptr = &stack_var;
+
+    std::cout << "=== STACK ===" << std::endl;
+    std::cout << "Variable: " << stack_var << std::endl;
+    std::cout << "Dirección: " << std::hex << stack_ptr << std::dec << std::endl;
+
+    // Variables dinámicas (heap)
+    int* heap_ptr = new int(100);
+
+    std::cout << "\n=== HEAP ===" << std::endl;
+    std::cout << "Variable: " << *heap_ptr << std::endl;
+    std::cout << "Dirección: " << std::hex << heap_ptr << std::dec << std::endl;
+
+    // Array estático
+    int static_arr[3] = {1, 2, 3};
+
+    std::cout << "\n=== ARRAY ESTÁTICO ===" << std::endl;
+    for(int i = 0; i < 3; i++) {
+        std::cout << "arr[" << i << "] = " << static_arr[i]
+                  << " en " << std::hex << &static_arr[i] << std::dec << std::endl;
+    }
+
+    delete heap_ptr;
+    return 0;
+}`,
+    explanation: `
+Diferentes tipos de variables se almacenan en diferentes segmentos de memoria.
+
+• **Stack** - Variables locales, rápida pero limitada
+• **Heap** - Memoria dinámica, más flexible pero lenta
+• **Global/Static** - Variables globales y estáticas
+• Cada segmento tiene características y usos específicos
+• Los punteros pueden apuntar a cualquier segmento
+    `,
+    guidelines: [
+      "Entiende dónde se almacena cada tipo de variable",
+      "Usa el stack para datos temporales pequeños",
+      "Usa el heap para datos grandes o que persisten",
+      "Libera siempre la memoria del heap"
+    ]
+  },
+
+  16: {
+    title: "Punteros y Excepciones",
+    description: "Gestiona correctamente la memoria cuando ocurren excepciones",
+    difficulty: 'advanced',
+    code: `#include <iostream>
+#include <stdexcept>
+
+class Recurso {
+public:
+    Recurso() { std::cout << "Recurso creado" << std::endl; }
+    ~Recurso() { std::cout << "Recurso destruido" << std::endl; }
+};
+
+void funcion_que_puede_fallar(bool fallar) {
+    Recurso* recurso = new Recurso();
+
+    if (fallar) {
+        delete recurso;  // Liberar antes de lanzar
+        throw std::runtime_error("Error simulado");
+    }
+
+    delete recurso;
+}
+
+int main() {
+    try {
+        funcion_que_puede_fallar(false);
+        std::cout << "Primera llamada exitosa" << std::endl;
+
+        funcion_que_puede_fallar(true);
+        std::cout << "Esta línea no se ejecutará" << std::endl;
+
+    } catch (const std::exception& e) {
+        std::cout << "Excepción capturada: " << e.what() << std::endl;
+    }
+
+    return 0;
+}`,
+    explanation: `
+Las excepciones complican la gestión de memoria manual.
+
+• **RAII** - Resource Acquisition Is Initialization
+• **Smart pointers** - Gestionan automáticamente la memoria
+• **delete antes de throw** - Evita memory leaks
+• **try-catch** - Manejo de excepciones
+• Las excepciones pueden ocurrir en cualquier momento
+    `,
+    guidelines: [
+      "Usa smart pointers para evitar problemas",
+      "Libera recursos antes de lanzar excepciones",
+      "Usa RAII siempre que sea posible",
+      "Considera noexcept para funciones que no lanzan"
+    ]
+  }
 };
 
 const Container = styled.div`
@@ -296,6 +986,8 @@ export default function LessonView() {
   const lessonId = parseInt(id || '1');
   const lesson = lessonData[lessonId];
 
+
+
   if (!lesson) {
     return (
       <Container>
@@ -349,7 +1041,7 @@ export default function LessonView() {
           </NavButton>
           <NavButton
             onClick={() => goToLesson(lessonId + 1)}
-            disabled={lessonId >= 120}
+            disabled={lessonId >= 16}
           >
             Siguiente →
           </NavButton>
@@ -364,6 +1056,11 @@ export default function LessonView() {
               code={lesson.code}
               language="cpp"
               onChange={() => {}} // Solo lectura por ahora
+            />
+            <Terminal
+              code={lesson.code}
+              language="cpp"
+              lessonId={lessonId}
             />
           </Section>
 
@@ -404,7 +1101,7 @@ export default function LessonView() {
 
           <SidebarTitle style={{ marginTop: '2rem' }}>📊 Progreso</SidebarTitle>
           <div style={{ color: '#b8c5d6', fontSize: '0.9rem' }}>
-            <p>Lección actual: {lessonId}/120</p>
+            <p>Lección actual: {lessonId + 1}/17</p>
             <p>Completadas: {state.userProgress.completedLessons.length}</p>
             <p>Puntuación: {state.userProgress.totalScore}</p>
           </div>

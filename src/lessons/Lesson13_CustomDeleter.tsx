@@ -691,9 +691,7 @@ std::unique_ptr<FILE, FileCloser> file_functor(
               <label>Archivo:</label>
               <Input
                 value={state.filename}
-                onChange={(e) => changeFi
-
-lename(e.target.value)}
+                onChange={(e) => changeFilename(e.target.value)}
                 placeholder="nombre_archivo.txt"
               />
             </InputGroup>
@@ -797,7 +795,7 @@ struct BadDeleter { int x; }; // No operator()
 // ✅ Deleter copiable/movible
 struct GoodDeleter {
     void operator()(FILE* f) { if(f) fclose(f); }
-};</CodeBlock>
+};`}</CodeBlock>
           </TheorySection>
         </ControlPanel>
       </MainContent>

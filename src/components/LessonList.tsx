@@ -3568,7 +3568,492 @@ int main() {
       }
     }
   },
-  // Más lecciones se agregarán aquí...
+  {
+    id: 32,
+    title: "⚠️ Exception Memory Leaks",
+    description: "Master exception-safe memory management and understand how exceptions can cause subtle memory leaks without RAII.",
+    difficulty: 'expert' as const,
+    topic: "Exception Safety",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "When exceptions occur between new and delete, memory leaks can happen. RAII (Resource Acquisition Is Initialization) prevents this automatically.",
+        examples: [
+          { code: "// DANGEROUS: Exception between new/delete\nvoid risky() {\n    Widget* ptr = new Widget();\n    may_throw(); // Exception here!\n    delete ptr;  // Never reached\n}", explanation: "If may_throw() throws an exception, the delete statement is never reached, causing a memory leak." },
+        ],
+        exercises: [
+          "🚨 Identify memory leak scenarios with exceptions",
+          "🛡️ Implement RAII solutions with smart pointers",
+          "🔧 Create custom exception guards"
+        ]
+      },
+      intermediate: {
+        theory: "RAII ensures automatic cleanup during stack unwinding. When exceptions propagate up the call stack, destructors are called automatically.",
+        examples: [
+          { code: "// SAFE: RAII guarantees cleanup\nvoid safe() {\n    auto ptr = std::make_unique<Widget>();\n    may_throw(); // Exception OK - destructor called\n}", explanation: "unique_ptr's destructor is automatically called during stack unwinding, preventing memory leaks." }
+        ],
+        exercises: [
+          "🎯 Convert unsafe new/delete to RAII patterns",
+          "📊 Implement custom scope guards",
+          "⚡ Understand stack unwinding mechanics"
+        ]
+      },
+      expert: {
+        theory: "Exception safety levels: basic guarantee (no leaks), strong guarantee (no state change), and no-throw guarantee (never throws).",
+        examples: [
+          { code: "template<typename F>\nclass ScopeGuard {\n    F cleanup_;\npublic:\n    explicit ScopeGuard(F f) : cleanup_(f) {}\n    ~ScopeGuard() { cleanup_(); }\n};", explanation: "Custom scope guards provide RAII for complex cleanup scenarios." }
+        ],
+        exercises: [
+          "🏗️ Implement strong exception safety",
+          "🔒 Design no-throw operations",
+          "📈 Analyze exception safety in large codebases"
+        ]
+      }
+    }
+  },
+  {
+    id: 33,
+    title: "🔧 shared_ptr Custom Deleters",
+    description: "Master custom deletion logic with shared_ptr control blocks and understand their memory and performance impacts.",
+    difficulty: 'expert' as const,
+    topic: "Smart Pointers",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "shared_ptr allows custom deletion logic stored in the control block. Different deleter types have varying memory and performance impacts.",
+        examples: [
+          { code: "// Custom deleter for FILE*\nstd::shared_ptr<FILE> file_ptr(\n    fopen(\"data.txt\", \"r\"),\n    [](FILE* f) { if(f) fclose(f); }\n);", explanation: "Custom lambda deleter ensures proper cleanup of C resources." },
+        ],
+        exercises: [
+          "📁 Implement RAII for FILE* resources",
+          "🔧 Create custom deleters for arrays",
+          "🛡️ Handle C API resources safely"
+        ]
+      },
+      intermediate: {
+        theory: "Control block contains reference counts, deleter object, and allocator. Different deleter types affect memory overhead.",
+        examples: [
+          { code: "// Function pointer deleter (zero overhead)\nvoid my_deleter(Widget* p) { delete p; }\nauto sp = std::shared_ptr<Widget>(new Widget(), my_deleter);", explanation: "Function pointers have zero storage overhead in the control block." }
+        ],
+        exercises: [
+          "📊 Compare deleter memory overhead",
+          "⚡ Optimize custom deleters for performance",
+          "🔍 Understand control block internals"
+        ]
+      },
+      expert: {
+        theory: "Type erasure allows different deleters in same shared_ptr type. make_shared vs custom deleter affects allocation patterns and performance.",
+        examples: [
+          { code: "// Large lambda capture increases control block size\nint context = 42;\nauto sp = std::shared_ptr<Widget>(new Widget(),\n    [context](Widget* w) { /* uses context */ delete w; });", explanation: "Captured variables are stored in the control block, increasing memory usage." }
+        ],
+        exercises: [
+          "🏗️ Design efficient custom deleters",
+          "📈 Profile memory usage with different deleters",
+          "⚙️ Implement zero-overhead deleter patterns"
+        ]
+      }
+    }
+  },
+  {
+    id: 34,
+    title: "📊 shared_ptr<T[]> Arrays",
+    description: "Explore array specialization vs alternatives in modern C++. Learn when to use shared_ptr<T[]> and when std::vector is better.",
+    difficulty: 'intermediate' as const,
+    topic: "Smart Pointers",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "shared_ptr<T[]> (C++17) provides array specialization with automatic delete[] and operator[] access. Usually std::vector is a better choice.",
+        examples: [
+          { code: "// Array specialization\nstd::shared_ptr<int[]> arr(new int[10]);\narr[0] = 42;  // operator[] available", explanation: "shared_ptr<T[]> automatically uses delete[] and provides array access." },
+        ],
+        exercises: [
+          "📊 Create shared array instances",
+          "🔍 Compare with std::vector",
+          "⚡ Understand automatic delete[]"
+        ]
+      },
+      intermediate: {
+        theory: "Array specialization removes operator* and operator-> while adding operator[]. No size information is provided.",
+        examples: [
+          { code: "// Modern alternatives\nstd::vector<int> vec(10);     // Preferred\nstd::array<int, 10> arr;      // Fixed size\nauto uptr = std::make_unique<int[]>(10); // Exclusive", explanation: "Modern C++ provides better alternatives with bounds checking and size information." }
+        ],
+        exercises: [
+          "📈 Compare performance characteristics",
+          "🛡️ Implement bounds checking",
+          "🔧 Choose appropriate container types"
+        ]
+      },
+      expert: {
+        theory: "Use shared_ptr<T[]> only when shared ownership of arrays is essential. Memory overhead and lack of size information make containers preferable.",
+        examples: [
+          { code: "// When shared_ptr<T[]> makes sense\nclass ImageBuffer {\n    std::shared_ptr<uint8_t[]> pixels_;\npublic:\n    std::shared_ptr<uint8_t[]> get_pixels() const { return pixels_; }\n};", explanation: "Shared ownership of large buffers between multiple objects justifies shared_ptr<T[]>." }
+        ],
+        exercises: [
+          "🏗️ Design shared buffer systems",
+          "📊 Profile memory usage vs alternatives",
+          "⚙️ Implement C API compatibility layers"
+        ]
+      }
+    }
+  },
+  {
+    id: 35,
+    title: "🛡️ not_null<T*> Wrapper",
+    description: "Express non-null intent in API design with GSL not_null wrapper and eliminate unnecessary null checks.",
+    difficulty: 'intermediate' as const,
+    topic: "Safety",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "gsl::not_null<T*> is a lightweight wrapper that expresses non-null intent in API design. Part of the Guidelines Support Library (GSL).",
+        examples: [
+          { code: "// Clear intent\nvoid process(gsl::not_null<Widget*> widget) {\n    widget->do_something(); // No null check needed!\n}", explanation: "Function signature clearly communicates that widget cannot be null." },
+        ],
+        exercises: [
+          "🎯 Create not_null function parameters",
+          "🔍 Identify null check elimination opportunities",
+          "📋 Design clear API contracts"
+        ]
+      },
+      intermediate: {
+        theory: "not_null provides runtime validation on construction and assignment. Different assertion levels available: none, debug, always.",
+        examples: [
+          { code: "// Runtime validation\nWidget* maybe_null = get_widget();\nif (maybe_null) {\n    auto safe = gsl::not_null{maybe_null};\n    process(safe); // Guaranteed non-null\n}", explanation: "Explicit null check before creating not_null wrapper ensures safety." }
+        ],
+        exercises: [
+          "⚙️ Configure assertion levels",
+          "🛡️ Implement validation strategies",
+          "🔧 Integrate with existing codebases"
+        ]
+      },
+      expert: {
+        theory: "Static analyzers understand not_null intent. Core Guidelines I.12 and F.23 recommend using not_null for API design clarity.",
+        examples: [
+          { code: "// Static analyzer benefits\nvoid analyze_me(gsl::not_null<Widget*> guaranteed,\n               Widget* maybe_null) {\n    guaranteed->method(); // No warnings\n    maybe_null->method(); // Analyzer warns\n}", explanation: "Tools like Clang Static Analyzer and PVS-Studio understand not_null semantics." }
+        ],
+        exercises: [
+          "🔍 Enable static analysis warnings",
+          "📊 Migrate existing APIs to not_null",
+          "⚡ Measure performance impact"
+        ]
+      }
+    }
+  },
+  {
+    id: 37,
+    title: "🔄 Cyclic shared_ptr Graphs",
+    description: "Understand how shared_ptr cycles create memory leaks and learn to break them with weak_ptr.",
+    difficulty: 'expert' as const,
+    topic: "Advanced Smart Pointers",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "When shared_ptr objects reference each other in a cycle, they prevent each other from being destroyed, causing memory leaks.",
+        examples: [
+          { code: "auto a = make_shared<Node>();\nauto b = make_shared<Node>();\na->next = b; b->prev = a; // Cycle!", explanation: "Both nodes keep each other alive forever." }
+        ],
+        exercises: [
+          "🔍 Identify cyclic references",
+          "🔧 Break cycles with weak_ptr"
+        ]
+      }
+    }
+  },
+  {
+    id: 38,
+    title: "⚛️ atomic<shared_ptr> Lock-Free",
+    description: "Learn thread-safe shared_ptr operations using atomic<shared_ptr> for lock-free programming.",
+    difficulty: 'expert' as const,
+    topic: "Concurrency",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "atomic<shared_ptr> provides thread-safe operations like load, store, and compare_exchange without mutexes.",
+        examples: [
+          { code: "atomic<shared_ptr<int>> atomic_ptr;\nauto local = atomic_ptr.load(); // Thread-safe", explanation: "Atomic operations prevent race conditions." }
+        ],
+        exercises: [
+          "⚡ Implement lock-free data structures",
+          "🔒 Understand memory ordering"
+        ]
+      }
+    }
+  },
+  {
+    id: 40,
+    title: "📏 Deleter State Impact on unique_ptr Size",
+    description: "Explore how different deleter types affect unique_ptr memory footprint and EBO optimization.",
+    difficulty: 'advanced' as const,
+    topic: "Memory Optimization",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "Empty Base Optimization (EBO) allows stateless deleters to add no memory overhead to unique_ptr.",
+        examples: [
+          { code: "sizeof(unique_ptr<int>) == 8; // With default deleter\nsizeof(unique_ptr<int, function<void(int*)>>) > 8; // With std::function", explanation: "Stateful deleters increase unique_ptr size." }
+        ],
+        exercises: [
+          "📐 Measure deleter overhead",
+          "🎯 Optimize memory usage"
+        ]
+      }
+    }
+  },
+  {
+    id: 41,
+    title: "⚠️ const_cast Traps and UB",
+    description: "Learn the dangerous pitfalls of const_cast and when it causes undefined behavior.",
+    difficulty: 'expert' as const,
+    topic: "Undefined Behavior",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "Using const_cast to modify originally const objects results in undefined behavior due to compiler optimizations.",
+        examples: [
+          { code: "const int x = 42;\nint* px = const_cast<int*>(&x);\n*px = 100; // UB!", explanation: "Compiler may assume const objects never change." }
+        ],
+        exercises: [
+          "🚫 Identify UB scenarios",
+          "✅ Find safe alternatives"
+        ]
+      }
+    }
+  },
+  {
+    id: 42,
+    title: "🏭 unique_ptr<Base> Factory Patterns",
+    description: "Master factory patterns using unique_ptr for clean ownership transfer and polymorphism.",
+    difficulty: 'advanced' as const,
+    topic: "Design Patterns",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "Factory patterns with unique_ptr provide clear ownership semantics and exception safety.",
+        examples: [
+          { code: "unique_ptr<Shape> createShape(const string& type) {\n  return make_unique<Circle>();\n}", explanation: "Factory functions transfer ownership to caller." }
+        ],
+        exercises: [
+          "🏗️ Implement factory patterns",
+          "🔧 Use builder pattern with unique_ptr"
+        ]
+      }
+    }
+  },
+  {
+    id: 60,
+    title: "🎓 Final Examination",
+    description: "Master all pointer scenarios and become a memory management expert! Solve 8 challenging scenarios to prove your expertise.",
+    difficulty: 'expert' as const,
+    topic: "Comprehensive Review",
+    completed: false,
+    content: {
+      beginner: {
+        theory: "This comprehensive examination tests your understanding of all pointer concepts covered in the course.",
+        examples: [
+          { code: "// Example scenarios include:\n// - Dangling pointers\n// - Double delete\n// - Memory leaks\n// - Cyclic references", explanation: "Eight different scenarios test your diagnostic and problem-solving skills." },
+        ],
+        exercises: [
+          "🔍 Diagnose memory problems",
+          "🛠️ Apply appropriate fixes",
+          "🎯 Achieve expert-level score"
+        ]
+      },
+      intermediate: {
+        theory: "Each scenario represents a real-world memory management challenge with different severity levels and solution approaches.",
+        examples: [
+          { code: "// Scoring system:\n// +10 points for diagnosis\n// +25 points for correct fix\n// -5 points for hints used", explanation: "Score 200+ points to achieve expert level certification." }
+        ],
+        exercises: [
+          "📊 Complete all scenarios",
+          "🏆 Maximize your score",
+          "🔧 Master modern C++ solutions"
+        ]
+      },
+      expert: {
+        theory: "The final examination integrates concepts from basic pointers through advanced smart pointer usage, testing practical application skills.",
+        examples: [
+          { code: "// Perfect score: 280 points\n// Expert level: 200+ points\n// Competent level: 150+ points", explanation: "Achieve mastery by solving all scenarios without hints." }
+        ],
+        exercises: [
+          "🎯 Achieve perfect score",
+          "🏅 Demonstrate comprehensive mastery",
+          "🚀 Apply knowledge to real projects"
+        ]
+      }
+    }
+  },
+
+  // Advanced Design Patterns with Smart Pointers
+  {
+    id: 44,
+    title: "🔍 Observer Pattern con Smart Pointers",
+    description: "Implementa el patrón Observer de forma segura usando weak_ptr para evitar punteros colgantes.",
+    difficulty: 'advanced' as const,
+    topic: "Design Patterns",
+    completed: false,
+    content: {
+      advanced: {
+        theory: "El Observer Pattern con smart pointers garantiza seguridad de memoria y previene punteros colgantes cuando los observers se destruyen.",
+        examples: [],
+        exercises: [
+          "🔍 Implementa Subject con vector<weak_ptr<Observer>>",
+          "🛡️ Maneja observers destruidos automáticamente",
+          "📡 Crea notificaciones thread-safe",
+          "🎯 Implementa diferentes tipos de observers",
+          "🧹 Limpia automáticamente observers expirados"
+        ]
+      }
+    }
+  },
+
+  {
+    id: 45,
+    title: "⚙️ Command Pattern con unique_ptr",
+    description: "Gestor de comandos con deshacer/rehacer usando unique_ptr para gestión automática de memoria.",
+    difficulty: 'advanced' as const,
+    topic: "Design Patterns",
+    completed: false,
+    content: {
+      advanced: {
+        theory: "El Command Pattern encapsula operaciones como objetos, permitiendo deshacer/rehacer, logging, y transacciones con gestión automática de memoria.",
+        examples: [],
+        exercises: [
+          "⚙️ Crea CommandManager con unique_ptr<Command>",
+          "↶ Implementa sistema de undo/redo",
+          "📦 Diseña MacroCommands composites",
+          "💾 Añade logging persistente de comandos",
+          "🔒 Implementa comandos thread-safe"
+        ]
+      }
+    }
+  },
+
+  {
+    id: 47,
+    title: "🔄 Strategy Pattern con Function Pointers",
+    description: "Algoritmos intercambiables usando function pointers para máximo rendimiento sin overhead.",
+    difficulty: 'advanced' as const,
+    topic: "Design Patterns",
+    completed: false,
+    content: {
+      advanced: {
+        theory: "El Strategy Pattern con function pointers permite cambiar algoritmos dinámicamente sin overhead de virtual functions.",
+        examples: [],
+        exercises: [
+          "🔄 Implementa Context con function pointer strategy",
+          "⚡ Crea registry de estrategias disponibles",
+          "📈 Compara performance vs virtual functions",
+          "🧪 Usa std::function para mayor flexibilidad",
+          "🔒 Implementa strategy switching thread-safe"
+        ]
+      }
+    }
+  },
+
+  {
+    id: 48,
+    title: "🔬 Template Metaprogramming con Punteros",
+    description: "Cómputo en tiempo de compilación y type traits para manipular tipos de punteros.",
+    difficulty: 'expert' as const,
+    topic: "Metaprogramming",
+    completed: false,
+    content: {
+      expert: {
+        theory: "La metaprogramación con templates permite cómputo en tiempo de compilación, especialmente útil para manipular tipos de punteros y crear abstracciones zero-cost.",
+        examples: [],
+        exercises: [
+          "🔬 Implementa type traits para punteros",
+          "⚡ Crea constexpr algorithms con punteros",
+          "🛠️ Usa SFINAE para overload resolution",
+          "📋 Implementa concepts C++20 para punteros",
+          "🎯 Optimiza código con template specialization"
+        ]
+      }
+    }
+  },
+  {
+    id: 50,
+    title: "Vector Reallocation with unique_ptr",
+    description: "Advanced memory reallocation behavior, move semantics, and exception safety in containers",
+    difficulty: 'expert' as const,
+    topic: "Advanced Memory Management",
+    completed: false
+  },
+  {
+    id: 51,
+    title: "shared_ptr Multiple Inheritance",
+    description: "Multiple inheritance pointer casting, virtual base classes, and the diamond problem",
+    difficulty: 'expert' as const,
+    topic: "Advanced Smart Pointers", 
+    completed: false
+  },
+  {
+    id: 52,
+    title: "Interactive Signature Analyzer",
+    description: "Interactive function signature analysis and parameter lifetime analysis",
+    difficulty: 'expert' as const,
+    topic: "Lifetime Analysis",
+    completed: false
+  },
+  {
+    id: 53,
+    title: "Lambda Captures with Smart Pointers", 
+    description: "Capture by value vs reference, lifetime management in lambda expressions",
+    difficulty: 'expert' as const,
+    topic: "Modern C++ Features",
+    completed: false
+  },
+  {
+    id: 54,
+    title: "Interior Pointers with string_view/span",
+    description: "Non-owning views, dangling pointer detection, and safe span usage",
+    difficulty: 'expert' as const,
+    topic: "View Types",
+    completed: false
+  },
+  {
+    id: 55,
+    title: "Ownership Audit System",
+    description: "Automated ownership analysis, leak detection, and ownership transfer validation",
+    difficulty: 'expert' as const,
+    topic: "Static Analysis",
+    completed: false
+  },
+  {
+    id: 56,
+    title: "ABI Simulator for Function Pointers",
+    description: "ABI compatibility, function pointer layouts, and calling conventions",
+    difficulty: 'expert' as const,
+    topic: "Low-Level Programming",
+    completed: false
+  },
+  {
+    id: 57,
+    title: "C Interop with RAII Wrappers",
+    description: "C library integration, RAII wrappers, and exception safety across boundaries",
+    difficulty: 'expert' as const,
+    topic: "C Integration",
+    completed: false
+  },
+  {
+    id: 58,
+    title: "Performance Battle: Copy vs Move",
+    description: "Move semantics performance, copy elision, and RVO optimization",
+    difficulty: 'expert' as const,
+    topic: "Performance Optimization",
+    completed: false
+  },
+  {
+    id: 59,
+    title: "Shared Owner with View using Aliasing Constructor",
+    description: "Aliasing constructor usage and shared ownership of subobjects",
+    difficulty: 'expert' as const,
+    topic: "Advanced Smart Pointers",
+    completed: false
+  },
+
+  // Future advanced lessons can be added here...
 ];
 
 // Componente de visualización 3D mejorado con animaciones

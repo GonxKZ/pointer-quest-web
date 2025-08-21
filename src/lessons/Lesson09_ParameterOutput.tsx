@@ -683,7 +683,7 @@ auto create_widget() -> std::unique_ptr<Widget> {
             <li><strong>Exception Safety:</strong> Pobre en casos complejos</li>
           </ul>
           
-          <h4 style={{ color: '#9c27b0', marginTop: '1rem' }}>Modern Pattern - void adopt(unique_ptr<int>& out):</h4>
+          <h4 style={{ color: '#9c27b0', marginTop: '1rem' }}>Modern Pattern - void adopt(unique_ptr&lt;int&gt;&amp; out):</h4>
           <ul style={{ lineHeight: '1.6' }}>
             <li><strong>RAII:</strong> out = make_unique&lt;int&gt;(value)</li>
             <li><strong>Seguridad:</strong> Destrucción automática garantizada</li>

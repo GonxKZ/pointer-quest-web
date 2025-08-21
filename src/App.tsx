@@ -9,7 +9,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 
 // Carga perezosa de componentes pesados
 const MemoryVisualizer3D = lazy(() => import('./3d/MemoryVisualizer3D'));
-const LessonView = lazy(() => import('./components/LessonView'));
+const LessonRouter = lazy(() => import('./components/LessonRouter'));
 const HomePage = lazy(() => import('./pages/HomePage'));
 
 // Estilos globales
@@ -121,7 +121,7 @@ function AppContent() {
           <Route path="/lessons" element={<LessonList />} />
           <Route path="/lessons/:id" element={
             <Suspense fallback={<LoadingSpinner />}>
-              <LessonView />
+              <LessonRouter />
             </Suspense>
           } />
           <Route path="/3d" element={
