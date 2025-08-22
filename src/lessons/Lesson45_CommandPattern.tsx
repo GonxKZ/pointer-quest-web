@@ -448,6 +448,7 @@ const Lesson45_CommandPattern: React.FC = () => {
     if (state.undoStack.length === 0) return;
     
     const lastState = state.undoStack[state.undoStack.length - 1];
+    if (!lastState) return;
     const parsedState = JSON.parse(lastState);
     
     // Save current state to redo stack
@@ -471,6 +472,7 @@ const Lesson45_CommandPattern: React.FC = () => {
     if (state.redoStack.length === 0) return;
     
     const nextState = state.redoStack[state.redoStack.length - 1];
+    if (!nextState) return;
     const parsedState = JSON.parse(nextState);
     
     // Save current state to undo stack

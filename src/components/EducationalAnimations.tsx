@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import styled from 'styled-components';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Text, Line, Html } from '@react-three/drei';
@@ -82,8 +82,8 @@ const ProgressFill = styled.div<{ progress: number }>`
   transition: width 0.1s linear;
 `;
 
-// Componente de variable animada
-function AnimatedVariable({
+// Optimized variable component with memoization
+const AnimatedVariable = memo(({
   position,
   color,
   content,
@@ -95,28 +95,38 @@ function AnimatedVariable({
   content: string;
   animation?: string;
   delay?: number;
-}) {
+}) => {
   const meshRef = useRef<THREE.Mesh>(null);
+  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const startTimeRef = useRef<number>(0);
 
   useFrame((state) => {
-    if (!meshRef.current) return;
+    if (!meshRef.current || !materialRef.current) return;
 
-    const elapsed = state.clock.elapsedTime - delay;
+    if (startTimeRef.current === 0) {
+      startTimeRef.current = state.clock.elapsedTime;
+    }
+
+    const elapsed = state.clock.elapsedTime - startTimeRef.current - delay;
     if (elapsed < 0) return;
 
+    // Optimized animation with fewer calculations
     switch (animation) {
-      case 'fadeIn':
-        const opacity = Math.min(elapsed / 1, 1);
-        (meshRef.current.material as THREE.MeshStandardMaterial).opacity = opacity;
+      case 'fadeIn': {
+        const opacity = Math.min(elapsed, 1);
+        materialRef.current.opacity = opacity;
         break;
-      case 'pulse':
+      }
+      case 'pulse': {
         const pulse = 0.8 + Math.sin(elapsed * 4) * 0.2;
         meshRef.current.scale.setScalar(pulse);
         break;
-      case 'float':
+      }
+      case 'float': {
         const float = Math.sin(elapsed * 2) * 0.1;
         meshRef.current.position.y = position[1] + float;
         break;
+      }
     }
   });
 
@@ -125,6 +135,7 @@ function AnimatedVariable({
       <mesh ref={meshRef}>
         <boxGeometry args={[1.5, 0.8, 0.5]} />
         <meshStandardMaterial
+          ref={materialRef}
           color={color}
           transparent
           opacity={1}
@@ -143,7 +154,7 @@ function AnimatedVariable({
       </Text>
     </group>
   );
-}
+});
 
 // Componente de puntero animado
 function AnimatedPointer({
@@ -188,7 +199,8 @@ function AnimatedPointer({
       currentEnd[0], currentEnd[1], currentEnd[2]
     ]);
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.attributes.position.needsUpdate = true;
+    const posAttr = geometry.getAttribute('position') as THREE.BufferAttribute;
+    posAttr.needsUpdate = true;
 
     // Actualizar flecha
     arrowRef.current.position.set(currentEnd[0], currentEnd[1], currentEnd[2]);
@@ -448,7 +460,7 @@ function AnimationScene({
 export default function EducationalAnimations({
   animationId,
   autoPlay = true,
-  speed = 1, // eslint-disable-line @typescript-eslint/no-unused-vars
+  speed: _speed = 1,
   onComplete
 }: EducationalAnimationsProps) {
   const [currentStep, setCurrentStep] = useState(0);

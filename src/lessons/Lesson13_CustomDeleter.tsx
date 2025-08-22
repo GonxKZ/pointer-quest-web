@@ -639,9 +639,7 @@ export const Lesson13_CustomDeleter: React.FC = () => {
     setFileResource(null);
   };
 
-  const changeFi
-
-lename = (newFilename: string) => {
+  const changeFilename = (newFilename: string) => {
     setState(prev => ({
       ...prev,
       filename: newFilename

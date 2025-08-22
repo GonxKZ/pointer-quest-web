@@ -17,7 +17,9 @@ interface VirtualNarratorProps {
 }
 
 // Contenedor del narrador
-const NarratorContainer = styled.div<{ isVisible: boolean; type: string }>`
+const NarratorContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isVisible',
+})<{ isVisible: boolean; type: string }>`
   position: fixed;
   bottom: 20px;
   left: 20px;
@@ -61,21 +63,6 @@ const MessageText = styled.div`
   font-weight: 500;
 `;
 
-// const ProgressBar = styled.div<{ progress: number }>`
-//   width: 100%;
-//   height: 4px;
-//   background: rgba(255, 255, 255, 0.2);
-//   border-radius: 2px;
-//   overflow: hidden;
-// `;
-
-// const ProgressFill = styled.div<{ progress: number }>`
-//   height: 100%;
-//   width: ${props => props.progress}%;
-//   background: rgba(255, 255, 255, 0.8);
-//   transition: width 0.1s linear;
-//   border-radius: 2px;
-// `;
 
 const ActionButton = styled.button`
   background: rgba(255, 255, 255, 0.2);
@@ -345,8 +332,8 @@ export function LessonNarrator({ lessonId }: { lessonId: number }) {
       messages={messages}
       autoPlay={true}
       voiceEnabled={true}
-      onMessageComplete={(messageId) => { // eslint-disable-line @typescript-eslint/no-unused-vars
-        // console.log('Mensaje completado:', messageId);
+      onMessageComplete={(_messageId) => {
+        // Handle message completion
       }}
     />
   );

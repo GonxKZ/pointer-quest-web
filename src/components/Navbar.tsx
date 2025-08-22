@@ -166,42 +166,6 @@ const ProgressBarContainer = styled.div`
   position: relative;
 `;
 
-// const ProgressFill = styled.div<{ progress: number }>`
-//   height: 100%;
-//   width: ${props => props.progress}%;
-//   background: linear-gradient(90deg, #00d4ff, #00ff88, #ff6b6b);
-//   background-size: 200% 200%;
-//   animation: ${shimmer} 2s ease-in-out infinite;
-//   border-radius: 20px;
-//   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-//   box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
-
-//   &::after {
-//     content: '';
-//     position: absolute;
-//     top: 0;
-//     left: -100%;
-//     width: 100%;
-//     height: 100%;
-//     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-//     animation: ${shimmer} 1.5s ease-in-out infinite;
-//   }
-// `;
-
-// const AchievementBadge = styled.div`
-//   background: linear-gradient(45deg, #ff6b6b, #ffa500);
-//   color: white;
-//   padding: 0.5rem 1rem;
-//   border-radius: 15px;
-//   font-size: 0.8rem;
-//   font-weight: 600;
-//   text-transform: uppercase;
-//   letter-spacing: 1px;
-//   box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
-//   animation: ${glow} 3s ease-in-out infinite;
-//   position: relative;
-//   z-index: 2;
-// `;
 
 export default function Navbar() {
   const location = useLocation();

@@ -456,62 +456,62 @@ export default function Lesson38_AtomicSharedPtr({ onComplete, isCompleted }: Le
         </p>
 
         <CodeBlock>
-<code><span className="comment">// ❌ PROBLEMA: Race condition peligrosa</span>
-<span className="type">std::shared_ptr</span>&lt;<span className="type">int</span>&gt; <span className="keyword">global_ptr</span> = <span className="type">std::make_shared</span>&lt;<span className="type">int</span>&gt;(<span className="number">42</span>);
+          {`// ❌ PROBLEMA: Race condition peligrosa
+std::shared_ptr<int> global_ptr = std::make_shared<int>(42);
 
-<span className="comment">// Thread 1: Lee el puntero</span>
-<span className="keyword">void</span> <span className="type">reader_thread</span>() {
-    <span className="keyword">while</span> (<span className="keyword">true</span>) {
-        <span className="error">auto local_copy = global_ptr;</span> <span className="comment">// ⚠️ NO thread-safe!</span>
-        <span className="keyword">if</span> (<span className="keyword">local_copy</span>) {
-            <span className="type">std::cout</span> &lt;&lt; *<span className="keyword">local_copy</span> &lt;&lt; <span className="string">"\n"</span>;
+// Thread 1: Lee el puntero
+void reader_thread() {
+    while (true) {
+        auto local_copy = global_ptr; // ⚠️ NO thread-safe!
+        if (local_copy) {
+            std::cout << *local_copy << "\\n";
         }
     }
 }
 
-<span className="comment">// Thread 2: Modifica el puntero</span>
-<span className="keyword">void</span> <span className="type">writer_thread</span>() {
-    <span className="keyword">while</span> (<span className="keyword">true</span>) {
-        <span className="error">global_ptr = std::make_shared&lt;int&gt;(rand());</span> <span className="comment">// ⚠️ RACE!</span>
-        <span className="type">std::this_thread::sleep_for</span>(<span className="type">std::chrono::milliseconds</span>(<span className="number">100</span>));
+// Thread 2: Modifica el puntero
+void writer_thread() {
+    while (true) {
+        global_ptr = std::make_shared<int>(rand()); // ⚠️ RACE!
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
-<span className="comment">// CONSECUENCIAS:</span>
-<span className="comment">// - Corrupción del reference count</span>
-<span className="comment">// - Acceso a memoria liberada</span>
-<span className="comment">// - Behavior undefined</span></code>
+// CONSECUENCIAS:
+// - Corrupción del reference count
+// - Acceso a memoria liberada
+// - Behavior undefined`}
         </CodeBlock>
 
         <h4>✅ La Solución: atomic&lt;shared_ptr&gt;</h4>
         <CodeBlock>
-<code><span className="comment">// ✅ SOLUCIÓN: Operaciones atómicas</span>
-<span className="type">std::atomic</span>&lt;<span className="type">std::shared_ptr</span>&lt;<span className="type">int</span>&gt;&gt; <span className="keyword">atomic_ptr</span> = 
-    <span className="type">std::make_shared</span>&lt;<span className="type">int</span>&gt;(<span className="number">42</span>);
+          {`// ✅ SOLUCIÓN: Operaciones atómicas
+std::atomic<std::shared_ptr<int>> atomic_ptr = 
+    std::make_shared<int>(42);
 
-<span className="comment">// Thread 1: Lectura atómica</span>
-<span className="keyword">void</span> <span className="type">safe_reader</span>() {
-    <span className="keyword">while</span> (<span className="keyword">true</span>) {
-        <span className="good">auto local_copy = atomic_ptr.load();</span> <span className="comment">// ✅ Thread-safe!</span>
-        <span className="keyword">if</span> (<span className="keyword">local_copy</span>) {
-            <span className="type">std::cout</span> &lt;&lt; *<span className="keyword">local_copy</span> &lt;&lt; <span className="string">"\n"</span>;
+// Thread 1: Lectura atómica
+void safe_reader() {
+    while (true) {
+        auto local_copy = atomic_ptr.load(); // ✅ Thread-safe!
+        if (local_copy) {
+            std::cout << *local_copy << "\\n";
         }
     }
 }
 
-<span className="comment">// Thread 2: Escritura atómica</span>
-<span className="keyword">void</span> <span className="type">safe_writer</span>() {
-    <span className="keyword">while</span> (<span className="keyword">true</span>) {
-        <span className="keyword">auto</span> <span className="keyword">new_ptr</span> = <span className="type">std::make_shared</span>&lt;<span className="type">int</span>&gt;(<span className="type">rand</span>());
-        <span className="good">atomic_ptr.store(new_ptr);</span> <span className="comment">// ✅ Atomic swap!</span>
-        <span className="type">std::this_thread::sleep_for</span>(<span className="type">std::chrono::milliseconds</span>(<span className="number">100</span>));
+// Thread 2: Escritura atómica
+void safe_writer() {
+    while (true) {
+        auto new_ptr = std::make_shared<int>(rand());
+        atomic_ptr.store(new_ptr); // ✅ Atomic swap!
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
-<span className="comment">// BENEFICIOS:</span>
-<span className="comment">// ✅ No race conditions</span>
-<span className="comment">// ✅ Reference counting consistente</span>
-<span className="comment">// ✅ Sin necesidad de mutex</span></code>
+// BENEFICIOS:
+// ✅ No race conditions
+// ✅ Reference counting consistente
+// ✅ Sin necesidad de mutex`}
         </CodeBlock>
       </Description>
 
@@ -535,54 +535,54 @@ export default function Lesson38_AtomicSharedPtr({ onComplete, isCompleted }: Le
         
         <h5>Compare-Exchange para Updates Condicionales:</h5>
         <CodeBlock>
-<code><span className="comment">// Compare-and-swap atómico</span>
-<span className="keyword">void</span> <span className="type">atomic_update</span>(<span className="type">std::atomic</span>&lt;<span className="type">std::shared_ptr</span>&lt;<span className="type">Node</span>&gt;&gt;&amp; <span className="keyword">atomic_node</span>) {
-    <span className="keyword">auto</span> <span className="keyword">expected</span> = <span className="keyword">atomic_node</span>.<span className="type">load</span>();
-    <span className="keyword">auto</span> <span className="keyword">new_node</span> = <span className="type">std::make_shared</span>&lt;<span className="type">Node</span>&gt;();
+          {`// Compare-and-swap atómico
+void atomic_update(std::atomic<std::shared_ptr<Node>>& atomic_node) {
+    auto expected = atomic_node.load();
+    auto new_node = std::make_shared<Node>();
     
-    <span className="comment">// Reintenta hasta que tenga éxito</span>
-    <span className="keyword">while</span> (!<span className="keyword">atomic_node</span>.<span className="type">compare_exchange_weak</span>(<span className="keyword">expected</span>, <span className="keyword">new_node</span>)) {
-        <span className="comment">// expected se actualiza automáticamente con el valor actual</span>
-        <span className="comment">// Recalcular new_node basado en expected si es necesario</span>
-        <span className="keyword">new_node</span> = <span className="type">create_updated_node</span>(<span className="keyword">expected</span>);
+    // Reintenta hasta que tenga éxito
+    while (!atomic_node.compare_exchange_weak(expected, new_node)) {
+        // expected se actualiza automáticamente con el valor actual
+        // Recalcular new_node basado en expected si es necesario
+        new_node = create_updated_node(expected);
     }
-    <span className="comment">// ✅ Update exitoso: old node liberado automáticamente</span>
-}</code>
+    // ✅ Update exitoso: old node liberado automáticamente
+}`}
         </CodeBlock>
 
         <h5>Lock-Free Stack Example:</h5>
         <CodeBlock>
-<code><span className="comment">// Stack thread-safe sin mutex</span>
-<span className="keyword">template</span>&lt;<span className="keyword">typename</span> <span className="type">T</span>&gt;
-<span className="keyword">class</span> <span className="type">LockFreeStack</span> {
-    <span className="keyword">struct</span> <span className="type">Node</span> {
-        <span className="type">T</span> <span className="keyword">data</span>;
-        <span className="type">std::shared_ptr</span>&lt;<span className="type">Node</span>&gt; <span className="keyword">next</span>;
-        <span className="type">Node</span>(<span className="type">T</span> <span className="keyword">val</span>) : <span className="keyword">data</span>(<span className="keyword">val</span>) {}
+          {`// Stack thread-safe sin mutex
+template<typename T>
+class LockFreeStack {
+    struct Node {
+        T data;
+        std::shared_ptr<Node> next;
+        Node(T val) : data(val) {}
     };
     
-    <span className="type">std::atomic</span>&lt;<span className="type">std::shared_ptr</span>&lt;<span className="type">Node</span>&gt;&gt; <span className="keyword">head</span>;
+    std::atomic<std::shared_ptr<Node>> head;
 
-<span className="keyword">public</span>:
-    <span className="keyword">void</span> <span className="type">push</span>(<span className="type">T</span> <span className="keyword">item</span>) {
-        <span className="keyword">auto</span> <span className="keyword">new_node</span> = <span className="type">std::make_shared</span>&lt;<span className="type">Node</span>&gt;(<span className="keyword">item</span>);
-        <span className="keyword">new_node</span>-&gt;<span className="keyword">next</span> = <span className="keyword">head</span>.<span className="type">load</span>();
+public:
+    void push(T item) {
+        auto new_node = std::make_shared<Node>(item);
+        new_node->next = head.load();
         
-        <span className="comment">// Retry loop para operación atómica</span>
-        <span className="keyword">while</span> (!<span className="keyword">head</span>.<span className="type">compare_exchange_weak</span>(<span className="keyword">new_node</span>-&gt;<span className="keyword">next</span>, <span className="keyword">new_node</span>)) {
-            <span className="comment">// new_node->next se actualiza automáticamente</span>
+        // Retry loop para operación atómica
+        while (!head.compare_exchange_weak(new_node->next, new_node)) {
+            // new_node->next se actualiza automáticamente
         }
     }
     
-    <span className="type">std::optional</span>&lt;<span className="type">T</span>&gt; <span className="type">pop</span>() {
-        <span className="keyword">auto</span> <span className="keyword">old_head</span> = <span className="keyword">head</span>.<span className="type">load</span>();
-        <span className="keyword">while</span> (<span className="keyword">old_head</span> &amp;&amp; 
-               !<span className="keyword">head</span>.<span className="type">compare_exchange_weak</span>(<span className="keyword">old_head</span>, <span className="keyword">old_head</span>-&gt;<span className="keyword">next</span>)) {
-            <span className="comment">// old_head se actualiza en cada intento fallido</span>
+    std::optional<T> pop() {
+        auto old_head = head.load();
+        while (old_head && 
+               !head.compare_exchange_weak(old_head, old_head->next)) {
+            // old_head se actualiza en cada intento fallido
         }
-        <span className="keyword">return</span> <span className="keyword">old_head</span> ? <span className="keyword">old_head</span>-&gt;<span className="keyword">data</span> : <span className="type">std::nullopt</span>;
+        return old_head ? old_head->data : std::nullopt;
     }
-};</code>
+};`}
         </CodeBlock>
 
         <h4>⚡ Consideraciones de Rendimiento</h4>
@@ -594,9 +594,9 @@ export default function Lesson38_AtomicSharedPtr({ onComplete, isCompleted }: Le
         </ul>
 
         <CodeBlock>
-<code><span className="comment">// Optimización: memory ordering específico</span>
-<span className="keyword">auto</span> <span className="keyword">ptr</span> = <span className="keyword">atomic_ptr</span>.<span className="type">load</span>(<span className="type">std::memory_order_acquire</span>);
-<span className="keyword">atomic_ptr</span>.<span className="type">store</span>(<span className="keyword">new_ptr</span>, <span className="type">std::memory_order_release</span>);</code>
+          {`// Optimización: memory ordering específico
+auto ptr = atomic_ptr.load(std::memory_order_acquire);
+atomic_ptr.store(new_ptr, std::memory_order_release);`}
         </CodeBlock>
       </Description>
 

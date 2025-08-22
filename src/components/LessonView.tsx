@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
 import CodeEditor, { Terminal } from './CodeEditor';
 import MemoryVisualizer from './MemoryVisualizer';
-// import ErrorModal from './ErrorModal'; // Not used
 
 // Datos de ejemplo para las lecciones (esto se expandirá)
 const lessonData: Record<number, {
@@ -1000,7 +999,6 @@ export default function LessonView() {
 
   const handleComplete = () => {
     // Aquí se implementará la lógica de completar lección
-    // console.log('Lección completada:', lessonId);
   };
 
   const handleReset = () => {

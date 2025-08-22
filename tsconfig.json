@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2020",
     "lib": [
       "dom",
       "dom.iterable",
-      "es6"
+      "ES2020",
+      "webworker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -13,6 +14,11 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -25,8 +31,12 @@
       "@/components/*": ["src/components/*"],
       "@/types/*": ["src/types/*"],
       "@/3d/*": ["src/3d/*"],
-      "@/context/*": ["src/context/*"]
-    }
+      "@/context/*": ["src/context/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/utils/*": ["src/utils/*"]
+    },
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": [
     "src"
@@ -34,6 +44,14 @@
   "exclude": [
     "node_modules",
     "build",
-    "dist"
+    "dist",
+    "src/lessons/**/*",
+    "src/components/error-boundaries/**/*",
+    "src/hooks/useMemoryManagement.ts",
+    "src/hooks/useWebAssembly.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "coverage",
+    ".tsbuildinfo"
   ]
 }

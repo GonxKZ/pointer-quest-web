@@ -766,22 +766,24 @@ export const Lesson16_WeakPtr: React.FC = () => {
           <TheorySection>
             <h3>🔗 std::weak_ptr&lt;T&gt;</h3>
             <p>Smart pointer que observa sin poseer - rompe cycles de shared_ptr:</p>
-            <CodeBlock>{`// Crear weak_ptr desde shared_ptr
-auto shared = std::make_shared<int>(42);
-std::weak_ptr<int> weak = shared;
-
-// Acceso seguro mediante lock()
-if (auto locked = weak.lock()) {
-    // locked es shared_ptr válido
-    std::cout << *locked;  // Safe access
-} else {
-    // Objeto fue destruido
-    std::cout << "Object destroyed\n";
-}
-
-// Verificar estado
-bool expired = weak.expired();
-size_t count = weak.use_count();</CodeBlock>
+            <CodeBlock>{[
+              '// Crear weak_ptr desde shared_ptr',
+              'auto shared = std::make_shared<int>(42);',
+              'std::weak_ptr<int> weak = shared;',
+              '',
+              '// Acceso seguro mediante lock()',
+              'if (auto locked = weak.lock()) {',
+              '    // locked es shared_ptr válido',
+              '    std::cout << *locked;  // Safe access',
+              '} else {',
+              '    // Objeto fue destruido',
+              '    std::cout << "Object destroyed\\n";',
+              '}',
+              '',
+              '// Verificar estado',
+              'bool expired = weak.expired();',
+              'size_t count = weak.use_count();',
+            ].join('\n')}</CodeBlock>
           </TheorySection>
 
           <StepIndicator>
@@ -881,18 +883,20 @@ size_t count = weak.use_count();</CodeBlock>
           <TheorySection>
             <h4>🎯 Patrón lock()</h4>
             <p>La única forma segura de acceder al objeto mediante weak_ptr:</p>
-            <CodeBlock>{`// ✅ Patrón correcto
-if (auto locked = weak_ptr.lock()) {
-    // Objeto garantizado vivo durante este scope
-    locked->method();
-    process(*locked);
-} // locked se destruye aquí
-
-// ❌ INCORRECTO - race condition
-if (!weak_ptr.expired()) {
-    auto shared = weak_ptr.lock();  // Puede retornar nullptr!
-    *shared;  // PELIGRO: potential crash
-}`}</CodeBlock>
+            <CodeBlock>{[
+              '// ✅ Patrón correcto',
+              'if (auto locked = weak_ptr.lock()) {',
+              '    // Objeto garantizado vivo durante este scope',
+              '    locked->method();',
+              '    process(*locked);',
+              '} // locked se destruye aquí',
+              '',
+              '// ❌ INCORRECTO - race condition',
+              'if (!weak_ptr.expired()) {',
+              '    auto shared = weak_ptr.lock();  // Puede retornar nullptr!',
+              '    *shared;  // PELIGRO: potential crash',
+              '}',
+            ].join('\n')}</CodeBlock>
           </TheorySection>
 
           <TheorySection>
@@ -909,23 +913,25 @@ if (!weak_ptr.expired()) {
 
           <TheorySection>
             <h4>⚡ Consideraciones de Performance</h4>
-            <CodeBlock>{`// weak_ptr overhead mínimo
-sizeof(std::weak_ptr<T>) == sizeof(std::shared_ptr<T>)  // ~16 bytes
-
-// lock() es relativamente costoso (atomic operations)
-for (int i = 0; i < 1000000; ++i) {
-    if (auto locked = weak.lock()) {  // Atomic read + increment
-        // work with locked
-    }  // Atomic decrement
-}
-
-// Mejor: cache el resultado si es posible
-auto locked = weak.lock();
-if (locked) {
-    for (int i = 0; i < 1000000; ++i) {
-        // work with locked - no atomic ops
-    }
-};`}</CodeBlock>
+            <CodeBlock>{[
+              '// weak_ptr overhead mínimo',
+              'sizeof(std::weak_ptr<T>) == sizeof(std::shared_ptr<T>)  // ~16 bytes',
+              '',
+              '// lock() es relativamente costoso (atomic operations)',
+              'for (int i = 0; i < 1000000; ++i) {',
+              '    if (auto locked = weak.lock()) {  // Atomic read + increment',
+              '        // work with locked',
+              '    }  // Atomic decrement',
+              '}',
+              '',
+              '// Mejor: cache el resultado si es posible',
+              'auto locked = weak.lock();',
+              'if (locked) {',
+              '    for (int i = 0; i < 1000000; ++i) {',
+              '        // work with locked - no atomic ops',
+              '    }',
+              '};',
+            ].join('\n')}</CodeBlock>
           </TheorySection>
 
           <Button onClick={resetScene} variant="secondary">

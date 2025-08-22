@@ -1,0 +1,1 @@
+/mnt/c/Users/Gonzalo/Documents/4to\ curso/herramientas/pointer-game-cpp/pointer-quest-web/pointer-quest-wasm/target/wasm32-unknown-unknown/release/pointer_quest_wasm.wasm: /mnt/c/Users/Gonzalo/Documents/4to\ curso/herramientas/pointer-game-cpp/pointer-quest-web/pointer-quest-wasm/src/lib.rs

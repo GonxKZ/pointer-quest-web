@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { LessonNarrator } from './VirtualNarrator';
 import Auto3DDemo from './Auto3DDemo';
-// import { useApp } from '../context/AppContext'; // Not used
+import { usePerformanceMonitor } from './PerformanceMonitor';
 
 interface TeachingStep {
   id: string;
@@ -28,7 +28,9 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const Overlay = styled.div<{ isVisible: boolean }>`
+const Overlay = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isVisible',
+})<{ isVisible: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
@@ -134,11 +136,19 @@ const SpeedButton = styled.button<{ active: boolean }>`
   }
 `;
 
-// Hook para manejar el progreso del tutorial
-function useTutorialProgress(steps: TeachingStep[]) {
+// Optimized hook for tutorial progress with better performance
+function useTutorialProgress(steps: TeachingStep[], speed: string) {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isPaused, setIsPaused] = useState(false);
+  const [autoAdvance, setAutoAdvance] = useState(true);
+  
+  // Speed multipliers
+  const speedMultiplier = {
+    slow: 1.5,
+    normal: 1.0,
+    fast: 0.6
+  }[speed] || 1.0;
 
   const nextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {
@@ -155,33 +165,42 @@ function useTutorialProgress(steps: TeachingStep[]) {
     }
   }, [currentStep]);
 
-  // const goToStep = useCallback((stepIndex: number) => {
-  //   if (stepIndex >= 0 && stepIndex < steps.length) {
-  //     setCurrentStep(stepIndex);
-  //   }
-  // }, [steps.length]);
 
   const togglePause = useCallback(() => {
     setIsPaused(prev => !prev);
   }, []);
 
+  // Auto-advance feature with speed control
+  useEffect(() => {
+    if (!autoAdvance || isPaused || currentStep >= steps.length - 1) return;
+    
+    const currentStepDuration = steps[currentStep]?.duration || 3;
+    const adjustedDuration = currentStepDuration * speedMultiplier * 1000;
+    
+    const timer = setTimeout(() => {
+      nextStep();
+    }, adjustedDuration);
+    
+    return () => clearTimeout(timer);
+  }, [currentStep, autoAdvance, isPaused, speedMultiplier, steps, nextStep]);
+  
   return {
     currentStep,
     completedSteps,
     isPaused,
+    autoAdvance,
     nextStep,
     prevStep,
-    /* goToStep, */
-    togglePause
+    togglePause,
+    setAutoAdvance
   };
 }
 
 export default function AutoTeachingSystem({
   lessonId,
   onComplete,
-  speed = 'normal' // eslint-disable-line @typescript-eslint/no-unused-vars
+  speed = 'normal'
 }: AutoTeachingSystemProps) {
-  // const _appContext = useApp(); // Not used
   const [isTutorialMode, setIsTutorialMode] = useState(true);
   const [currentSpeed, setCurrentSpeed] = useState(speed);
 
@@ -266,21 +285,24 @@ export default function AutoTeachingSystem({
     currentStep,
     completedSteps,
     isPaused,
+    autoAdvance,
     nextStep,
     prevStep,
-    /* goToStep, */
-    togglePause
-  } = useTutorialProgress(steps);
+    togglePause,
+    setAutoAdvance
+  } = useTutorialProgress(steps, currentSpeed);
+  
+  // Performance monitoring
+  const { startRender, endRender } = usePerformanceMonitor('AutoTeachingSystem');
+  
+  useEffect(() => {
+    startRender();
+    return endRender;
+  });
 
   const currentTeachingStep = steps[currentStep];
   const CurrentComponent = currentTeachingStep?.component;
 
-  // Efectos de velocidad
-  // const speedMultipliers = {
-  //   slow: 1.5,
-  //   normal: 1,
-  //   fast: 0.7
-  // };
 
   const handleComplete = () => {
     setIsTutorialMode(false);
@@ -361,6 +383,13 @@ export default function AutoTeachingSystem({
             <div style={{ marginTop: '15px' }}>
               <ControlButton onClick={togglePause} variant="secondary">
                 {isPaused ? '▶️ Reanudar' : '⏸️ Pausar'}
+              </ControlButton>
+              <ControlButton 
+                onClick={() => setAutoAdvance(!autoAdvance)} 
+                variant="secondary"
+                style={{ opacity: autoAdvance ? 1 : 0.6 }}
+              >
+                🤖 Auto: {autoAdvance ? 'ON' : 'OFF'}
               </ControlButton>
               <ControlButton onClick={handleComplete} variant="secondary">
                 Saltar Tutorial

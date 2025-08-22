@@ -1,0 +1,9 @@
+/mnt/c/Users/Gonzalo/Documents/4to curso/herramientas/pointer-game-cpp/pointer-quest-web/pointer-quest-wasm/target/wasm32-unknown-unknown/release/deps/futures_executor-4253a96e7bc8e83c.d: /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/lib.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/local_pool.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/enter.rs
+
+/mnt/c/Users/Gonzalo/Documents/4to curso/herramientas/pointer-game-cpp/pointer-quest-web/pointer-quest-wasm/target/wasm32-unknown-unknown/release/deps/libfutures_executor-4253a96e7bc8e83c.rlib: /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/lib.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/local_pool.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/enter.rs
+
+/mnt/c/Users/Gonzalo/Documents/4to curso/herramientas/pointer-game-cpp/pointer-quest-web/pointer-quest-wasm/target/wasm32-unknown-unknown/release/deps/libfutures_executor-4253a96e7bc8e83c.rmeta: /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/lib.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/local_pool.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/enter.rs
+
+/home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/lib.rs:
+/home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/local_pool.rs:
+/home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-executor-0.3.31/src/enter.rs:

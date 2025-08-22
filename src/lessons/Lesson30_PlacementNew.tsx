@@ -865,7 +865,7 @@ BufferManager* bufmgr = new(device_memory) BufferManager();`}</CodeBlock>
 
             <StatusDisplay $type="warning">
               <strong>Key Requirements:</strong><br/>
-              • <Highlight $color="#ff4757">Manual destructor</Highlight>: Must call obj->~Type()<br/>
+              • <Highlight $color="#ff4757">Manual destructor</Highlight>: Must call obj-&gt;~Type()<br/>
               • <Highlight $color="#ffa500">Alignment</Highlight>: Use std::align for proper placement<br/>
               • <Highlight $color="#2ed573">Lifetime</Highlight>: Object lifetime independent of memory lifetime<br/>
               • <Highlight>No delete</Highlight>: Buffer cleanup separate from object destruction

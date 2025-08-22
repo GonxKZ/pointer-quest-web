@@ -289,7 +289,7 @@ const Lesson44_ObserverPattern: React.FC = () => {
     notificationCount: 0
   });
 
-  const notificationTimeoutRef = useRef<NodeJS.Timeout>();
+  const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const notifyObservers = useCallback(() => {
     setState(prev => ({ ...prev, status: 'notifying' }));

@@ -175,7 +175,7 @@ const LessonMeta = styled.div`
   margin-top: 1rem;
 `;
 
-const Difficulty = styled.span<{ $level: 'beginner' | 'intermediate' | 'advanced' }>`
+const Difficulty = styled.span<{ $level: 'beginner' | 'intermediate' | 'advanced' | 'expert' }>`
   padding: 0.25rem 0.75rem;
   border-radius: 15px;
   font-size: 0.8rem;
@@ -4682,7 +4682,7 @@ const Enhanced3DVisualization = ({ lesson, animationStep, isAnimating }: {
             };
           };
 
-          const positions = getPointerPositions();
+          const positions = getPointerPositions() as { start: [number, number, number]; end: [number, number, number] };
 
           return (
             <group key={ptr.id}>
@@ -4709,7 +4709,7 @@ const Enhanced3DVisualization = ({ lesson, animationStep, isAnimating }: {
               </line>
 
               {/* Cabeza de flecha mejorada */}
-              <group position={[positions.end[0], positions.end[1], positions.end[2]]}>
+              <group position={[positions.end[0], positions.end[1], positions.end[2]] as [number, number, number]}>
                 <mesh>
                   <coneGeometry args={[0.15, 0.4, 12]} />
                   <meshStandardMaterial
@@ -4726,11 +4726,7 @@ const Enhanced3DVisualization = ({ lesson, animationStep, isAnimating }: {
 
               {/* Etiqueta del puntero */}
               <Text
-                position={[
-                  (positions.start[0] + positions.end[0]) / 2,
-                  (positions.start[1] + positions.end[1]) / 2 + 0.3,
-                  0
-                ]}
+                position={[(positions.start[0] + positions.end[0]) / 2, (positions.start[1] + positions.end[1]) / 2 + 0.3, 0] as [number, number, number]}
                 fontSize={0.2}
                 color={ptr.color}
                 anchorX="center"
@@ -4742,11 +4738,7 @@ const Enhanced3DVisualization = ({ lesson, animationStep, isAnimating }: {
 
               {/* Animación de partículas si está activo */}
               {isAnimating && (
-                <mesh position={[
-                  (positions.start[0] + positions.end[0]) / 2,
-                  (positions.start[1] + positions.end[1]) / 2,
-                  0
-                ]}>
+                <mesh position={[(positions.start[0] + positions.end[0]) / 2, (positions.start[1] + positions.end[1]) / 2, 0] as [number, number, number]}>
                   <sphereGeometry args={[0.05, 8, 8]} />
                   <meshStandardMaterial
                     color={ptr.color}
@@ -4791,7 +4783,7 @@ const TerminalAnimation = ({ lesson, currentStep, isAnimating }: {
   isAnimating: boolean
 }) => {
   const [displayedText, setDisplayedText] = React.useState('');
-  const [currentLine, setCurrentLine] = React.useState(0); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [, setCurrentLine] = React.useState(0);
 
   React.useEffect(() => {
     if (!isAnimating || !lesson?.content?.examples) return;
@@ -4816,7 +4808,6 @@ const TerminalAnimation = ({ lesson, currentStep, isAnimating }: {
           setDisplayedText(prev => prev + '\n');
           lineIndex++;
           charIndex = 0;
-          setCurrentLine(lineIndex);
         }
       } else {
         clearInterval(typeInterval);
@@ -5147,7 +5138,8 @@ export default function LessonList() {
             <LessonMeta>
               <Difficulty $level={lesson.difficulty}>
                 {lesson.difficulty === 'beginner' ? 'Principiante' :
-                 lesson.difficulty === 'intermediate' ? 'Intermedio' : 'Avanzado'}
+                 lesson.difficulty === 'intermediate' ? 'Intermedio' :
+                 lesson.difficulty === 'advanced' ? 'Avanzado' : 'Experto'}
               </Difficulty>
               <Topic>{lesson.topic}</Topic>
             </LessonMeta>

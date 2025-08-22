@@ -1,16 +1,30 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
 import { AppProvider, useApp } from './context/AppContext';
-import Navbar from './components/Navbar';
-import LessonList from './components/LessonList';
-import ErrorModal from './components/ErrorModal';
 import LoadingSpinner from './components/LoadingSpinner';
+import ErrorBoundary from './components/ErrorBoundary';
+import PerformanceMonitor from './components/PerformanceMonitor';
 
-// Carga perezosa de componentes pesados
-const MemoryVisualizer3D = lazy(() => import('./3d/MemoryVisualizer3D'));
-const LessonRouter = lazy(() => import('./components/LessonRouter'));
-const HomePage = lazy(() => import('./pages/HomePage'));
+// Optimized lazy loading with better chunk splitting
+const MemoryVisualizer3D = lazy(() => 
+  import(/* webpackChunkName: "3d-visualizer" */ './3d/MemoryVisualizer3D')
+);
+const LessonRouter = lazy(() => 
+  import(/* webpackChunkName: "lesson-router" */ './components/LessonRouter')
+);
+const HomePage = lazy(() => 
+  import(/* webpackChunkName: "home-page" */ './pages/HomePage')
+);
+const Navbar = lazy(() => 
+  import(/* webpackChunkName: "navbar" */ './components/Navbar')
+);
+const LessonList = lazy(() => 
+  import(/* webpackChunkName: "lesson-list" */ './components/LessonList')
+);
+const ErrorModal = lazy(() => 
+  import(/* webpackChunkName: "error-modal" */ './components/ErrorModal')
+);
 
 // Estilos globales
 const GlobalStyle = createGlobalStyle`
@@ -97,9 +111,26 @@ function AppContent() {
         <ViewToggle onClick={toggle3DMode}>
           🎮 Vista 2D
         </ViewToggle>
-        <Suspense fallback={<LoadingSpinner />}>
-          <MemoryVisualizer3D />
-        </Suspense>
+        <ErrorBoundary fallback={
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'white' }}>
+            <h3>🚔 Error loading 3D Visualizer</h3>
+            <p>Please try switching to 2D mode or refresh the page.</p>
+            <button onClick={toggle3DMode} style={{
+              background: '#00d4ff',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '5px',
+              color: 'white',
+              cursor: 'pointer'
+            }}>
+              Switch to 2D Mode
+            </button>
+          </div>
+        }>
+          <Suspense fallback={<LoadingSpinner size="large" message="Loading 3D Engine..." overlay />}>
+            <MemoryVisualizer3D />
+          </Suspense>
+        </ErrorBoundary>
       </>
     );
   }
@@ -110,34 +141,52 @@ function AppContent() {
         🕶️ Vista 3D
       </ViewToggle>
 
-      <Navbar />
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingSpinner size="small" message="Loading navigation..." />}>
+          <Navbar />
+        </Suspense>
+      </ErrorBoundary>
+      
       <MainContent>
-        <Routes>
-          <Route path="/" element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <HomePage />
-            </Suspense>
-          } />
-          <Route path="/lessons" element={<LessonList />} />
-          <Route path="/lessons/:id" element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <LessonRouter />
-            </Suspense>
-          } />
-          <Route path="/3d" element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <MemoryVisualizer3D />
-            </Suspense>
-          } />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={
+              <Suspense fallback={<LoadingSpinner size="medium" message="Loading home page..." />}>
+                <HomePage />
+              </Suspense>
+            } />
+            <Route path="/lessons" element={
+              <Suspense fallback={<LoadingSpinner size="medium" message="Loading lesson list..." />}>
+                <LessonList />
+              </Suspense>
+            } />
+            <Route path="/lessons/:id" element={
+              <Suspense fallback={<LoadingSpinner size="medium" message="Loading lesson..." />}>
+                <LessonRouter />
+              </Suspense>
+            } />
+            <Route path="/3d" element={
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingSpinner size="large" message="Loading 3D visualizer..." />}>
+                  <MemoryVisualizer3D />
+                </Suspense>
+              </ErrorBoundary>
+            } />
+          </Routes>
+        </ErrorBoundary>
       </MainContent>
 
       {state.showError && (
-        <ErrorModal
-          message={state.errorMessage}
-          onClose={() => dispatch({ type: 'HIDE_ERROR' })}
-        />
+        <Suspense fallback={<div>Loading error modal...</div>}>
+          <ErrorModal
+            message={state.errorMessage}
+            onClose={() => dispatch({ type: 'HIDE_ERROR' })}
+          />
+        </Suspense>
       )}
+      
+      {/* Performance monitoring - only in development */}
+      <PerformanceMonitor visible={process.env.NODE_ENV === 'development'} />
     </>
   );
 }

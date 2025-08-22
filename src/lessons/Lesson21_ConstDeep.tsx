@@ -747,25 +747,27 @@ export const Lesson21_ConstDeep: React.FC = () => {
               <TheorySection>
                 <h3>🔒 const Variations</h3>
                 <p>Diferentes niveles de const correctness con smart pointers:</p>
-                <CodeBlock>{`// Mutable pointer, mutable pointee
-std::unique_ptr<Widget> ptr;
-ptr.reset(new Widget());  // ✅ OK
-ptr->modify();            // ✅ OK
-
-// Const pointer, mutable pointee  
-const std::unique_ptr<Widget> const_ptr(new Widget());
-// const_ptr.reset(...);  // ❌ ERROR: const pointer
-const_ptr->modify();      // ✅ OK: pointee is mutable
-
-// Mutable pointer, const pointee
-std::unique_ptr<const Widget> ptr_const(new Widget());
-ptr_const.reset(...);     // ✅ OK: pointer is mutable
-// ptr_const->modify();   // ❌ ERROR: const pointee
-
-// Const pointer, const pointee
-const std::unique_ptr<const Widget> const_both(new Widget());
-// const_both.reset(...); // ❌ ERROR: const pointer
-// const_both->modify();  // ❌ ERROR: const pointee`}</CodeBlock>
+                <CodeBlock>{[
+                  '// Mutable pointer, mutable pointee',
+                  'std::unique_ptr<Widget> ptr;',
+                  'ptr.reset(new Widget());  // ✅ OK',
+                  'ptr->modify();            // ✅ OK',
+                  '',
+                  '// Const pointer, mutable pointee',
+                  'const std::unique_ptr<Widget> const_ptr(new Widget());',
+                  '// const_ptr.reset(...);  // ❌ ERROR: const pointer',
+                  'const_ptr->modify();      // ✅ OK: pointee is mutable',
+                  '',
+                  '// Mutable pointer, const pointee',
+                  'std::unique_ptr<const Widget> ptr_const(new Widget());',
+                  'ptr_const.reset(...);     // ✅ OK: pointer is mutable',
+                  '// ptr_const->modify();   // ❌ ERROR: const pointee',
+                  '',
+                  '// Const pointer, const pointee',
+                  'const std::unique_ptr<const Widget> const_both(new Widget());',
+                  '// const_both.reset(...); // ❌ ERROR: const pointer',
+                  '// const_both->modify();  // ❌ ERROR: const pointee',
+                ].join('\n')}</CodeBlock>
               </TheorySection>
 
               <div>
@@ -827,76 +829,80 @@ const std::unique_ptr<const Widget> const_both(new Widget());
               <TheorySection>
                 <h3>🏗️ Deep Const vs Shallow Const</h3>
                 <p>const no se propaga automáticamente a través de indirections:</p>
-                <CodeBlock>{`class Container {
-    std::unique_ptr<Widget> widget_;
-public:
-    // ❌ SHALLOW const - widget_ pointer es const, pero Widget no
-    void shallow_const() const {
-        // widget_.reset(...);     // ERROR: can't modify pointer
-        widget_->modify();         // ✅ OK: Widget is not const!
-    }
-    
-    // ✅ DEEP const - garantiza que Widget no se modifica
-    void deep_const() const {
-        const Widget& w = *widget_;  // Explicit const view
-        // w.modify();               // ERROR: Widget is const
-    }
-    
-    // ✅ Alternative: const member type
-    std::unique_ptr<const Widget> const_widget_;
-};
-
-// Logical const vs bitwise const
-class LogicalConstExample {
-    mutable std::mutex mutex_;         // ✅ mutable para locks
-    mutable std::unique_ptr<Cache> cache_;  // ✅ lazy computation
-    
-public:
-    int get_value() const {
-        std::lock_guard<std::mutex> lock(mutex_);  // ✅ mutable mutex
-        if (!cache_) {
-            cache_ = std::make_unique<Cache>();    // ✅ mutable cache
-        }
-        return cache_->get();
-    }
-};</CodeBlock>
+                <CodeBlock>{[
+                  'class Container {',
+                  '    std::unique_ptr<Widget> widget_;',
+                  'public:',
+                  '    // ❌ SHALLOW const - widget_ pointer es const, pero Widget no',
+                  '    void shallow_const() const {',
+                  "        // widget_.reset(...);     // ERROR: can't modify pointer",
+                  '        widget_->modify();         // ✅ OK: Widget is not const!',
+                  '    }',
+                  '    ',
+                  '    // ✅ DEEP const - garantiza que Widget no se modifica',
+                  '    void deep_const() const {',
+                  '        const Widget& w = *widget_;  // Explicit const view',
+                  '        // w.modify();               // ERROR: Widget is const',
+                  '    }',
+                  '    ',
+                  '    // ✅ Alternative: const member type',
+                  '    std::unique_ptr<const Widget> const_widget_;',
+                  '};',
+                  '',
+                  '// Logical const vs bitwise const',
+                  'class LogicalConstExample {',
+                  '    mutable std::mutex mutex_;         // ✅ mutable para locks',
+                  '    mutable std::unique_ptr<Cache> cache_;  // ✅ lazy computation',
+                  '    ',
+                  'public:',
+                  '    int get_value() const {',
+                  '        std::lock_guard<std::mutex> lock(mutex_);  // ✅ mutable mutex',
+                  '        if (!cache_) {',
+                  '            cache_ = std::make_unique<Cache>();    // ✅ mutable cache',
+                  '        }',
+                  '        return cache_->get();',
+                  '    }',
+                  '};',
+                ].join('\n')}</CodeBlock>
               </TheorySection>
 
               <TheorySection>
                 <h4>🎯 Patterns para Deep Const</h4>
-                <CodeBlock>{`// Pattern 1: const member types
-class DeepConstContainer {
-    std::unique_ptr<const Data> data_;  // Data never modifiable
-    const std::unique_ptr<Data> ptr_;   // Pointer never reassignable
-};
-
-// Pattern 2: const methods with const views
-class ShallowConstContainer {
-    std::unique_ptr<Data> data_;
-public:
-    const Data& get_data() const {      // Return const view
-        return *data_;
-    }
-    
-    void process() const {
-        const auto& data = *data_;      // Explicit const view
-        // data.modify();               // ERROR: const view
-    }
-};
-
-// Pattern 3: mutable for logical const
-class CacheContainer {
-    std::unique_ptr<Data> data_;
-    mutable std::unique_ptr<Cache> cache_;  // Logical const exception
-    
-public:
-    const Cache& get_cache() const {
-        if (!cache_) {
-            cache_ = compute_cache(*data_);  // ✅ Lazy const computation
-        }
-        return *cache_;
-    }
-};</CodeBlock>
+                <CodeBlock>{[
+                  '// Pattern 1: const member types',
+                  'class DeepConstContainer {',
+                  '    std::unique_ptr<const Data> data_;  // Data never modifiable',
+                  '    const std::unique_ptr<Data> ptr_;   // Pointer never reassignable',
+                  '};',
+                  '',
+                  '// Pattern 2: const methods with const views',
+                  'class ShallowConstContainer {',
+                  '    std::unique_ptr<Data> data_;',
+                  'public:',
+                  '    const Data& get_data() const {      // Return const view',
+                  '        return *data_;',
+                  '    }',
+                  '    ',
+                  '    void process() const {',
+                  '        const auto& data = *data_;      // Explicit const view',
+                  '        // data.modify();               // ERROR: const view',
+                  '    }',
+                  '};',
+                  '',
+                  '// Pattern 3: mutable for logical const',
+                  'class CacheContainer {',
+                  '    std::unique_ptr<Data> data_;',
+                  '    mutable std::unique_ptr<Cache> cache_;  // Logical const exception',
+                  '    ',
+                  'public:',
+                  '    const Cache& get_cache() const {',
+                  '        if (!cache_) {',
+                  '            cache_ = compute_cache(*data_);  // ✅ Lazy const computation',
+                  '        }',
+                  '        return *cache_;',
+                  '    }',
+                  '};',
+                ].join('\n')}</CodeBlock>
               </TheorySection>
             </>
           )}
@@ -906,85 +912,89 @@ public:
               <TheorySection>
                 <h3>🌊 Const Propagation</h3>
                 <p>Cómo const se propaga (o no) a través del código:</p>
-                <CodeBlock>{`class Widget {
-    int value_;
-    std::unique_ptr<Detail> detail_;
-    
-public:
-    // const method - can only call other const methods
-    int get_value() const {
-        return value_;              // ✅ OK: reading member
-        // value_ = 42;             // ❌ ERROR: modifying member
-        return detail_->get_info(); // ✅ Only if get_info() is const
-    }
-    
-    // Non-const method - can call any method
-    void set_value(int v) {
-        value_ = v;                 // ✅ OK: non-const method
-        detail_->modify();          // ✅ OK: can call non-const
-    }
-    
-    // const method that needs to modify (logical const)
-    std::string to_string() const {
-        // Lazy computation - logically const but bitwise mutable
-        if (!cached_string_) {
-            cached_string_ = std::make_unique<std::string>(
-                "Widget(" + std::to_string(value_) + ")"
-            );
-        }
-        return *cached_string_;
-    }
-    
-private:
-    mutable std::unique_ptr<std::string> cached_string_;
-};
-
-// const propagation through call chains
-void process_widget(const Widget& w) {
-    auto value = w.get_value();     // ✅ const method
-    // w.set_value(42);             // ❌ ERROR: non-const method
-    
-    auto str = w.to_string();       // ✅ const method (logical const)
-}`}</CodeBlock>
+                <CodeBlock>{[
+                  'class Widget {',
+                  '    int value_;',
+                  '    std::unique_ptr<Detail> detail_;',
+                  '    ',
+                  'public:',
+                  '    // const method - can only call other const methods',
+                  '    int get_value() const {',
+                  '        return value_;              // ✅ OK: reading member',
+                  '        // value_ = 42;             // ❌ ERROR: modifying member',
+                  '        return detail_->get_info(); // ✅ Only if get_info() is const',
+                  '    }',
+                  '    ',
+                  '    // Non-const method - can call any method',
+                  '    void set_value(int v) {',
+                  '        value_ = v;                 // ✅ OK: non-const method',
+                  '        detail_->modify();          // ✅ OK: can call non-const',
+                  '    }',
+                  '    ',
+                  '    // const method that needs to modify (logical const)',
+                  '    std::string to_string() const {',
+                  '        // Lazy computation - logically const but bitwise mutable',
+                  '        if (!cached_string_) {',
+                  '            cached_string_ = std::make_unique<std::string>(',
+                  '                "Widget(" + std::to_string(value_) + ")"',
+                  '            );',
+                  '        }',
+                  '        return *cached_string_;',
+                  '    }',
+                  '    ',
+                  'private:',
+                  '    mutable std::unique_ptr<std::string> cached_string_;',
+                  '};',
+                  '',
+                  '// const propagation through call chains',
+                  'void process_widget(const Widget& w) {',
+                  '    auto value = w.get_value();     // ✅ const method',
+                  '    // w.set_value(42);             // ❌ ERROR: non-const method',
+                  '    ',
+                  '    auto str = w.to_string();       // ✅ const method (logical const)',
+                  '}',
+                ].join('\n')}</CodeBlock>
               </TheorySection>
 
               <TheorySection>
                 <h4>🔍 const Overloading</h4>
-                <CodeBlock>{`class SmartContainer {
-    std::unique_ptr<Data> data_;
-    
-public:
-    // const version - returns const reference
-    const Data& get() const {
-        return *data_;
-    }
-    
-    // non-const version - returns mutable reference
-    Data& get() {
-        return *data_;
-    }
-    
-    // const version - returns const pointer
-    const Data* operator->() const {
-        return data_.get();
-    }
-    
-    // non-const version - returns mutable pointer  
-    Data* operator->() {
-        return data_.get();
-    }
-};
-
-void demonstrate_const_overloading() {
-    SmartContainer container;
-    const SmartContainer& const_ref = container;
-    
-    container.get().modify();      // ✅ Non-const version called
-    // const_ref.get().modify();   // ❌ const version returns const&
-    
-    container->modify();           // ✅ Non-const operator->
-    // const_ref->modify();        // ❌ const operator-> returns const*
-}`}</CodeBlock>
+                <CodeBlock>{[
+                  'class SmartContainer {',
+                  '    std::unique_ptr<Data> data_;',
+                  '    ',
+                  'public:',
+                  '    // const version - returns const reference',
+                  '    const Data& get() const {',
+                  '        return *data_;',
+                  '    }',
+                  '    ',
+                  '    // non-const version - returns mutable reference',
+                  '    Data& get() {',
+                  '        return *data_;',
+                  '    }',
+                  '    ',
+                  '    // const version - returns const pointer',
+                  '    const Data* operator->() const {',
+                  '        return data_.get();',
+                  '    }',
+                  '    ',
+                  '    // non-const version - returns mutable pointer',
+                  '    Data* operator->() {',
+                  '        return data_.get();',
+                  '    }',
+                  '};',
+                  '',
+                  'void demonstrate_const_overloading() {',
+                  '    SmartContainer container;',
+                  '    const SmartContainer& const_ref = container;',
+                  '    ',
+                  '    container.get().modify();      // ✅ Non-const version called',
+                  '    // const_ref.get().modify();   // ❌ const version returns const&',
+                  '    ',
+                  '    container->modify();           // ✅ Non-const operator->',
+                  '    // const_ref->modify();        // ❌ const operator-> returns const*',
+                  '}',
+                ].join('\n')}</CodeBlock>
               </TheorySection>
             </>
           )}

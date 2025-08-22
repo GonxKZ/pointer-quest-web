@@ -216,7 +216,6 @@ export default function ObjectMemoryLayout() {
     for (let i = 0; i < currentLayout.size; i++) {
       const field = currentLayout.fields.find(f => i >= f.offset && i < f.offset + f.size);
       if (field) {
-        const isFirstByte = i === field.offset; // eslint-disable-line @typescript-eslint/no-unused-vars
         const byteIndex = i - field.offset;
         let byteValue = '00';
 

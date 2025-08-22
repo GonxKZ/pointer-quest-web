@@ -478,7 +478,15 @@ function DequeVisualization({ state }: { state: DequeStabilityState }) {
     );
   };
 
-  const renderStabilityTest = () => (
+  const renderStabilityTest = () => {
+    const operations = [
+      { name: 'push_front', deque: '✅ Stable', vector: '❌ No push_front' },
+      { name: 'push_back', deque: '✅ Stable', vector: '❌ May invalidate' },
+      { name: 'pop_front', deque: '✅ Stable', vector: '❌ No pop_front' },
+      { name: 'pop_back', deque: '✅ Stable', vector: '✅ Stable' },
+      { name: 'insert(middle)', deque: '❌ Invalidates', vector: '❌ Invalidates' },
+    ];
+    return (
     <group>
       <Text
         position={[0, 2.5, 0]}
@@ -504,15 +512,6 @@ function DequeVisualization({ state }: { state: DequeStabilityState }) {
         <Text position={[-2, 0.5, 0]} fontSize={0.12} color="#00d4ff" anchorX="center">Operation</Text>
         <Text position={[-0.5, 0.5, 0]} fontSize={0.12} color="#2ed573" anchorX="center">std::deque</Text>
         <Text position={[1, 0.5, 0]} fontSize={0.12} color="#ff6b7a" anchorX="center">std::vector</Text>
-        
-        const operations = [
-          { name: 'push_front', deque: '✅ Stable', vector: '❌ No push_front' },
-          { name: 'push_back', deque: '✅ Stable', vector: '❌ May invalidate' },
-          { name: 'pop_front', deque: '✅ Stable', vector: '❌ No pop_front' },
-          { name: 'pop_back', deque: '✅ Stable', vector: '✅ Stable' },
-          { name: 'insert(middle)', deque: '❌ Invalidates', vector: '❌ Invalidates' },
-        ];
-        
         {operations.map((op, index) => (
           <group key={op.name} position={[0, 0.2 - index * 0.25, 0]}>
             <Text position={[-2, 0, 0]} fontSize={0.1} color="white" anchorX="center">{op.name}</Text>
@@ -545,6 +544,7 @@ function DequeVisualization({ state }: { state: DequeStabilityState }) {
       )}
     </group>
   );
+  };
 
   return (
     <Canvas camera={{ position: [0, 2, 8], fov: 60 }}>
@@ -721,32 +721,36 @@ ${operations[state.operation]}
           <Grid>
             <InfoCard>
               <h4>std::deque Structure</h4>
-              <CodeBlock>{`// Block-based storage
-struct deque {
-    Block** map;           // Array of block pointers
-    iterator begin_iter;   // Points to first element
-    iterator end_iter;     // Points past last element
-};
-
-// Each block: fixed size array
-struct Block {
-    T elements[BLOCK_SIZE];  // Usually 512 bytes / sizeof(T)
-};
-
-// Non-contiguous but efficient random access`}</CodeBlock>
+              <CodeBlock>{[
+                '// Block-based storage',
+                'struct deque {',
+                '    Block** map;           // Array of block pointers',
+                '    iterator begin_iter;   // Points to first element',
+                '    iterator end_iter;     // Points past last element',
+                '};',
+                '',
+                '// Each block: fixed size array',
+                'struct Block {',
+                '    T elements[BLOCK_SIZE];  // Usually 512 bytes / sizeof(T)',
+                '};',
+                '',
+                '// Non-contiguous but efficient random access',
+              ].join('\n')}</CodeBlock>
             </InfoCard>
 
             <InfoCard>
               <h4>std::vector Structure</h4>
-              <CodeBlock>{`// Contiguous storage
-struct vector {
-    T* data;        // Start of array
-    T* finish;      // End of used elements
-    T* end_cap;     // End of allocated memory
-};
-
-// Reallocation when size() == capacity()
-// Invalidates ALL iterators/pointers/references`}</CodeBlock>
+              <CodeBlock>{[
+                '// Contiguous storage',
+                'struct vector {',
+                '    T* data;        // Start of array',
+                '    T* finish;      // End of used elements',
+                '    T* end_cap;     // End of allocated memory',
+                '};',
+                '',
+                '// Reallocation when size() == capacity()',
+                '// Invalidates ALL iterators/pointers/references',
+              ].join('\n')}</CodeBlock>
             </InfoCard>
           </Grid>
 
@@ -754,51 +758,57 @@ struct vector {
           <Grid>
             <InfoCard>
               <h4>std::deque Guarantees</h4>
-              <CodeBlock>{`// STABLE operations (no invalidation):
-deque.push_front(value);   // ✅ Always stable
-deque.push_back(value);    // ✅ Always stable
-deque.pop_front();         // ✅ Always stable
-deque.pop_back();          // ✅ Always stable
-
-// INVALIDATING operations:
-deque.insert(middle, val); // ❌ Invalidates ALL
-deque.erase(middle);       // ❌ Invalidates ALL`}</CodeBlock>
+              <CodeBlock>{[
+                '// STABLE operations (no invalidation):',
+                'deque.push_front(value);   // ✅ Always stable',
+                'deque.push_back(value);    // ✅ Always stable',
+                'deque.pop_front();         // ✅ Always stable',
+                'deque.pop_back();          // ✅ Always stable',
+                '',
+                '// INVALIDATING operations:',
+                'deque.insert(middle, val); // ❌ Invalidates ALL',
+                'deque.erase(middle);       // ❌ Invalidates ALL',
+              ].join('\n')}</CodeBlock>
             </InfoCard>
 
             <InfoCard>
               <h4>std::vector Guarantees</h4>
-              <CodeBlock>{`// STABLE operations:
-vec.pop_back();            // ✅ Only invalidates end()
-
-// POTENTIALLY INVALIDATING:
-vec.push_back(value);      // ❌ May reallocate
-vec.insert(pos, value);    // ❌ May reallocate or shift
-vec.resize(new_size);      // ❌ May reallocate
-
-// NO EQUIVALENT:
-// vec.push_front();       // Doesn't exist!
-// vec.pop_front();        // Doesn't exist!`}</CodeBlock>
+              <CodeBlock>{[
+                '// STABLE operations:',
+                'vec.pop_back();            // ✅ Only invalidates end()',
+                '',
+                '// POTENTIALLY INVALIDATING:',
+                'vec.push_back(value);      // ❌ May reallocate',
+                'vec.insert(pos, value);    // ❌ May reallocate or shift',
+                'vec.resize(new_size);      // ❌ May reallocate',
+                '',
+                '// NO EQUIVALENT:',
+                "// vec.push_front();       // Doesn't exist!",
+                "// vec.pop_front();        // Doesn't exist!",
+              ].join('\n')}</CodeBlock>
             </InfoCard>
           </Grid>
 
           <h4>🎯 Performance Characteristics</h4>
-          <CodeBlock>{`// Operation complexities:
-                    deque           vector
-push_front():      O(1) amortized  O(n) via insert()
-push_back():       O(1) amortized  O(1) amortized
-random_access:     O(1)            O(1)
-memory_overhead:   Higher          Lower
-cache_locality:    Lower           Higher
-
-// Use deque when:
-// - Need efficient front insertion/deletion
-// - Iterator stability is important
-// - Random access needed (vs list)
-
-// Use vector when:
-// - Maximum cache performance needed
-// - Memory usage is critical
-// - Only back insertion/deletion needed`}</CodeBlock>
+          <CodeBlock>{[
+            '// Operation complexities:',
+            '                    deque           vector',
+            'push_front():      O(1) amortized  O(n) via insert()',
+            'push_back():       O(1) amortized  O(1) amortized',
+            'random_access:     O(1)            O(1)',
+            'memory_overhead:   Higher          Lower',
+            'cache_locality:    Lower           Higher',
+            '',
+            '// Use deque when:',
+            '// - Need efficient front insertion/deletion',
+            '// - Iterator stability is important',
+            '// - Random access needed (vs list)',
+            '',
+            '// Use vector when:',
+            '// - Maximum cache performance needed',
+            '// - Memory usage is critical',
+            '// - Only back insertion/deletion needed',
+          ].join('\n')}</CodeBlock>
 
           <TheorySection>
             <h4>🔍 Current State</h4>

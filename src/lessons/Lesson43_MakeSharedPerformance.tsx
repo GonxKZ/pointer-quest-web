@@ -396,22 +396,24 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
 
         <h4>🚀 Performance: make_shared vs shared_ptr(new T)</h4>
         <CodeBlock>
-<code><span className="comment">// ❌ LENTO: Dos allocaciones separadas</span>
-<span className="keyword">auto</span> <span className="keyword">ptr1</span> = <span className="type">std::shared_ptr</span>&lt;<span className="type">MyClass</span>&gt;(<span className="slow">new MyClass(args)</span>);
-
-<span className="comment">// Internamente hace:</span>
-<span className="comment">// 1. new MyClass(args)      ← Allocación en heap #1</span>
-<span className="comment">// 2. new ControlBlock       ← Allocación en heap #2</span>
-<span className="comment">// Resultado: Fragmentación + cache misses</span>
-
-<span className="comment">// ✅ RÁPIDO: Una sola allocación</span>
-<span className="keyword">auto</span> <span className="keyword">ptr2</span> = <span className="fast">std::make_shared&lt;MyClass&gt;(args)</span>;
-
-<span className="comment">// Internamente hace:</span>
-<span className="comment">// 1. malloc(sizeof(MyClass) + sizeof(ControlBlock))</span>
-<span className="comment">// 2. new(ptr) MyClass(args)</span>
-<span className="comment">// 3. new(ptr+offset) ControlBlock</span>
-<span className="comment">// Resultado: Memoria contigua + cache friendly</span></code>
+{[
+"// ❌ LENTO: Dos allocaciones separadas",
+"auto ptr1 = std::shared_ptr<MyClass>(new MyClass(args));",
+"",
+"// Internamente hace:",
+"// 1. new MyClass(args)      ← Allocación en heap #1",
+"// 2. new ControlBlock       ← Allocación en heap #2",
+"// Resultado: Fragmentación + cache misses",
+"",
+"// ✅ RÁPIDO: Una sola allocación",
+"auto ptr2 = std::make_shared<MyClass>(args);",
+"",
+"// Internamente hace:",
+"// 1. malloc(sizeof(MyClass) + sizeof(ControlBlock))",
+"// 2. new(ptr) MyClass(args)",
+"// 3. new(ptr+offset) ControlBlock",
+"// Resultado: Memoria contigua + cache friendly",
+].join('\n')}
         </CodeBlock>
 
         <PerformanceChart>
@@ -431,25 +433,27 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
 
         <h4>🧠 Exception Safety</h4>
         <CodeBlock>
-<code><span className="comment">// ❌ PELIGROSO: Posible memory leak</span>
-<span className="keyword">void</span> <span className="type">dangerous_function</span>(<span className="type">std::shared_ptr</span>&lt;<span className="type">A</span>&gt; <span className="keyword">a</span>, <span className="type">std::shared_ptr</span>&lt;<span className="type">B</span>&gt; <span className="keyword">b</span>);
-
-<span className="slow">dangerous_function(
-    std::shared_ptr&lt;A&gt;(new A()),  // ← Si new B() falla...
-    std::shared_ptr&lt;B&gt;(new B())   // ← ...A puede no ser liberado
-);</span>
-
-<span className="comment">// Secuencia de evaluación indefinida:</span>
-<span className="comment">// 1. new A()           ✓</span>
-<span className="comment">// 2. new B()           ✗ lanza excepción</span>
-<span className="comment">// 3. shared_ptr&lt;A&gt;()   ← NUNCA se ejecuta!</span>
-<span className="comment">// Resultado: A* queda sin liberar</span>
-
-<span className="comment">// ✅ SEGURO: Exception safety garantizado</span>
-<span className="fast">dangerous_function(
-    std::make_shared&lt;A&gt;(),       // ← Atómica: todo o nada
-    std::make_shared&lt;B&gt;()        // ← Atómica: todo o nada
-);</span></code>
+{[
+"// ❌ PELIGROSO: Posible memory leak",
+"void dangerous_function(std::shared_ptr<A> a, std::shared_ptr<B> b);",
+"",
+"dangerous_function(",
+"    std::shared_ptr<A>(new A()),  // ← Si new B() falla...",
+"    std::shared_ptr<B>(new B())   // ← ...A puede no ser liberado",
+" );",
+"",
+"// Secuencia de evaluación indefinida:",
+"// 1. new A()           ✓",
+"// 2. new B()           ✗ lanza excepción",
+"// 3. shared_ptr<A>()   ← NUNCA se ejecuta!",
+"// Resultado: A* queda sin liberar",
+"",
+"// ✅ SEGURO: Exception safety garantizado",
+"dangerous_function(",
+"    std::make_shared<A>(),       // ← Atómica: todo o nada",
+"    std::make_shared<B>()        // ← Atómica: todo o nada",
+" );",
+].join('\n')}
         </CodeBlock>
       </Description>
 
@@ -493,37 +497,41 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
         
         <h5>1. Custom Deleters:</h5>
         <CodeBlock>
-<code><span className="comment">// ❌ make_shared NO puede usar custom deleters</span>
-<span className="keyword">auto</span> <span className="keyword">file_ptr</span> = <span className="slow">std::make_shared&lt;FILE&gt;();</span> <span className="comment">// ¡No puede pasar custom deleter!</span>
-
-<span className="comment">// ✅ shared_ptr SÍ puede</span>
-<span className="keyword">auto</span> <span className="keyword">file_ptr</span> = <span className="type">std::shared_ptr</span>&lt;<span className="type">FILE</span>&gt;(
-    <span className="type">fopen</span>(<span className="string">"file.txt"</span>, <span className="string">"r"</span>),
-    [](<span className="type">FILE</span>* <span className="keyword">f</span>) { <span className="keyword">if</span> (<span className="keyword">f</span>) <span className="type">fclose</span>(<span className="keyword">f</span>); } <span className="comment">// Custom deleter</span>
-);</code>
+{[
+"// ❌ make_shared NO puede usar custom deleters",
+"auto file_ptr = std::make_shared<FILE>(); // ¡No puede pasar custom deleter!",
+"",
+"// ✅ shared_ptr SÍ puede",
+"auto file_ptr = std::shared_ptr<FILE>(",
+"    fopen(\"file.txt\", \"r\"),",
+"    [](FILE* f) { if (f) fclose(f); } // Custom deleter",
+" );",
+].join('\n')}
         </CodeBlock>
 
         <h5>2. Delayed Deallocation con weak_ptr:</h5>
         <CodeBlock>
-<code><span className="comment">// Problema: memory NO se libera hasta que weak_ptr expire</span>
-<span className="keyword">std::weak_ptr</span>&lt;<span className="type">LargeObject</span>&gt; <span className="keyword">weak_ref</span>;
-
-{
-    <span className="keyword">auto</span> <span className="keyword">shared_obj</span> = <span className="type">std::make_shared</span>&lt;<span className="type">LargeObject</span>&gt;();
-    <span className="keyword">weak_ref</span> = <span className="keyword">shared_obj</span>;
-    
-    <span className="comment">// shared_obj se destruye aquí, PERO...</span>
-    <span className="comment">// ¡La memoria (Object + Control Block) NO se libera!</span>
-    <span className="comment">// Porque weak_ref mantiene el control block vivo</span>
-    <span className="comment">// Y make_shared puso todo en el mismo bloque</span>
-}
-
-<span className="comment">// La memoria se libera solo cuando weak_ref expire</span>
-<span className="keyword">weak_ref</span>.<span className="type">reset</span>(); <span className="comment">// ← Ahora sí se libera todo</span>
-
-<span className="comment">// Con shared_ptr(new T):</span>
-<span className="comment">// - Object se libera cuando shared_ptr expire</span>
-<span className="comment">// - Control block se libera cuando weak_ptr expire</span></code>
+{[
+"// Problema: memory NO se libera hasta que weak_ptr expire",
+"std::weak_ptr<LargeObject> weak_ref;",
+"",
+"{",
+"    auto shared_obj = std::make_shared<LargeObject>();",
+"    weak_ref = shared_obj;",
+"    ",
+"    // shared_obj se destruye aquí, PERO...",
+"    // ¡La memoria (Object + Control Block) NO se libera!",
+"    // Porque weak_ref mantiene el control block vivo",
+"    // Y make_shared puso todo en el mismo bloque",
+"}",
+"",
+"// La memoria se libera solo cuando weak_ref expire",
+"weak_ref.reset(); // ← Ahora sí se libera todo",
+"",
+"// Con shared_ptr(new T):",
+"// - Object se libera cuando shared_ptr expire",
+"// - Control block se libera cuando weak_ptr expire",
+].join('\n')}
         </CodeBlock>
 
         <h4>📊 Cuándo Usar Cada Uno</h4>
@@ -546,32 +554,30 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
 
         <h4>🔬 Medición de Performance</h4>
         <CodeBlock>
-<code><span className="comment">// Benchmark simple</span>
-<span className="type">#include</span> <span className="string">&lt;chrono&gt;</span>
-
-<span className="keyword">auto</span> <span className="type">benchmark_shared_ptr</span>() {
-    <span className="keyword">auto</span> <span className="keyword">start</span> = <span className="type">std::chrono::high_resolution_clock::now</span>();
-    
-    <span className="keyword">for</span> (<span className="keyword">int</span> <span className="keyword">i</span> = <span className="number">0</span>; <span className="keyword">i</span> &lt; <span className="number">1000000</span>; ++<span className="keyword">i</span>) {
-        <span className="keyword">auto</span> <span className="keyword">ptr</span> = <span className="type">std::shared_ptr</span>&lt;<span className="type">int</span>&gt;(<span className="keyword">new</span> <span className="keyword">int</span>(<span className="number">42</span>));
-    }
-    
-    <span className="keyword">auto</span> <span className="keyword">end</span> = <span className="type">std::chrono::high_resolution_clock::now</span>();
-    <span className="keyword">return</span> <span className="keyword">end</span> - <span className="keyword">start</span>;
-}
-
-<span className="keyword">auto</span> <span className="type">benchmark_make_shared</span>() {
-    <span className="keyword">auto</span> <span className="keyword">start</span> = <span className="type">std::chrono::high_resolution_clock::now</span>();
-    
-    <span className="keyword">for</span> (<span className="keyword">int</span> <span className="keyword">i</span> = <span className="number">0</span>; <span className="keyword">i</span> &lt; <span className="number">1000000</span>; ++<span className="keyword">i</span>) {
-        <span className="keyword">auto</span> <span className="keyword">ptr</span> = <span className="type">std::make_shared</span>&lt;<span className="keyword">int</span>&gt;(<span className="number">42</span>);
-    }
-    
-    <span className="keyword">auto</span> <span className="keyword">end</span> = <span className="type">std::chrono::high_resolution_clock::now</span>();
-    <span className="keyword">return</span> <span className="keyword">end</span> - <span className="keyword">start</span>;
-}
-
-<span className="comment">// Típicamente make_shared es ~15-30% más rápido</span></code>
+{[
+"// Benchmark simple",
+"#include <chrono>",
+"",
+"auto benchmark_shared_ptr() {",
+"    auto start = std::chrono::high_resolution_clock::now();",
+"    for (int i = 0; i < 1000000; ++i) {",
+"        auto ptr = std::shared_ptr<int>(new int(42));",
+"    }",
+"    auto end = std::chrono::high_resolution_clock::now();",
+"    return end - start;",
+"}",
+"",
+"auto benchmark_make_shared() {",
+"    auto start = std::chrono::high_resolution_clock::now();",
+"    for (int i = 0; i < 1000000; ++i) {",
+"        auto ptr = std::make_shared<int>(42);",
+"    }",
+"    auto end = std::chrono::high_resolution_clock::now();",
+"    return end - start;",
+"}",
+"",
+"// Típicamente make_shared es ~15-30% más rápido",
+].join('\n')}
         </CodeBlock>
       </Description>
 

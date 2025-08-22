@@ -169,7 +169,7 @@ export default function LessonDemoWasm() {
       setPointerCount(engine.get_pointer_count());
       setMemoryBlockCount(engine.get_memory_block_count());
     } catch (err) {
-      // console.error('Animation error:', err);
+      // Handle animation error silently in demo
     }
   }, isAnimating);
 

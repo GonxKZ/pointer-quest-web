@@ -567,111 +567,121 @@ ${targetType} target = dynamic_cast<${targetType}>(source);`
           <Grid>
             <InfoCard>
               <h4>static_cast&lt;T&gt;</h4>
-              <CodeBlock>{`// Well-defined conversions
-int i = 42;
-float f = static_cast<float>(i);     // ✅ Safe
-
-// Pointer hierarchy (up only)
-Derived* d = new Derived();
-Base* b = static_cast<Base*>(d);     // ✅ Safe upcast
-
-// Reverse (dangerous!)
-Base* b = new Base();
-Derived* d = static_cast<Derived*>(b); // ⚠️ Unchecked downcast
-
-// Compile-time checks prevent nonsense
-int* p = static_cast<int*>(42);      // ❌ Won't compile`}</CodeBlock>
+              <CodeBlock>{[
+                '// Well-defined conversions',
+                'int i = 42;',
+                'float f = static_cast<float>(i);     // ✅ Safe',
+                '',
+                '// Pointer hierarchy (up only)',
+                'Derived* d = new Derived();',
+                'Base* b = static_cast<Base*>(d);     // ✅ Safe upcast',
+                '',
+                '// Reverse (dangerous!)',
+                'Base* b = new Base();',
+                'Derived* d = static_cast<Derived*>(b); // ⚠️ Unchecked downcast',
+                '',
+                '// Compile-time checks prevent nonsense',
+                "int* p = static_cast<int*>(42);      // ❌ Won't compile",
+              ].join('\n')}</CodeBlock>
             </InfoCard>
 
             <InfoCard>
               <h4>dynamic_cast&lt;T&gt;</h4>
-              <CodeBlock>{`// Runtime polymorphic checking
-class Base { virtual ~Base() {} };
-class Derived : public Base {};
-
-Base* b = new Derived();
-Derived* d = dynamic_cast<Derived*>(b); // ✅ Safe, checked
-
-// Returns nullptr on failure
-Base* b = new Base();
-Derived* d = dynamic_cast<Derived*>(b); // Returns nullptr
-
-// References throw std::bad_cast on failure
-try {
-    Derived& d = dynamic_cast<Derived&>(*b);
-} catch (std::bad_cast&) {
-    // Handle failed cast
-}`}</CodeBlock>
+              <CodeBlock>{[
+                '// Runtime polymorphic checking',
+                'class Base { virtual ~Base() {} };',
+                'class Derived : public Base {};',
+                '',
+                'Base* b = new Derived();',
+                'Derived* d = dynamic_cast<Derived*>(b); // ✅ Safe, checked',
+                '',
+                '// Returns nullptr on failure',
+                'Base* b = new Base();',
+                'Derived* d = dynamic_cast<Derived*>(b); // Returns nullptr',
+                '',
+                '// References throw std::bad_cast on failure',
+                'try {',
+                '    Derived& d = dynamic_cast<Derived&>(*b);',
+                '} catch (std::bad_cast&) {',
+                '    // Handle failed cast',
+                '}',
+              ].join('\n')}</CodeBlock>
             </InfoCard>
 
             <InfoCard>
               <h4>const_cast&lt;T&gt;</h4>
-              <CodeBlock>{`// Remove/add const/volatile ONLY
-const int ci = 42;
-int& i = const_cast<int&>(ci);       // ✅ Compiles
-i = 100;                             // ⚠️ UB if ci was originally const!
-
-// Add const (always safe)
-int i = 42;
-const int& ci = const_cast<const int&>(i); // ✅ Safe
-
-// Can't change type
-const int ci = 42;
-float f = const_cast<float>(ci);     // ❌ Won't compile
-
-// Common pattern: const member function calling non-const
-class Widget {
-    void helper() { /* non-const work */ }
-public:
-    void func() const {
-        const_cast<Widget*>(this)->helper(); // Common idiom
-    }
-};`}</CodeBlock>
+              <CodeBlock>{[
+                '// Remove/add const/volatile ONLY',
+                'const int ci = 42;',
+                'int& i = const_cast<int&>(ci);       // ✅ Compiles',
+                'i = 100;                             // ⚠️ UB if ci was originally const!',
+                '',
+                '// Add const (always safe)',
+                'int i = 42;',
+                'const int& ci = const_cast<const int&>(i); // ✅ Safe',
+                '',
+                "// Can't change type",
+                'const int ci = 42;',
+                "float f = const_cast<float>(ci);     // ❌ Won't compile",
+                '',
+                '// Common pattern: const member function calling non-const',
+                'class Widget {',
+                '    void helper() { /* non-const work */ }',
+                'public:',
+                '    void func() const {',
+                '        const_cast<Widget*>(this)->helper(); // Common idiom',
+                '    }',
+                '};',
+              ].join('\n')}</CodeBlock>
             </InfoCard>
 
             <InfoCard>
               <h4>reinterpret_cast&lt;T&gt;</h4>
-              <CodeBlock>{`// Low-level bit reinterpretation - DANGEROUS!
-int i = 42;
-char* p = reinterpret_cast<char*>(&i); // ✅ Compiles, ⚠️ unsafe
-
-// Pointer to integer
-uintptr_t addr = reinterpret_cast<uintptr_t>(p); // Common for addresses
-
-// Between function pointers (platform dependent)
-void (*fp1)() = some_function;
-int (*fp2)(int) = reinterpret_cast<int(*)(int)>(fp1); // ⚠️ Dangerous
-
-// NEVER use for object conversions
-Base* b = reinterpret_cast<Base*>(new Derived()); // ❌ Use static_cast
-
-// Type punning (often UB, use std::bit_cast in C++20)
-float f = 3.14f;
-uint32_t bits = reinterpret_cast<uint32_t&>(f); // ⚠️ UB
-uint32_t bits = std::bit_cast<uint32_t>(f);     // ✅ C++20`}</CodeBlock>
+              <CodeBlock>{[
+                '// Low-level bit reinterpretation - DANGEROUS!',
+                'int i = 42;',
+                'char* p = reinterpret_cast<char*>(&i); // ✅ Compiles, ⚠️ unsafe',
+                '',
+                '// Pointer to integer',
+                'uintptr_t addr = reinterpret_cast<uintptr_t>(p); // Common for addresses',
+                '',
+                '// Between function pointers (platform dependent)',
+                'void (*fp1)() = some_function;',
+                'int (*fp2)(int) = reinterpret_cast<int(*)(int)>(fp1); // ⚠️ Dangerous',
+                '',
+                '// NEVER use for object conversions',
+                'Base* b = reinterpret_cast<Base*>(new Derived()); // ❌ Use static_cast',
+                '',
+                '// Type punning (often UB, use std::bit_cast in C++20)',
+                'float f = 3.14f;',
+                'uint32_t bits = reinterpret_cast<uint32_t&>(f); // ⚠️ UB',
+                'uint32_t bits = std::bit_cast<uint32_t>(f);     // ✅ C++20',
+              ].join('\n')}</CodeBlock>
             </InfoCard>
           </Grid>
 
           <h4>⚠️ Safety Guidelines</h4>
-          <CodeBlock>{`// Preference order (safest to most dangerous):
-1. No cast (implicit conversion)
-2. static_cast<T>()     // Well-defined conversions
-3. dynamic_cast<T>()    // Polymorphic hierarchy only
-4. const_cast<T>()      // const/volatile changes only  
-5. reinterpret_cast<T>() // Last resort, very dangerous
-
-// NEVER use C-style casts
-int i = (int)some_float;           // ❌ Hides what's happening
-int i = static_cast<int>(some_float); // ✅ Explicit intent
-
-// Common mistakes to avoid:
-void* ptr = malloc(sizeof(int));
-int* iptr = (int*)ptr;             // ❌ C-style cast
-int* iptr = static_cast<int*>(ptr); // ✅ Clear intent
-
-// reinterpret_cast for unrelated types
-float f = reinterpret_cast<float>(42); // ❌ Use static_cast
-float f = static_cast<float>(42);      // ✅ Correct`}</CodeBlock>
+          <CodeBlock>{[
+            '// Preference order (safest to most dangerous):',
+            '1. No cast (implicit conversion)',
+            '2. static_cast<T>()     // Well-defined conversions',
+            '3. dynamic_cast<T>()    // Polymorphic hierarchy only',
+            '4. const_cast<T>()      // const/volatile changes only',
+            '5. reinterpret_cast<T>() // Last resort, very dangerous',
+            '',
+            '// NEVER use C-style casts',
+            'int i = (int)some_float;           // ❌ Hides what\'s happening',
+            'int i = static_cast<int>(some_float); // ✅ Explicit intent',
+            '',
+            '// Common mistakes to avoid:',
+            'void* ptr = malloc(sizeof(int));',
+            'int* iptr = (int*)ptr;             // ❌ C-style cast',
+            'int* iptr = static_cast<int*>(ptr); // ✅ Clear intent',
+            '',
+            '// reinterpret_cast for unrelated types',
+            'float f = reinterpret_cast<float>(42); // ❌ Use static_cast',
+            'float f = static_cast<float>(42);      // ✅ Correct',
+          ].join('\n')}</CodeBlock>
 
           <TheorySection>
             <h4>🔍 Current Cast Analysis</h4>
@@ -679,7 +689,9 @@ float f = static_cast<float>(42);      // ✅ Correct`}</CodeBlock>
               <strong>Cast:</strong> {state.castType}&lt;{state.targetType}&gt;({state.sourceType})<br/>
               <strong>Validity:</strong> {state.isValidCast ? 'Compiles' : 'Compilation Error'}<br/>
               <strong>Safety:</strong> {state.isSafeCast ? 'Safe' : 'Potentially Dangerous'}<br/>
-              {state.runtimeError && <strong>Runtime:</strong> Throws/Returns nullptr}
+              {state.runtimeError && (<>
+                <strong>Runtime:</strong> Throws/Returns nullptr
+              </>)}
             </StatusDisplay>
             
             <h4>💻 Generated Code</h4>

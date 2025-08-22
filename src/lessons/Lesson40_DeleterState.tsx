@@ -363,36 +363,36 @@ export default function Lesson40_DeleterState({ onComplete, isCompleted }: Lesso
 
         <h4>📐 El Tamaño Importa: unique_ptr No Siempre Ocupa 8 Bytes</h4>
         <CodeBlock>
-<code><span className="comment">// Comparación de tamaños de unique_ptr</span>
-<span className="type">#include</span> <span className="string">&lt;memory&gt;</span>
-<span className="type">#include</span> <span className="string">&lt;iostream&gt;</span>
-<span className="type">#include</span> <span className="string">&lt;functional&gt;</span>
+          {`// Comparación de tamaños de unique_ptr
+#include <memory>
+#include <iostream>
+#include <functional>
 
-<span className="keyword">struct</span> <span className="type">MyClass</span> { <span className="keyword">int</span> <span className="keyword">data</span>; };
+struct MyClass { int data; };
 
-<span className="keyword">void</span> <span className="type">analyze_sizes</span>() {
-    <span className="comment">// 1. Default deleter - EBO aplicado</span>
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">MyClass</span>&gt; <span className="keyword">ptr1</span>;
-    <span className="good">std::cout &lt;&lt; "Default: " &lt;&lt; sizeof(ptr1) &lt;&lt; " bytes\n";</span> <span className="comment">// 8 bytes ✅</span>
+void analyze_sizes() {
+    // 1. Default deleter - EBO aplicado
+    std::unique_ptr<MyClass> ptr1;
+    std::cout << "Default: " << sizeof(ptr1) << " bytes\\n"; // 8 bytes ✅
 
-    <span className="comment">// 2. Lambda sin capturas - EBO aplicado</span>
-    <span className="keyword">auto</span> <span className="keyword">lambda_deleter</span> = [](<span className="type">MyClass</span>* <span className="keyword">p</span>) { <span className="keyword">delete</span> <span className="keyword">p</span>; };
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">MyClass</span>, <span className="keyword">decltype</span>(<span className="keyword">lambda_deleter</span>)&gt; <span className="keyword">ptr2</span>;
-    <span className="good">std::cout &lt;&lt; "Lambda (no capture): " &lt;&lt; sizeof(ptr2) &lt;&lt; " bytes\n";</span> <span className="comment">// 8 bytes ✅</span>
+    // 2. Lambda sin capturas - EBO aplicado
+    auto lambda_deleter = [](MyClass* p) { delete p; };
+    std::unique_ptr<MyClass, decltype(lambda_deleter)> ptr2;
+    std::cout << "Lambda (no capture): " << sizeof(ptr2) << " bytes\\n"; // 8 bytes ✅
 
-    <span className="comment">// 3. Function pointer - NO EBO</span>
-    <span className="keyword">void</span> (*<span className="keyword">func_deleter</span>)(<span className="type">MyClass</span>*) = [](<span className="type">MyClass</span>* <span className="keyword">p</span>) { <span className="keyword">delete</span> <span className="keyword">p</span>; };
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">MyClass</span>, <span className="keyword">void</span>(*)(<span className="type">MyClass</span>*)&gt; <span className="keyword">ptr3</span>;
-    <span className="bad">std::cout &lt;&lt; "Function pointer: " &lt;&lt; sizeof(ptr3) &lt;&lt; " bytes\n";</span> <span className="comment">// 16 bytes ⚠️</span>
+    // 3. Function pointer - NO EBO
+    void (*func_deleter)(MyClass*) = [](MyClass* p) { delete p; };
+    std::unique_ptr<MyClass, void(*)(MyClass*)> ptr3;
+    std::cout << "Function pointer: " << sizeof(ptr3) << " bytes\\n"; // 16 bytes ⚠️
 
-    <span className="comment">// 4. Lambda CON capturas - NO EBO</span>
-    <span className="keyword">int</span> <span className="keyword">counter</span> = <span className="number">0</span>;
-    <span className="keyword">auto</span> <span className="keyword">capturing_lambda</span> = [&amp;<span className="keyword">counter</span>](<span className="type">MyClass</span>* <span className="keyword">p</span>) { 
-        ++<span className="keyword">counter</span>; <span className="keyword">delete</span> <span className="keyword">p</span>; 
+    // 4. Lambda CON capturas - NO EBO
+    int counter = 0;
+    auto capturing_lambda = [&counter](MyClass* p) { 
+        ++counter; delete p; 
     };
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">MyClass</span>, <span className="keyword">decltype</span>(<span className="keyword">capturing_lambda</span>)&gt; <span className="keyword">ptr4</span>;
-    <span className="bad">std::cout &lt;&lt; "Lambda (capture): " &lt;&lt; sizeof(ptr4) &lt;&lt; " bytes\n";</span> <span className="comment">// 16+ bytes ⚠️</span>
-}</code>
+    std::unique_ptr<MyClass, decltype(capturing_lambda)> ptr4;
+    std::cout << "Lambda (capture): " << sizeof(ptr4) << " bytes\\n"; // 16+ bytes ⚠️
+}`}
         </CodeBlock>
 
         <h4>🧠 Empty Base Optimization (EBO) Explicado</h4>
@@ -402,24 +402,24 @@ export default function Lesson40_DeleterState({ onComplete, isCompleted }: Lesso
         </p>
 
         <CodeBlock>
-<code><span className="comment">// Implementación simplificada de unique_ptr con EBO</span>
-<span className="keyword">template</span>&lt;<span className="keyword">typename</span> <span className="type">T</span>, <span className="keyword">typename</span> <span className="type">Deleter</span>&gt;
-<span className="keyword">class</span> <span className="type">unique_ptr</span> : <span className="keyword">private</span> <span className="type">Deleter</span> {  <span className="comment">// ← Herencia para EBO</span>
-    <span className="type">T</span>* <span className="keyword">ptr_</span>;
+          {`// Implementación simplificada de unique_ptr con EBO
+template<typename T, typename Deleter>
+class unique_ptr : private Deleter {  // ← Herencia para EBO
+    T* ptr_;
 
-<span className="keyword">public</span>:
-    <span className="keyword">void</span> <span className="type">reset</span>(<span className="type">T</span>* <span className="keyword">p</span> = <span className="keyword">nullptr</span>) {
-        <span className="keyword">if</span> (<span className="keyword">ptr_</span>) {
-            <span className="comment">// Accede al deleter via herencia (sin overhead de memoria)</span>
-            <span className="keyword">static_cast</span>&lt;<span className="type">Deleter</span>&amp;&gt;(*<span className="keyword">this</span>)(<span className="keyword">ptr_</span>);
+public:
+    void reset(T* p = nullptr) {
+        if (ptr_) {
+            // Accede al deleter via herencia (sin overhead de memoria)
+            static_cast<Deleter&>(*this)(ptr_);
         }
-        <span className="keyword">ptr_</span> = <span className="keyword">p</span>;
+        ptr_ = p;
     }
 };
 
-<span className="comment">// Cuando Deleter es stateless (empty class):</span>
-<span className="comment">// sizeof(unique_ptr) = sizeof(T*) = 8 bytes</span>
-<span className="comment">// ¡El deleter no agrega overhead!</span></code>
+// Cuando Deleter es stateless (empty class):
+// sizeof(unique_ptr) = sizeof(T*) = 8 bytes
+// ¡El deleter no agrega overhead!`}
         </CodeBlock>
       </Description>
 
@@ -484,55 +484,55 @@ export default function Lesson40_DeleterState({ onComplete, isCompleted }: Lesso
         
         <h5>✅ Optimal: Stateless Deleters</h5>
         <CodeBlock>
-<code><span className="comment">// ✅ RECOMENDADO: Lambda sin capturas</span>
-<span className="keyword">auto</span> <span className="keyword">file_deleter</span> = [](<span className="type">FILE</span>* <span className="keyword">f</span>) { 
-    <span className="keyword">if</span> (<span className="keyword">f</span>) <span className="type">fclose</span>(<span className="keyword">f</span>); 
+          {`// ✅ RECOMENDADO: Lambda sin capturas
+auto file_deleter = [](FILE* f) { 
+    if (f) fclose(f); 
 };
-<span className="keyword">using</span> <span className="type">FilePtr</span> = <span className="type">std::unique_ptr</span>&lt;<span className="type">FILE</span>, <span className="keyword">decltype</span>(<span className="keyword">file_deleter</span>)&gt;;
+using FilePtr = std::unique_ptr<FILE, decltype(file_deleter)>;
 
-<span className="comment">// ✅ RECOMENDADO: Clase custom stateless</span>
-<span className="keyword">struct</span> <span className="type">FileDeleter</span> {
-    <span className="keyword">void</span> <span className="keyword">operator</span>()(<span className="type">FILE</span>* <span className="keyword">f</span>) <span className="keyword">const</span> { 
-        <span className="keyword">if</span> (<span className="keyword">f</span>) <span className="type">fclose</span>(<span className="keyword">f</span>); 
+// ✅ RECOMENDADO: Clase custom stateless
+struct FileDeleter {
+    void operator()(FILE* f) const { 
+        if (f) fclose(f); 
     }
 };
-<span className="keyword">using</span> <span className="type">FilePtr2</span> = <span className="type">std::unique_ptr</span>&lt;<span className="type">FILE</span>, <span className="type">FileDeleter</span>&gt;; <span className="comment">// EBO aplicado</span></code>
+using FilePtr2 = std::unique_ptr<FILE, FileDeleter>; // EBO aplicado`}
         </CodeBlock>
 
         <h5>⚠️ Cuidado: Deleters con Estado</h5>
         <CodeBlock>
-<code><span className="comment">// ⚠️ CUIDADO: Lambda con capturas agrega overhead</span>
-<span className="keyword">std::string</span> <span className="keyword">log_prefix</span> = <span className="string">"[CLEANUP]"</span>;
-<span className="keyword">auto</span> <span className="keyword">logging_deleter</span> = [<span className="keyword">log_prefix</span>](<span className="type">MyClass</span>* <span className="keyword">p</span>) {
-    <span className="type">std::cout</span> &lt;&lt; <span className="keyword">log_prefix</span> &lt;&lt; <span className="string">" Deleting object\n"</span>;
-    <span className="keyword">delete</span> <span className="keyword">p</span>;
+          {`// ⚠️ CUIDADO: Lambda con capturas agrega overhead
+std::string log_prefix = "[CLEANUP]";
+auto logging_deleter = [log_prefix](MyClass* p) {
+    std::cout << log_prefix << " Deleting object\\n";
+    delete p;
 };
-<span className="comment">// sizeof(unique_ptr) ≈ 8 + sizeof(std::string) = 32+ bytes</span>
+// sizeof(unique_ptr) ≈ 8 + sizeof(std::string) = 32+ bytes
 
-<span className="comment">// ✅ MEJOR: Pasar info como parámetro de template</span>
-<span className="keyword">template</span>&lt;<span className="keyword">const</span> <span className="keyword">char</span>* <span className="keyword">LogPrefix</span>&gt;
-<span className="keyword">struct</span> <span className="type">LoggingDeleter</span> {
-    <span className="keyword">void</span> <span className="keyword">operator</span>()(<span className="type">MyClass</span>* <span className="keyword">p</span>) <span className="keyword">const</span> {
-        <span className="type">std::cout</span> &lt;&lt; <span className="keyword">LogPrefix</span> &lt;&lt; <span className="string">" Deleting object\n"</span>;
-        <span className="keyword">delete</span> <span className="keyword">p</span>;
+// ✅ MEJOR: Pasar info como parámetro de template
+template<const char* LogPrefix>
+struct LoggingDeleter {
+    void operator()(MyClass* p) const {
+        std::cout << LogPrefix << " Deleting object\\n";
+        delete p;
     }
 };
-<span className="comment">// sizeof(unique_ptr) = 8 bytes (EBO funciona)</span></code>
+// sizeof(unique_ptr) = 8 bytes (EBO funciona)`}
         </CodeBlock>
 
         <h4>🔬 Medición en Tiempo de Compilación</h4>
         <CodeBlock>
-<code><span className="comment">// Utilidad para verificar tamaños en compile-time</span>
-<span className="keyword">template</span>&lt;<span className="keyword">typename</span> <span className="type">T</span>, <span className="keyword">size_t</span> <span className="keyword">Expected</span>&gt;
-<span className="keyword">constexpr</span> <span className="keyword">bool</span> <span className="type">check_size</span>() {
-    <span className="keyword">static_assert</span>(<span className="keyword">sizeof</span>(<span className="type">T</span>) == <span className="keyword">Expected</span>, 
-        <span className="string">"Unexpected size - deleter overhead detected!"</span>);
-    <span className="keyword">return</span> <span className="keyword">true</span>;
+          {`// Utilidad para verificar tamaños en compile-time
+template<typename T, size_t Expected>
+constexpr bool check_size() {
+    static_assert(sizeof(T) == Expected, 
+        "Unexpected size - deleter overhead detected!");
+    return true;
 }
 
-<span className="comment">// Verificación automática</span>
-<span className="keyword">static_assert</span>(<span className="type">check_size</span>&lt;<span className="type">std::unique_ptr</span>&lt;<span className="keyword">int</span>&gt;, <span className="number">8</span>&gt;());
-<span className="keyword">static_assert</span>(<span className="type">check_size</span>&lt;<span className="type">FilePtr</span>, <span className="number">8</span>&gt;());  <span className="comment">// Debe pasar con EBO</span></code>
+// Verificación automática
+static_assert(check_size<std::unique_ptr<int>, 8>());
+static_assert(check_size<FilePtr, 8>());  // Debe pasar con EBO`}
         </CodeBlock>
       </Description>
 

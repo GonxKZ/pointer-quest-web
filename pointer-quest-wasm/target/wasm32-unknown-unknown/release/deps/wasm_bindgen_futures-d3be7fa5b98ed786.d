@@ -1,0 +1,9 @@
+/mnt/c/Users/Gonzalo/Documents/4to curso/herramientas/pointer-game-cpp/pointer-quest-web/pointer-quest-wasm/target/wasm32-unknown-unknown/release/deps/wasm_bindgen_futures-d3be7fa5b98ed786.d: /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/lib.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/queue.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
+
+/mnt/c/Users/Gonzalo/Documents/4to curso/herramientas/pointer-game-cpp/pointer-quest-web/pointer-quest-wasm/target/wasm32-unknown-unknown/release/deps/libwasm_bindgen_futures-d3be7fa5b98ed786.rlib: /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/lib.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/queue.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
+
+/mnt/c/Users/Gonzalo/Documents/4to curso/herramientas/pointer-game-cpp/pointer-quest-web/pointer-quest-wasm/target/wasm32-unknown-unknown/release/deps/libwasm_bindgen_futures-d3be7fa5b98ed786.rmeta: /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/lib.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/queue.rs /home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
+
+/home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/lib.rs:
+/home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/queue.rs:
+/home/gonzalo/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs:

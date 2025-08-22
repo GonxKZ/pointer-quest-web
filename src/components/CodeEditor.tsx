@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import styled from 'styled-components';
 
 const EditorContainer = styled.div`
@@ -111,8 +111,8 @@ interface CodeEditorProps {
 export default function CodeEditor({
   code,
   language,
-  onChange, // eslint-disable-line @typescript-eslint/no-unused-vars
-  readOnly = false // eslint-disable-line @typescript-eslint/no-unused-vars
+  onChange: _onChange,
+  readOnly: _readOnly = false
 }: CodeEditorProps) {
   const [copied, setCopied] = useState(false);
 
@@ -333,16 +333,17 @@ export function Terminal({ code: _code, language, lessonId }: TerminalProps) {
     setOutput('');
     setCurrentStep(0);
 
-    const steps = executionSteps[lessonId || 0] || executionSteps[0];
+    const steps = (executionSteps[lessonId || 0] || executionSteps[0])!;
 
     for (let i = 0; i < steps.length; i++) {
       setCurrentStep(i);
+      const step = steps[i]!;
 
-      if (steps[i].delay > 0) {
-        await new Promise(resolve => setTimeout(resolve, steps[i].delay));
+      if (step.delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, step.delay));
       }
 
-      setOutput(prev => prev + steps[i].text + '\n');
+      setOutput(prev => prev + step.text + '\n');
       scrollToBottom();
     }
 

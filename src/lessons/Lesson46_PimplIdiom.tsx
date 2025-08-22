@@ -419,71 +419,71 @@ export default function Lesson46_PimplIdiom({ onComplete, isCompleted }: Lesson4
 
         <h4>🔧 PIMPL Básico con unique_ptr</h4>
         <CodeBlock>
-<code><span className="comment">// MyClass.h - Header file limpio</span>
-<span className="type">#pragma once</span>
-<span className="type">#include</span> <span className="string">&lt;memory&gt;</span> <span className="comment">// Solo necesita unique_ptr</span>
+          {`// MyClass.h - Header file limpio
+#pragma once
+#include <memory> // Solo necesita unique_ptr
 
-<span className="keyword">class</span> <span className="interface">MyClass</span> {
-<span className="keyword">public</span>:
-    <span className="comment">// Constructor y destructor</span>
-    <span className="type">MyClass</span>();
-    ~<span className="type">MyClass</span>();  <span className="comment">// ¡Debe definirse en .cpp!</span>
+class MyClass {
+public:
+    // Constructor y destructor
+    MyClass();
+    ~MyClass();  // ¡Debe definirse en .cpp!
     
-    <span className="comment">// Move constructor/assignment</span>
-    <span className="type">MyClass</span>(<span className="type">MyClass</span>&amp;&amp;) <span className="keyword">noexcept</span>;
-    <span className="type">MyClass</span>&amp; <span className="keyword">operator</span>=(<span className="type">MyClass</span>&amp;&amp;) <span className="keyword">noexcept</span>;
+    // Move constructor/assignment
+    MyClass(MyClass&&) noexcept;
+    MyClass& operator=(MyClass&&) noexcept;
     
-    <span className="comment">// Copy (si necesario)</span>
-    <span className="type">MyClass</span>(<span className="keyword">const</span> <span className="type">MyClass</span>&amp; <span className="keyword">other</span>);
-    <span className="type">MyClass</span>&amp; <span className="keyword">operator</span>=(<span className="keyword">const</span> <span className="type">MyClass</span>&amp; <span className="keyword">other</span>);
+    // Copy (si necesario)
+    MyClass(const MyClass& other);
+    MyClass& operator=(const MyClass& other);
     
-    <span className="comment">// Interface pública</span>
-    <span className="keyword">void</span> <span className="type">doSomething</span>();
-    <span className="keyword">int</span> <span className="type">getValue</span>() <span className="keyword">const</span>;
+    // Interface pública
+    void doSomething();
+    int getValue() const;
     
-<span className="keyword">private</span>:
-    <span className="keyword">class</span> <span className="type">Impl</span>;                    <span className="comment">// Forward declaration</span>
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Impl</span>&gt; <span className="keyword">pimpl</span>;  <span className="comment">// Puntero a implementación</span>
-};</code>
+private:
+    class Impl;                    // Forward declaration
+    std::unique_ptr<Impl> pimpl;  // Puntero a implementación
+};`}
         </CodeBlock>
 
         <CodeBlock>
-<code><span className="comment">// MyClass.cpp - Implementación completa</span>
-<span className="type">#include</span> <span className="string">"MyClass.h"</span>
-<span className="comment">// Todas las dependencias pesadas van aquí</span>
-<span className="type">#include</span> <span className="string">&lt;boost/algorithm/string.hpp&gt;</span>
-<span className="type">#include</span> <span className="string">&lt;QtWidgets/QApplication&gt;</span>
-<span className="type">#include</span> <span className="string">&lt;nlohmann/json.hpp&gt;</span>
+          {`// MyClass.cpp - Implementación completa
+#include "MyClass.h"
+// Todas las dependencias pesadas van aquí
+#include <boost/algorithm/string.hpp>
+#include <QtWidgets/QApplication>
+#include <nlohmann/json.hpp>
 
-<span className="comment">// Definición de la implementación</span>
-<span className="keyword">class</span> <span className="impl">MyClass::Impl</span> {
-<span className="keyword">public</span>:
-    <span className="keyword">int</span> <span className="keyword">value</span>;
-    <span className="type">boost::shared_ptr</span>&lt;<span className="type">SomeResource</span>&gt; <span className="keyword">resource</span>;
-    <span className="type">std::vector</span>&lt;<span className="type">ComplexType</span>&gt; <span className="keyword">data</span>;
+// Definición de la implementación
+class MyClass::Impl {
+public:
+    int value;
+    boost::shared_ptr<SomeResource> resource;
+    std::vector<ComplexType> data;
     
-    <span className="keyword">void</span> <span className="type">processData</span>() {
-        <span className="comment">// Lógica compleja usando todas las librerías</span>
-        <span className="type">boost::algorithm::to_upper</span>(<span className="keyword">someString</span>);
-        <span className="comment">// ... más implementación</span>
+    void processData() {
+        // Lógica compleja usando todas las librerías
+        boost::algorithm::to_upper(someString);
+        // ... más implementación
     }
 };
 
-<span className="comment">// Implementación de métodos públicos</span>
-<span className="type">MyClass::MyClass</span>() : <span className="keyword">pimpl</span>(<span className="type">std::make_unique</span>&lt;<span className="type">Impl</span>&gt;()) {
-    <span className="keyword">pimpl</span>-&gt;<span className="keyword">value</span> = <span className="number">0</span>;
+// Implementación de métodos públicos
+MyClass::MyClass() : pimpl(std::make_unique<Impl>()) {
+    pimpl->value = 0;
 }
 
-<span className="comment">// ¡CRÍTICO: Destructor en .cpp después de definir Impl!</span>
-<span className="type">MyClass::~MyClass</span>() = <span className="keyword">default</span>;
+// ¡CRÍTICO: Destructor en .cpp después de definir Impl!
+MyClass::~MyClass() = default;
 
-<span className="keyword">void</span> <span className="type">MyClass::doSomething</span>() {
-    <span className="keyword">pimpl</span>-&gt;<span className="type">processData</span>();
+void MyClass::doSomething() {
+    pimpl->processData();
 }
 
-<span className="keyword">int</span> <span className="type">MyClass::getValue</span>() <span className="keyword">const</span> {
-    <span className="keyword">return</span> <span className="keyword">pimpl</span>-&gt;<span className="keyword">value</span>;
-}</code>
+int MyClass::getValue() const {
+    return pimpl->value;
+}`}
         </CodeBlock>
       </Description>
 
@@ -547,83 +547,83 @@ export default function Lesson46_PimplIdiom({ onComplete, isCompleted }: Lesson4
         
         <h5>1. El Destructor Debe Estar en .cpp:</h5>
         <CodeBlock>
-<code><span className="comment">// ❌ INCORRECTO: En el header</span>
-<span className="keyword">class</span> <span className="type">MyClass</span> {
-    <span className="comment">// ...</span>
-    ~<span className="type">MyClass</span>() = <span className="keyword">default</span>; <span className="comment">// ¡ERROR! Impl no está definido aquí</span>
+          {`// ❌ INCORRECTO: En el header
+class MyClass {
+    // ...
+    ~MyClass() = default; // ¡ERROR! Impl no está definido aquí
 };
 
-<span className="comment">// ✅ CORRECTO: En el .cpp</span>
-<span className="comment">// MyClass.h</span>
-<span className="keyword">class</span> <span className="type">MyClass</span> {
-    ~<span className="type">MyClass</span>(); <span className="comment">// Solo declaración</span>
+// ✅ CORRECTO: En el .cpp
+// MyClass.h
+class MyClass {
+    ~MyClass(); // Solo declaración
 };
 
-<span className="comment">// MyClass.cpp</span>
-<span className="type">MyClass::~MyClass</span>() = <span className="keyword">default</span>; <span className="comment">// Definición donde Impl está completo</span></code>
+// MyClass.cpp
+MyClass::~MyClass() = default; // Definición donde Impl está completo`}
         </CodeBlock>
 
         <h5>2. Move Semantics:</h5>
         <CodeBlock>
-<code><span className="comment">// Move constructor/assignment también en .cpp</span>
-<span className="type">MyClass::MyClass</span>(<span className="type">MyClass</span>&amp;&amp; <span className="keyword">other</span>) <span className="keyword">noexcept</span> = <span className="keyword">default</span>;
+          {`// Move constructor/assignment también en .cpp
+MyClass::MyClass(MyClass&& other) noexcept = default;
 
-<span className="type">MyClass</span>&amp; <span className="type">MyClass::operator</span>=(<span className="type">MyClass</span>&amp;&amp; <span className="keyword">other</span>) <span className="keyword">noexcept</span> {
-    <span className="keyword">if</span> (<span className="keyword">this</span> != &amp;<span className="keyword">other</span>) {
-        <span className="keyword">pimpl</span> = <span className="type">std::move</span>(<span className="keyword">other</span>.<span className="keyword">pimpl</span>);
+MyClass& MyClass::operator=(MyClass&& other) noexcept {
+    if (this != &other) {
+        pimpl = std::move(other.pimpl);
     }
-    <span className="keyword">return</span> *<span className="keyword">this</span>;
-}</code>
+    return *this;
+}`}
         </CodeBlock>
 
         <h5>3. Copy Constructor (si necesario):</h5>
         <CodeBlock>
-<code><span className="comment">// Copy requiere implementación manual</span>
-<span className="type">MyClass::MyClass</span>(<span className="keyword">const</span> <span className="type">MyClass</span>&amp; <span className="keyword">other</span>) 
-    : <span className="keyword">pimpl</span>(<span className="type">std::make_unique</span>&lt;<span className="type">Impl</span>&gt;(*<span className="keyword">other</span>.<span className="keyword">pimpl</span>)) {
-    <span className="comment">// Impl debe tener copy constructor</span>
+          {`// Copy requiere implementación manual
+MyClass::MyClass(const MyClass& other) 
+    : pimpl(std::make_unique<Impl>(*other.pimpl)) {
+    // Impl debe tener copy constructor
 }
 
-<span className="type">MyClass</span>&amp; <span className="type">MyClass::operator</span>=(<span className="keyword">const</span> <span className="type">MyClass</span>&amp; <span className="keyword">other</span>) {
-    <span className="keyword">if</span> (<span className="keyword">this</span> != &amp;<span className="keyword">other</span>) {
-        *<span className="keyword">pimpl</span> = *<span className="keyword">other</span>.<span className="keyword">pimpl</span>; <span className="comment">// O recrear con make_unique</span>
+MyClass& MyClass::operator=(const MyClass& other) {
+    if (this != &other) {
+        *pimpl = *other.pimpl; // O recrear con make_unique
     }
-    <span className="keyword">return</span> *<span className="keyword">this</span>;
-}</code>
+    return *this;
+}`}
         </CodeBlock>
 
         <h4>🔬 PIMPL Avanzado</h4>
         
         <h5>Fast PIMPL (para hot paths):</h5>
         <CodeBlock>
-<code><span className="comment">// Híbrido: datos críticos en la clase, resto en PIMPL</span>
-<span className="keyword">class</span> <span className="type">FastClass</span> {
-<span className="keyword">private</span>:
-    <span className="comment">// Hot data: acceso directo, sin indirección</span>
-    <span className="keyword">int</span> <span className="keyword">frequently_used_value</span>;
-    <span className="keyword">bool</span> <span className="keyword">is_active</span>;
+          {`// Híbrido: datos críticos en la clase, resto en PIMPL
+class FastClass {
+private:
+    // Hot data: acceso directo, sin indirección
+    int frequently_used_value;
+    bool is_active;
     
-    <span className="comment">// Cold data: en PIMPL</span>
-    <span className="keyword">class</span> <span className="type">Impl</span>;
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Impl</span>&gt; <span className="keyword">pimpl</span>;
+    // Cold data: en PIMPL
+    class Impl;
+    std::unique_ptr<Impl> pimpl;
 
-<span className="keyword">public</span>:
-    <span className="comment">// Fast path: sin indirección</span>
-    <span className="keyword">int</span> <span className="type">getFastValue</span>() <span className="keyword">const</span> { <span className="keyword">return</span> <span className="keyword">frequently_used_value</span>; }
+public:
+    // Fast path: sin indirección
+    int getFastValue() const { return frequently_used_value; }
     
-    <span className="comment">// Slow path: con indirección pero rara vez usado</span>
-    <span className="keyword">void</span> <span className="type">doComplexOperation</span>();
-};</code>
+    // Slow path: con indirección pero rara vez usado
+    void doComplexOperation();
+};`}
         </CodeBlock>
 
         <h5>PIMPL con Factory:</h5>
         <CodeBlock>
-<code><span className="comment">// Factory function para crear instancias</span>
-<span className="type">std::unique_ptr</span>&lt;<span className="type">MyClass</span>&gt; <span className="type">createMyClass</span>(<span className="keyword">const</span> <span className="type">Config</span>&amp; <span className="keyword">config</span>) {
-    <span className="keyword">auto</span> <span className="keyword">obj</span> = <span className="type">std::make_unique</span>&lt;<span className="type">MyClass</span>&gt;();
-    <span className="comment">// Configuración específica...</span>
-    <span className="keyword">return</span> <span className="keyword">obj</span>;
-}</code>
+          {`// Factory function para crear instancias
+std::unique_ptr<MyClass> createMyClass(const Config& config) {
+    auto obj = std::make_unique<MyClass>();
+    // Configuración específica...
+    return obj;
+}`}
         </CodeBlock>
       </Description>
 

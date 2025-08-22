@@ -462,74 +462,78 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
 
         <h4>🏗️ Simple Factory Pattern</h4>
         <CodeBlock>
-<code><span className="comment">// Base class para productos</span>
-<span className="keyword">class</span> <span className="type">Shape</span> {
-<span className="keyword">public</span>:
-    <span className="keyword">virtual</span> ~<span className="type">Shape</span>() = <span className="keyword">default</span>;
-    <span className="keyword">virtual</span> <span className="keyword">void</span> <span className="type">draw</span>() <span className="keyword">const</span> = <span className="number">0</span>;
-    <span className="keyword">virtual</span> <span className="keyword">double</span> <span className="type">area</span>() <span className="keyword">const</span> = <span className="number">0</span>;
-};
-
-<span className="keyword">class</span> <span className="type">Circle</span> : <span className="keyword">public</span> <span className="type">Shape</span> {
-    <span className="keyword">double</span> <span className="keyword">radius</span>;
-<span className="keyword">public</span>:
-    <span className="type">Circle</span>(<span className="keyword">double</span> <span className="keyword">r</span>) : <span className="keyword">radius</span>(<span className="keyword">r</span>) {}
-    <span className="keyword">void</span> <span className="type">draw</span>() <span className="keyword">const</span> <span className="keyword">override</span> { 
-        <span className="type">std::cout</span> &lt;&lt; <span className="string">"Drawing circle with radius "</span> &lt;&lt; <span className="keyword">radius</span> &lt;&lt; <span className="string">"\n"</span>; 
-    }
-    <span className="keyword">double</span> <span className="type">area</span>() <span className="keyword">const</span> <span className="keyword">override</span> { 
-        <span className="keyword">return</span> <span className="number">3.14159</span> * <span className="keyword">radius</span> * <span className="keyword">radius</span>; 
-    }
-};
-
-<span className="comment">// ✅ Factory function con unique_ptr - Ownership claro</span>
-<span className="type">std::unique_ptr</span>&lt;<span className="type">Shape</span>&gt; <span className="type">createShape</span>(<span className="keyword">const</span> <span className="type">std::string</span>&amp; <span className="keyword">type</span>) {
-    <span className="keyword">if</span> (<span className="keyword">type</span> == <span className="string">"circle"</span>) {
-        <span className="good">return std::make_unique&lt;Circle&gt;(5.0);</span> <span className="comment">// Exception safe</span>
-    } <span className="keyword">else</span> <span className="keyword">if</span> (<span className="keyword">type</span> == <span className="string">"rectangle"</span>) {
-        <span className="good">return std::make_unique&lt;Rectangle&gt;(4.0, 3.0);</span>
-    }
-    <span className="keyword">return</span> <span className="keyword">nullptr</span>; <span className="comment">// O mejor: lanzar excepción</span>
-}
-
-<span className="comment">// Uso del factory</span>
-<span className="keyword">auto</span> <span className="keyword">shape</span> = <span className="type">createShape</span>(<span className="string">"circle"</span>);
-<span className="keyword">if</span> (<span className="keyword">shape</span>) {
-    <span className="keyword">shape</span>-&gt;<span className="type">draw</span>();
-    <span className="type">std::cout</span> &lt;&lt; <span className="string">"Area: "</span> &lt;&lt; <span className="keyword">shape</span>-&gt;<span className="type">area</span>() &lt;&lt; <span className="string">"\n"</span>;
-}</code>
+{[
+"// Base class para productos",
+"class Shape {",
+"public:",
+"    virtual ~Shape() = default;",
+"    virtual void draw() const = 0;",
+"    virtual double area() const = 0;",
+"};",
+"",
+"class Circle : public Shape {",
+"    double radius;",
+"public:",
+"    Circle(double r) : radius(r) {}",
+"    void draw() const override { ",
+"        std::cout << \"Drawing circle with radius \" << radius << \"\\n\"; ",
+"    }",
+"    double area() const override { ",
+"        return 3.14159 * radius * radius; ",
+"    }",
+"};",
+"",
+"// ✅ Factory function con unique_ptr - Ownership claro",
+"std::unique_ptr<Shape> createShape(const std::string& type) {",
+"    if (type == \"circle\") {",
+"        return std::make_unique<Circle>(5.0); // Exception safe",
+"    } else if (type == \"rectangle\") {",
+"        return std::make_unique<Rectangle>(4.0, 3.0);",
+"    }",
+"    return nullptr; // O mejor: lanzar excepción",
+"}",
+"",
+"// Uso del factory",
+"auto shape = createShape(\"circle\");",
+"if (shape) {",
+"    shape->draw();",
+"    std::cout << \"Area: \" << shape->area() << \"\\n\";",
+"}",
+].join('\n')}
         </CodeBlock>
 
         <h4>🏭 Abstract Factory Pattern</h4>
         <CodeBlock>
-<code><span className="comment">// Abstract Factory para crear familias de objetos relacionados</span>
-<span className="keyword">class</span> <span className="type">GUIFactory</span> {
-<span className="keyword">public</span>:
-    <span className="keyword">virtual</span> ~<span className="type">GUIFactory</span>() = <span className="keyword">default</span>;
-    <span className="keyword">virtual</span> <span className="type">std::unique_ptr</span>&lt;<span className="type">Button</span>&gt; <span className="type">createButton</span>() = <span className="number">0</span>;
-    <span className="keyword">virtual</span> <span className="type">std::unique_ptr</span>&lt;<span className="type">Window</span>&gt; <span className="type">createWindow</span>() = <span className="number">0</span>;
-};
-
-<span className="keyword">class</span> <span className="type">WindowsFactory</span> : <span className="keyword">public</span> <span className="type">GUIFactory</span> {
-<span className="keyword">public</span>:
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Button</span>&gt; <span className="type">createButton</span>() <span className="keyword">override</span> {
-        <span className="keyword">return</span> <span className="type">std::make_unique</span>&lt;<span className="type">WindowsButton</span>&gt;();
-    }
-    
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Window</span>&gt; <span className="type">createWindow</span>() <span className="keyword">override</span> {
-        <span className="keyword">return</span> <span className="type">std::make_unique</span>&lt;<span className="type">WindowsWindow</span>&gt;();
-    }
-};
-
-<span className="comment">// Factory selector</span>
-<span className="type">std::unique_ptr</span>&lt;<span className="type">GUIFactory</span>&gt; <span className="type">createGUIFactory</span>(<span className="keyword">const</span> <span className="type">std::string</span>&amp; <span className="keyword">platform</span>) {
-    <span className="keyword">if</span> (<span className="keyword">platform</span> == <span className="string">"windows"</span>) {
-        <span className="keyword">return</span> <span className="type">std::make_unique</span>&lt;<span className="type">WindowsFactory</span>&gt;();
-    } <span className="keyword">else</span> <span className="keyword">if</span> (<span className="keyword">platform</span> == <span className="string">"linux"</span>) {
-        <span className="keyword">return</span> <span className="type">std::make_unique</span>&lt;<span className="type">LinuxFactory</span>&gt;();
-    }
-    <span className="keyword">throw</span> <span className="type">std::invalid_argument</span>(<span className="string">"Unknown platform: "</span> + <span className="keyword">platform</span>);
-}</code>
+{[
+"// Abstract Factory para crear familias de objetos relacionados",
+"class GUIFactory {",
+"public:",
+"    virtual ~GUIFactory() = default;",
+"    virtual std::unique_ptr<Button> createButton() = 0;",
+"    virtual std::unique_ptr<Window> createWindow() = 0;",
+"};",
+"",
+"class WindowsFactory : public GUIFactory {",
+"public:",
+"    std::unique_ptr<Button> createButton() override {",
+"        return std::make_unique<WindowsButton>();",
+"    }",
+"    ",
+"    std::unique_ptr<Window> createWindow() override {",
+"        return std::make_unique<WindowsWindow>();",
+"    }",
+"};",
+"",
+"// Factory selector",
+"std::unique_ptr<GUIFactory> createGUIFactory(const std::string& platform) {",
+"    if (platform == \"windows\") {",
+"        return std::make_unique<WindowsFactory>();",
+"    } else if (platform == \"linux\") {",
+"        return std::make_unique<LinuxFactory>();",
+"    }",
+"    throw std::invalid_argument(\"Unknown platform: \" + platform);",
+"}",
+].join('\n')}
         </CodeBlock>
       </Description>
 
@@ -555,150 +559,144 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
       <Description>
         <h4>⚙️ Factory Method Pattern</h4>
         <CodeBlock>
-<code><span className="comment">// Factory Method: cada subclase decide qué crear</span>
-<span className="keyword">class</span> <span className="type">Document</span> {
-<span className="keyword">protected</span>:
-    <span className="comment">// Factory method - implementado por subclases</span>
-    <span className="keyword">virtual</span> <span className="type">std::unique_ptr</span>&lt;<span className="type">Page</span>&gt; <span className="type">createPage</span>() = <span className="number">0</span>;
-    
-<span className="keyword">public</span>:
-    <span className="keyword">virtual</span> ~<span className="type">Document</span>() = <span className="keyword">default</span>;
-    
-    <span className="keyword">void</span> <span className="type">addPage</span>() {
-        <span className="highlight">auto page = createPage();</span> <span className="comment">// ← Usa factory method</span>
-        <span className="keyword">pages</span>.<span className="type">push_back</span>(<span className="type">std::move</span>(<span className="keyword">page</span>));
-    }
-    
-<span className="keyword">private</span>:
-    <span className="type">std::vector</span>&lt;<span className="type">std::unique_ptr</span>&lt;<span className="type">Page</span>&gt;&gt; <span className="keyword">pages</span>;
-};
-
-<span className="keyword">class</span> <span className="type">PDFDocument</span> : <span className="keyword">public</span> <span className="type">Document</span> {
-<span className="keyword">protected</span>:
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Page</span>&gt; <span className="type">createPage</span>() <span className="keyword">override</span> {
-        <span className="keyword">return</span> <span className="type">std::make_unique</span>&lt;<span className="type">PDFPage</span>&gt;();  <span className="comment">// PDF específico</span>
-    }
-};
-
-<span className="keyword">class</span> <span className="type">HTMLDocument</span> : <span className="keyword">public</span> <span className="type">Document</span> {
-<span className="keyword">protected</span>:
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Page</span>&gt; <span className="type">createPage</span>() <span className="keyword">override</span> {
-        <span className="keyword">return</span> <span className="type">std::make_unique</span>&lt;<span className="type">HTMLPage</span>&gt;(); <span className="comment">// HTML específico</span>
-    }
-};</code>
+{[
+"// Factory Method: cada subclase decide qué crear",
+"class Document {",
+"protected:",
+"    // Factory method - implementado por subclases",
+"    virtual std::unique_ptr<Page> createPage() = 0;",
+"public:",
+"    virtual ~Document() = default;",
+"    void addPage() {",
+"        auto page = createPage(); // ← Usa factory method",
+"        pages.push_back(std::move(page));",
+"    }",
+"private:",
+"    std::vector<std::unique_ptr<Page>> pages;",
+"};",
+"",
+"class PDFDocument : public Document {",
+"protected:",
+"    std::unique_ptr<Page> createPage() override {",
+"        return std::make_unique<PDFPage>();  // PDF específico",
+"    }",
+"};",
+"",
+"class HTMLDocument : public Document {",
+"protected:",
+"    std::unique_ptr<Page> createPage() override {",
+"        return std::make_unique<HTMLPage>(); // HTML específico",
+"    }",
+"};",
+].join('\n')}
         </CodeBlock>
 
         <h4>🔧 Builder Pattern con unique_ptr</h4>
         <CodeBlock>
-<code><span className="comment">// Builder Pattern para construcción compleja</span>
-<span className="keyword">class</span> <span className="type">Car</span> {
-<span className="keyword">private</span>:
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Engine</span>&gt; <span className="keyword">engine</span>;
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Transmission</span>&gt; <span className="keyword">transmission</span>;
-    <span className="type">std::vector</span>&lt;<span className="type">std::unique_ptr</span>&lt;<span className="type">Wheel</span>&gt;&gt; <span className="keyword">wheels</span>;
-    
-<span className="keyword">public</span>:
-    <span className="keyword">void</span> <span className="type">setEngine</span>(<span className="type">std::unique_ptr</span>&lt;<span className="type">Engine</span>&gt; <span className="keyword">e</span>) { 
-        <span className="keyword">engine</span> = <span className="type">std::move</span>(<span className="keyword">e</span>); 
-    }
-    
-    <span className="keyword">void</span> <span className="type">addWheel</span>(<span className="type">std::unique_ptr</span>&lt;<span className="type">Wheel</span>&gt; <span className="keyword">w</span>) { 
-        <span className="keyword">wheels</span>.<span className="type">push_back</span>(<span className="type">std::move</span>(<span className="keyword">w</span>)); 
-    }
-};
-
-<span className="keyword">class</span> <span className="type">CarBuilder</span> {
-<span className="keyword">private</span>:
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Car</span>&gt; <span className="keyword">car</span>;
-    
-<span className="keyword">public</span>:
-    <span className="type">CarBuilder</span>() : <span className="keyword">car</span>(<span className="type">std::make_unique</span>&lt;<span className="type">Car</span>&gt;()) {}
-    
-    <span className="type">CarBuilder</span>&amp; <span className="type">withEngine</span>(<span className="keyword">const</span> <span className="type">std::string</span>&amp; <span className="keyword">type</span>) {
-        <span className="keyword">if</span> (<span className="keyword">type</span> == <span className="string">"V8"</span>) {
-            <span className="keyword">car</span>-&gt;<span className="type">setEngine</span>(<span className="type">std::make_unique</span>&lt;<span className="type">V8Engine</span>&gt;());
-        }
-        <span className="keyword">return</span> *<span className="keyword">this</span>; <span className="comment">// Fluent interface</span>
-    }
-    
-    <span className="type">CarBuilder</span>&amp; <span className="type">withWheels</span>(<span className="keyword">int</span> <span className="keyword">count</span>) {
-        <span className="keyword">for</span> (<span className="keyword">int</span> <span className="keyword">i</span> = <span className="number">0</span>; <span className="keyword">i</span> &lt; <span className="keyword">count</span>; ++<span className="keyword">i</span>) {
-            <span className="keyword">car</span>-&gt;<span className="type">addWheel</span>(<span className="type">std::make_unique</span>&lt;<span className="type">StandardWheel</span>&gt;());
-        }
-        <span className="keyword">return</span> *<span className="keyword">this</span>;
-    }
-    
-    <span className="type">std::unique_ptr</span>&lt;<span className="type">Car</span>&gt; <span className="type">build</span>() {
-        <span className="keyword">return</span> <span className="type">std::move</span>(<span className="keyword">car</span>); <span className="comment">// Transfer ownership</span>
-    }
-};
-
-<span className="comment">// Uso fluido del builder</span>
-<span className="keyword">auto</span> <span className="keyword">car</span> = <span className="type">CarBuilder</span>()
-    .<span className="type">withEngine</span>(<span className="string">"V8"</span>)
-    .<span className="type">withWheels</span>(<span className="number">4</span>)
-    .<span className="type">build</span>();</code>
+{[
+"// Builder Pattern para construcción compleja",
+"class Car {",
+"private:",
+"    std::unique_ptr<Engine> engine;",
+"    std::unique_ptr<Transmission> transmission;",
+"    std::vector<std::unique_ptr<Wheel>> wheels;",
+"public:",
+"    void setEngine(std::unique_ptr<Engine> e) { ",
+"        engine = std::move(e); ",
+"    }",
+"    void addWheel(std::unique_ptr<Wheel> w) { ",
+"        wheels.push_back(std::move(w)); ",
+"    }",
+"};",
+"",
+"class CarBuilder {",
+"private:",
+"    std::unique_ptr<Car> car;",
+"public:",
+"    CarBuilder() : car(std::make_unique<Car>()) {}",
+"    CarBuilder& withEngine(const std::string& type) {",
+"        if (type == \"V8\") {",
+"            car->setEngine(std::make_unique<V8Engine>());",
+"        }",
+"        return *this; // Fluent interface",
+"    }",
+"    CarBuilder& withWheels(int count) {",
+"        for (int i = 0; i < count; ++i) {",
+"            car->addWheel(std::make_unique<StandardWheel>());",
+"        }",
+"        return *this;",
+"    }",
+"    std::unique_ptr<Car> build() {",
+"        return std::move(car); // Transfer ownership",
+"    }",
+"};",
+"",
+"// Uso fluido del builder",
+"auto car = CarBuilder()",
+"    .withEngine(\"V8\")",
+"    .withWheels(4)",
+"    .build();",
+].join('\n')}
         </CodeBlock>
 
         <h4>🚀 Patrones Avanzados</h4>
         
         <h5>Factory con enable_shared_from_this:</h5>
         <CodeBlock>
-<code><span className="comment">// Para objetos que necesitan devolver shared_ptr de sí mismos</span>
-<span className="keyword">class</span> <span className="type">NetworkConnection</span> : <span className="keyword">public</span> <span className="type">std::enable_shared_from_this</span>&lt;<span className="type">NetworkConnection</span>&gt; {
-<span className="keyword">public</span>:
-    <span className="keyword">static</span> <span className="type">std::shared_ptr</span>&lt;<span className="type">NetworkConnection</span>&gt; <span className="type">create</span>(<span className="keyword">const</span> <span className="type">std::string</span>&amp; <span className="keyword">host</span>) {
-        <span className="comment">// No se puede usar make_shared aquí si el constructor es privado</span>
-        <span className="keyword">return</span> <span className="type">std::shared_ptr</span>&lt;<span className="type">NetworkConnection</span>&gt;(<span className="keyword">new</span> <span className="type">NetworkConnection</span>(<span className="keyword">host</span>));
-    }
-    
-    <span className="keyword">void</span> <span className="type">startAsync</span>() {
-        <span className="comment">// Puede pasar shared_ptr de sí mismo a callbacks</span>
-        <span className="keyword">auto</span> <span className="keyword">self</span> = <span className="type">shared_from_this</span>();
-        <span className="type">asyncOperation</span>([<span className="keyword">self</span>](<span className="keyword">bool</span> <span className="keyword">success</span>) {
-            <span className="keyword">self</span>-&gt;<span className="type">onComplete</span>(<span className="keyword">success</span>);
-        });
-    }
-    
-<span className="keyword">private</span>:
-    <span className="type">NetworkConnection</span>(<span className="keyword">const</span> <span className="type">std::string</span>&amp; <span className="keyword">host</span>) : <span className="keyword">hostname</span>(<span className="keyword">host</span>) {}
-    <span className="type">std::string</span> <span className="keyword">hostname</span>;
-};</code>
+{[
+"// Para objetos que necesitan devolver shared_ptr de sí mismos",
+"class NetworkConnection : public std::enable_shared_from_this<NetworkConnection> {",
+"public:",
+"    static std::shared_ptr<NetworkConnection> create(const std::string& host) {",
+"        // No se puede usar make_shared aquí si el constructor es privado",
+"        return std::shared_ptr<NetworkConnection>(new NetworkConnection(host));",
+"    }",
+"    void startAsync() {",
+"        // Puede pasar shared_ptr de sí mismo a callbacks",
+"        auto self = shared_from_this();",
+"        asyncOperation([self](bool success) {",
+"            self->onComplete(success);",
+"        });",
+"    }",
+"private:",
+"    NetworkConnection(const std::string& host) : hostname(host) {}",
+"    std::string hostname;",
+"};",
+].join('\n')}
         </CodeBlock>
 
         <h5>Registry-based Factory:</h5>
         <CodeBlock>
-<code><span className="comment">// Factory registry para extensibilidad</span>
-<span className="keyword">class</span> <span className="type">ShapeFactory</span> {
-<span className="keyword">public</span>:
-    <span className="keyword">using</span> <span className="type">CreateFunc</span> = <span className="type">std::function</span>&lt;<span className="type">std::unique_ptr</span>&lt;<span className="type">Shape</span>&gt;()&gt;;
-    
-    <span className="keyword">static</span> <span className="keyword">void</span> <span className="type">registerShape</span>(<span className="keyword">const</span> <span className="type">std::string</span>&amp; <span className="keyword">name</span>, <span className="type">CreateFunc</span> <span className="keyword">creator</span>) {
-        <span className="type">getRegistry</span>()[<span className="keyword">name</span>] = <span className="keyword">creator</span>;
-    }
-    
-    <span className="keyword">static</span> <span className="type">std::unique_ptr</span>&lt;<span className="type">Shape</span>&gt; <span className="type">create</span>(<span className="keyword">const</span> <span className="type">std::string</span>&amp; <span className="keyword">name</span>) {
-        <span className="keyword">auto</span>&amp; <span className="keyword">registry</span> = <span className="type">getRegistry</span>();
-        <span className="keyword">auto</span> <span className="keyword">it</span> = <span className="keyword">registry</span>.<span className="type">find</span>(<span className="keyword">name</span>);
-        <span className="keyword">return</span> (<span className="keyword">it</span> != <span className="keyword">registry</span>.<span className="type">end</span>()) ? <span className="keyword">it</span>-&gt;<span className="keyword">second</span>() : <span className="keyword">nullptr</span>;
-    }
-    
-<span className="keyword">private</span>:
-    <span className="keyword">static</span> <span className="type">std::unordered_map</span>&lt;<span className="type">std::string</span>, <span className="type">CreateFunc</span>&gt;&amp; <span className="type">getRegistry</span>() {
-        <span className="keyword">static</span> <span className="type">std::unordered_map</span>&lt;<span className="type">std::string</span>, <span className="type">CreateFunc</span>&gt; <span className="keyword">registry</span>;
-        <span className="keyword">return</span> <span className="keyword">registry</span>;
-    }
-};
-
-<span className="comment">// Auto-registro usando RAII</span>
-<span className="keyword">struct</span> <span className="type">CircleRegistrar</span> {
-    <span className="type">CircleRegistrar</span>() {
-        <span className="type">ShapeFactory::registerShape</span>(<span className="string">"circle"</span>, []() {
-            <span className="keyword">return</span> <span className="type">std::make_unique</span>&lt;<span className="type">Circle</span>&gt;(<span className="number">1.0</span>);
-        });
-    }
-};
-<span className="keyword">static</span> <span className="type">CircleRegistrar</span> <span className="keyword">circle_registrar</span>; <span className="comment">// Auto-registro global</span></code>
+{[
+"// Factory registry para extensibilidad",
+"class ShapeFactory {",
+"public:",
+"    using CreateFunc = std::function<std::unique_ptr<Shape>()>;",
+"    static void registerShape(const std::string& name, CreateFunc creator) {",
+"        getRegistry()[name] = creator;",
+"    }",
+"    static std::unique_ptr<Shape> create(const std::string& name) {",
+"        auto& registry = getRegistry();",
+"        auto it = registry.find(name);",
+"        return (it != registry.end()) ? it->second() : nullptr;",
+"    }",
+"private:",
+"    static std::unordered_map<std::string, CreateFunc>& getRegistry() {",
+"        static std::unordered_map<std::string, CreateFunc> registry;",
+"        return registry;",
+"    }",
+"};",
+"",
+"// Auto-registro usando RAII",
+"struct CircleRegistrar {",
+"    CircleRegistrar() {",
+"        ShapeFactory::registerShape(\"circle\", []() {",
+"            return std::make_unique<Circle>(1.0);",
+"        });",
+"    }",
+"};",
+"static CircleRegistrar circle_registrar; // Auto-registro global",
+].join('\n')}
         </CodeBlock>
       </Description>
 

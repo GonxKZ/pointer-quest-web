@@ -1,0 +1,33 @@
+Creating an optimized production build...
+Compiled with warnings.
+
+Failed to parse source map from '/mnt/c/Users/Gonzalo/Documents/4to curso/herramientas/pointer-game-cpp/pointer-quest-web/node_modules/@mediapipe/tasks-vision/vision_bundle_mjs.js.map' file: Error: ENOENT: no such file or directory, open '/mnt/c/Users/Gonzalo/Documents/4to curso/herramientas/pointer-game-cpp/pointer-quest-web/node_modules/@mediapipe/tasks-vision/vision_bundle_mjs.js.map'
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+File sizes after gzip:
+
+  410.28 kB  build/static/js/main.f008bb38.js
+  11.8 kB    build/static/js/309.a7486c6e.chunk.js
+  5.49 kB    build/static/js/811.0287456f.chunk.js
+  5.27 kB    build/static/js/755.987a6606.chunk.js
+  4.97 kB    build/static/js/403.18f8c10a.chunk.js
+  4.96 kB    build/static/js/887.6f5fde18.chunk.js
+  3.96 kB    build/static/js/707.6b20d94f.chunk.js
+  2.96 kB    build/static/js/511.f0e34b61.chunk.js
+  1.77 kB    build/static/js/453.dc8d9a78.chunk.js
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+

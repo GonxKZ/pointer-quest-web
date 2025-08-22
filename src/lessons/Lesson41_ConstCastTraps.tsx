@@ -466,56 +466,56 @@ export default function Lesson41_ConstCastTraps({ onComplete, isCompleted }: Les
 
         <h4>❌ Casos de Undefined Behavior</h4>
         <CodeBlock>
-<code><span className="comment">// ❌ UB CASO 1: Objeto originalmente const</span>
-<span className="keyword">const</span> <span className="keyword">int</span> <span className="keyword">x</span> = <span className="number">42</span>;          <span className="comment">// Objeto const original</span>
-<span className="keyword">int</span>* <span className="keyword">px</span> = <span className="keyword">const_cast</span>&lt;<span className="keyword">int</span>*&gt;(&amp;<span className="keyword">x</span>);
-<span className="danger">*px = 100;</span>                    <span className="comment">// ⚠️ UNDEFINED BEHAVIOR!</span>
+          {`// ❌ UB CASO 1: Objeto originalmente const
+const int x = 42;          // Objeto const original
+int* px = const_cast<int*>(&x);
+*px = 100;                    // ⚠️ UNDEFINED BEHAVIOR!
 
-<span className="comment">// El compilador puede:</span>
-<span className="comment">// 1. Asumir que x siempre vale 42</span>
-<span className="comment">// 2. Cache el valor en un registro</span>
-<span className="comment">// 3. Optimizar basándose en esta suposición</span>
+// El compilador puede:
+// 1. Asumir que x siempre vale 42
+// 2. Cache el valor en un registro
+// 3. Optimizar basándose en esta suposición
 
-<span className="type">std::cout</span> &lt;&lt; <span className="keyword">x</span>;       <span className="comment">// Puede imprimir 42 o 100 ¡IMPREDECIBLE!</span></code>
+std::cout << x;       // Puede imprimir 42 o 100 ¡IMPREDECIBLE!`}
         </CodeBlock>
 
         <CodeBlock>
-<code><span className="comment">// ❌ UB CASO 2: String literals</span>
-<span className="keyword">const</span> <span className="keyword">char</span>* <span className="keyword">str</span> = <span className="string">"Hello"</span>;     <span className="comment">// String literal (read-only memory)</span>
-<span className="keyword">char</span>* <span className="keyword">mutable_str</span> = <span className="keyword">const_cast</span>&lt;<span className="keyword">char</span>*&gt;(<span className="keyword">str</span>);
-<span className="danger">mutable_str[0] = 'h';</span>           <span className="comment">// ⚠️ UNDEFINED BEHAVIOR!</span>
+          {`// ❌ UB CASO 2: String literals
+const char* str = "Hello";     // String literal (read-only memory)
+char* mutable_str = const_cast<char*>(str);
+mutable_str[0] = 'h';           // ⚠️ UNDEFINED BEHAVIOR!
 
-<span className="comment">// Consecuencias posibles:</span>
-<span className="comment">// - Segmentation fault</span>
-<span className="comment">// - Corrupción silenciosa de memoria</span>
-<span className="comment">// - Modificación de otros string literals idénticos</span></code>
+// Consecuencias posibles:
+// - Segmentation fault
+// - Corrupción silenciosa de memoria
+// - Modificación de otros string literals idénticos`}
         </CodeBlock>
 
         <h4>✅ Casos Legales (Pero Peligrosos)</h4>
         <CodeBlock>
-<code><span className="comment">// ✅ LEGAL: Objeto no-const referenciado por const pointer</span>
-<span className="keyword">int</span> <span className="keyword">y</span> = <span className="number">42</span>;                    <span className="comment">// Objeto NO es const</span>
-<span className="keyword">const</span> <span className="keyword">int</span>* <span className="keyword">py</span> = &amp;<span className="keyword">y</span>;         <span className="comment">// Solo el puntero es const</span>
-<span className="keyword">int</span>* <span className="keyword">mutable_py</span> = <span className="keyword">const_cast</span>&lt;<span className="keyword">int</span>*&gt;(<span className="keyword">py</span>);
-<span className="safe">*mutable_py = 100;</span>              <span className="comment">// ✅ Legal: y no era const originalmente</span>
+          {`// ✅ LEGAL: Objeto no-const referenciado por const pointer
+int y = 42;                    // Objeto NO es const
+const int* py = &y;         // Solo el puntero es const
+int* mutable_py = const_cast<int*>(py);
+*mutable_py = 100;              // ✅ Legal: y no era const originalmente
 
-<span className="type">std::cout</span> &lt;&lt; <span className="keyword">y</span>;           <span className="comment">// Garantizado: 100</span></code>
+std::cout << y;           // Garantizado: 100`}
         </CodeBlock>
 
         <h4>🎯 Uso Legítimo: APIs C Legacy</h4>
         <CodeBlock>
-<code><span className="comment">// ✅ USO APROPIADO: C API que no modifica pero falta const</span>
-<span className="keyword">extern</span> <span className="string">"C"</span> {
-    <span className="comment">// API C antigua - no tiene const pero no modifica</span>
-    <span className="keyword">int</span> <span className="type">legacy_strlen</span>(<span className="keyword">char</span>* <span className="keyword">str</span>);  <span className="comment">// Debería ser const char*</span>
+          {`// ✅ USO APROPIADO: C API que no modifica pero falta const
+extern "C" {
+    // API C antigua - no tiene const pero no modifica
+    int legacy_strlen(char* str);  // Debería ser const char*
 }
 
-<span className="keyword">void</span> <span className="type">safe_usage</span>(<span className="keyword">const</span> <span className="type">std::string</span>&amp; <span className="keyword">text</span>) {
-    <span className="comment">// Sabemos que legacy_strlen no modifica el string</span>
-    <span className="keyword">int</span> <span className="keyword">len</span> = <span className="type">legacy_strlen</span>(<span className="keyword">const_cast</span>&lt;<span className="keyword">char</span>*&gt;(<span className="keyword">text</span>.<span className="type">c_str</span>()));
-    <span className="comment">// ✅ Legal: solo removemos const para satisfacer la signature</span>
-    <span className="comment">// ✅ Seguro: confiamos en que la función no modifica</span>
-}</code>
+void safe_usage(const std::string& text) {
+    // Sabemos que legacy_strlen no modifica el string
+    int len = legacy_strlen(const_cast<char*>(text.c_str()));
+    // ✅ Legal: solo removemos const para satisfacer la signature
+    // ✅ Seguro: confiamos en que la función no modifica
+}`}
         </CodeBlock>
       </Description>
 
@@ -543,61 +543,61 @@ export default function Lesson41_ConstCastTraps({ onComplete, isCompleted }: Les
         
         <h5>Optimizaciones del Compilador:</h5>
         <CodeBlock>
-<code><span className="comment">// El compilador puede hacer estas optimizaciones:</span>
-<span className="keyword">const</span> <span className="keyword">int</span> <span className="keyword">value</span> = <span className="number">42</span>;
+          {`// El compilador puede hacer estas optimizaciones:
+const int value = 42;
 
-<span className="keyword">for</span> (<span className="keyword">int</span> <span className="keyword">i</span> = <span className="number">0</span>; <span className="keyword">i</span> &lt; <span className="number">1000000</span>; ++<span className="keyword">i</span>) {
-    <span className="comment">// Compilador puede:</span>
-    <span className="comment">// 1. Cargar 'value' una sola vez antes del loop</span>
-    <span className="comment">// 2. Mantenerlo en registro, no en memoria</span>
-    <span className="comment">// 3. Inline el valor directamente (42)</span>
-    <span className="type">process</span>(<span className="keyword">value</span>);
+for (int i = 0; i < 1000000; ++i) {
+    // Compilador puede:
+    // 1. Cargar 'value' una sola vez antes del loop
+    // 2. Mantenerlo en registro, no en memoria
+    // 3. Inline el valor directamente (42)
+    process(value);
 }
 
-<span className="comment">// Si alguien hace const_cast y modifica 'value' en paralelo:</span>
-<span className="comment">// ¡El loop seguirá usando el valor optimizado (42)!</span></code>
+// Si alguien hace const_cast y modifica 'value' en paralelo:
+// ¡El loop seguirá usando el valor optimizado (42)!`}
         </CodeBlock>
 
         <h5>Detección de UB con Herramientas:</h5>
         <CodeBlock>
-<code><span className="comment">// Compilación con detección de UB</span>
-<span className="comment">// $ g++ -fsanitize=undefined -g -O2 program.cpp</span>
+          {`// Compilación con detección de UB
+// $ g++ -fsanitize=undefined -g -O2 program.cpp
 
-<span className="ub">// UB Runtime Detection Output:</span>
-<span className="comment">// runtime error: modification of const object</span>
-<span className="comment">// SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior</span></code>
+// UB Runtime Detection Output:
+// runtime error: modification of const object
+// SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior`}
         </CodeBlock>
 
         <h4>✅ Alternativas Más Seguras</h4>
         
         <h5>1. Mutable para Casos Específicos:</h5>
         <CodeBlock>
-<code><span className="keyword">class</span> <span className="type">CacheExample</span> {
-    <span className="keyword">mutable</span> <span className="keyword">int</span> <span className="keyword">cached_result</span> = <span className="number">-1</span>; <span className="comment">// ← mutable permite modificación</span>
-    <span className="keyword">int</span> <span className="keyword">expensive_data</span>;
+          {`class CacheExample {
+    mutable int cached_result = -1; // ← mutable permite modificación
+    int expensive_data;
 
-<span className="keyword">public</span>:
-    <span className="keyword">int</span> <span className="type">get_computed_value</span>() <span className="keyword">const</span> {
-        <span className="keyword">if</span> (<span className="keyword">cached_result</span> == <span className="number">-1</span>) {
-            <span className="keyword">cached_result</span> = <span className="type">expensive_computation</span>(<span className="keyword">expensive_data</span>);
+public:
+    int get_computed_value() const {
+        if (cached_result == -1) {
+            cached_result = expensive_computation(expensive_data);
         }
-        <span className="keyword">return</span> <span className="keyword">cached_result</span>; <span className="comment">// ✅ No const_cast necesario</span>
+        return cached_result; // ✅ No const_cast necesario
     }
-};</code>
+};`}
         </CodeBlock>
 
         <h5>2. Template Specialization para C APIs:</h5>
         <CodeBlock>
-<code><span className="comment">// Wrapper seguro para C APIs</span>
-<span className="keyword">template</span>&lt;<span className="keyword">typename</span> <span className="type">Func</span>, <span className="keyword">typename</span>... <span className="type">Args</span>&gt;
-<span className="keyword">auto</span> <span className="type">safe_c_call</span>(<span className="type">Func</span> <span className="keyword">func</span>, <span className="keyword">const</span> <span className="keyword">char</span>* <span className="keyword">str</span>, <span className="type">Args</span>&amp;&amp;... <span className="keyword">args</span>) {
-    <span className="comment">// Solo permite funciones que no modifican</span>
-    <span className="keyword">static_assert</span>(<span className="type">std::is_same_v</span>&lt;<span className="keyword">decltype</span>(<span className="keyword">func</span>(<span className="keyword">const_cast</span>&lt;<span className="keyword">char</span>*&gt;(<span className="keyword">str</span>), <span className="keyword">args</span>...)), <span className="keyword">int</span>&gt;);
-    <span className="keyword">return</span> <span className="keyword">func</span>(<span className="keyword">const_cast</span>&lt;<span className="keyword">char</span>*&gt;(<span className="keyword">str</span>), <span className="type">std::forward</span>&lt;<span className="type">Args</span>&gt;(<span className="keyword">args</span>)...);
+          {`// Wrapper seguro para C APIs
+template<typename Func, typename... Args>
+auto safe_c_call(Func func, const char* str, Args&&... args) {
+    // Solo permite funciones que no modifican
+    static_assert(std::is_same_v<decltype(func(const_cast<char*>(str), args...)), int>);
+    return func(const_cast<char*>(str), std::forward<Args>(args)...);
 }
 
-<span className="comment">// Uso seguro</span>
-<span className="keyword">int</span> <span className="keyword">len</span> = <span className="type">safe_c_call</span>(<span className="keyword">legacy_strlen</span>, <span className="keyword">text</span>.<span className="type">c_str</span>());</code>
+// Uso seguro
+int len = safe_c_call(legacy_strlen, text.c_str());`}
         </CodeBlock>
 
         <WarningBox>

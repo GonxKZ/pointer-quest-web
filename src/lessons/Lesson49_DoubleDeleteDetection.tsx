@@ -437,51 +437,51 @@ export default function Lesson49_DoubleDeleteDetection({ onComplete, isCompleted
 
         <h4>❌ El Problema del Double Delete</h4>
         <CodeBlock>
-<code><span className="comment">// ❌ PELIGROSO: Double delete clásico</span>
-<span className="keyword">int</span>* <span className="keyword">ptr</span> = <span className="keyword">new</span> <span className="keyword">int</span>(<span className="number">42</span>);
+          {`// ❌ PELIGROSO: Double delete clásico
+int* ptr = new int(42);
 
-<span className="comment">// Primera destrucción - legal</span>
-<span className="keyword">delete</span> <span className="keyword">ptr</span>;  <span className="comment">// ✓ Memoria liberada</span>
+// Primera destrucción - legal
+delete ptr;  // ✓ Memoria liberada
 
-<span className="comment">// Entre la primera y segunda llamada:</span>
-<span className="comment">// - Memoria puede ser reasignada por malloc</span>
-<span className="comment">// - Otro objeto puede estar en esa dirección</span>
-<span className="comment">// - Heap metadata puede haber cambiado</span>
+// Entre la primera y segunda llamada:
+// - Memoria puede ser reasignada por malloc
+// - Otro objeto puede estar en esa dirección
+// - Heap metadata puede haber cambiado
 
-<span className="comment">// Segunda destrucción - UNDEFINED BEHAVIOR</span>
-<span className="danger">delete ptr;</span>  <span className="comment">// ⚠️ ¡Puede corromper cualquier cosa!</span>
+// Segunda destrucción - UNDEFINED BEHAVIOR
+delete ptr;  // ⚠️ ¡Puede corromper cualquier cosa!
 
-<span className="comment">// Posibles consecuencias:</span>
-<span className="comment">// 1. Segmentation fault (si tenemos suerte)</span>
-<span className="comment">// 2. Corrupción silenciosa de otros objetos</span>
-<span className="comment">// 3. Heap corruption y crashes random</span>
-<span className="comment">// 4. Vulnerabilidades de seguridad</span></code>
+// Posibles consecuencias:
+// 1. Segmentation fault (si tenemos suerte)
+// 2. Corrupción silenciosa de otros objetos
+// 3. Heap corruption y crashes random
+// 4. Vulnerabilidades de seguridad`}
         </CodeBlock>
 
         <h4>🐛 Detección en Debug Mode</h4>
         <CodeBlock>
-<code><span className="comment">// Debug Heap Detection (Windows MSVC)</span>
-<span className="type">#ifdef</span> <span className="keyword">_DEBUG</span>
-<span className="type">#include</span> <span className="string">&lt;crtdbg.h&gt;</span>
+          {`// Debug Heap Detection (Windows MSVC)
+#ifdef _DEBUG
+#include <crtdbg.h>
 
-<span className="keyword">int</span> <span className="type">main</span>() {
-    <span className="comment">// Habilitar debug heap</span>
-    <span className="debug">_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);</span>
+int main() {
+    // Habilitar debug heap
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     
-    <span className="keyword">int</span>* <span className="keyword">ptr</span> = <span className="keyword">new</span> <span className="keyword">int</span>(<span className="number">42</span>);
-    <span className="keyword">delete</span> <span className="keyword">ptr</span>;
+    int* ptr = new int(42);
+    delete ptr;
     
-    <span className="comment">// Debug heap detecta esto automáticamente</span>
-    <span className="debug">delete ptr;</span>  <span className="comment">// ← Assertion failure + stack trace!</span>
+    // Debug heap detecta esto automáticamente
+    delete ptr;  // ← Assertion failure + stack trace!
     
-    <span className="keyword">return</span> <span className="number">0</span>;
+    return 0;
 }
-<span className="type">#endif</span>
+#endif
 
-<span className="comment">// Output típico:</span>
-<span className="comment">// HEAP[program.exe]: Invalid Address specified to RtlFreeHeap</span>
-<span className="comment">// Debug Assertion Failed!</span>
-<span className="comment">// _BLOCK_TYPE_IS_VALID(pHead->nBlockUse)</span></code>
+// Output típico:
+// HEAP[program.exe]: Invalid Address specified to RtlFreeHeap
+// Debug Assertion Failed!
+// _BLOCK_TYPE_IS_VALID(pHead->nBlockUse)`}
         </CodeBlock>
       </Description>
 
@@ -526,114 +526,114 @@ export default function Lesson49_DoubleDeleteDetection({ onComplete, isCompleted
 
         <h5>1. AddressSanitizer (Recomendado):</h5>
         <CodeBlock>
-<code><span className="comment">// Compilación con AddressSanitizer</span>
-<span className="comment">// $ g++ -fsanitize=address -g program.cpp</span>
-<span className="comment">// $ clang++ -fsanitize=address -g program.cpp</span>
+          {`// Compilación con AddressSanitizer
+// $ g++ -fsanitize=address -g program.cpp
+// $ clang++ -fsanitize=address -g program.cpp
 
-<span className="type">#include</span> <span className="string">&lt;iostream&gt;</span>
+#include <iostream>
 
-<span className="keyword">int</span> <span className="type">main</span>() {
-    <span className="keyword">int</span>* <span className="keyword">ptr</span> = <span className="keyword">new</span> <span className="keyword">int</span>(<span className="number">42</span>);
+int main() {
+    int* ptr = new int(42);
     
-    <span className="type">std::cout</span> &lt;&lt; <span className="string">"First delete\n"</span>;
-    <span className="keyword">delete</span> <span className="keyword">ptr</span>;
+    std::cout << "First delete\\n";
+    delete ptr;
     
-    <span className="type">std::cout</span> &lt;&lt; <span className="string">"Second delete (will be caught)\n"</span>;
-    <span className="debug">delete ptr;</span>  <span className="comment">// ← AddressSanitizer detecta esto</span>
+    std::cout << "Second delete (will be caught)\\n";
+    delete ptr;  // ← AddressSanitizer detecta esto
 }
 
-<span className="comment">// Output de AddressSanitizer:</span>
-<span className="comment">// ERROR: AddressSanitizer: attempting double-free on 0x60200000eff0</span>
-<span className="comment">// #0 0x... in operator delete(void*)</span>
-<span className="comment">// #1 0x... in main program.cpp:10:5</span>
-<span className="comment">// previously allocated here:</span>
-<span className="comment">// #0 0x... in operator new(unsigned long)</span></code>
+// Output de AddressSanitizer:
+// ERROR: AddressSanitizer: attempting double-free on 0x60200000eff0
+// #0 0x... in operator delete(void*)
+// #1 0x... in main program.cpp:10:5
+// previously allocated here:
+// #0 0x... in operator new(unsigned long)`}
         </CodeBlock>
 
         <h5>2. Valgrind (Linux/macOS):</h5>
         <CodeBlock>
-<code><span className="comment">// Ejecutar con Valgrind</span>
-<span className="comment">// $ valgrind --tool=memcheck --leak-check=full ./program</span>
+          {`// Ejecutar con Valgrind
+// $ valgrind --tool=memcheck --leak-check=full ./program
 
-<span className="comment">// Output típico de Valgrind:</span>
-<span className="comment">// ==1234== Invalid free() / delete / delete[] / realloc()</span>
-<span className="comment">// ==1234==    at 0x...: operator delete(void*)</span>
-<span className="comment">// ==1234==    by 0x...: main (program.cpp:10)</span>
-<span className="comment">// ==1234==  Address 0x... is 0 bytes inside a block of size 4 free'd</span>
-<span className="comment">// ==1234==    at 0x...: operator delete(void*)</span>
-<span className="comment">// ==1234==    by 0x...: main (program.cpp:8)</span></code>
+// Output típico de Valgrind:
+// ==1234== Invalid free() / delete / delete[] / realloc()
+// ==1234==    at 0x...: operator delete(void*)
+// ==1234==    by 0x...: main (program.cpp:10)
+// ==1234==  Address 0x... is 0 bytes inside a block of size 4 free'd
+// ==1234==    at 0x...: operator delete(void*)
+// ==1234==    by 0x...: main (program.cpp:8)`}
         </CodeBlock>
 
         <h4>🛡️ Prevención con Smart Pointers</h4>
         <CodeBlock>
-<code><span className="comment">// ✅ PREVENCIÓN: unique_ptr previene double delete</span>
-<span className="type">std::unique_ptr</span>&lt;<span className="keyword">int</span>&gt; <span className="keyword">ptr</span> = <span className="type">std::make_unique</span>&lt;<span className="keyword">int</span>&gt;(<span className="number">42</span>);
+          {`// ✅ PREVENCIÓN: unique_ptr previene double delete
+std::unique_ptr<int> ptr = std::make_unique<int>(42);
 
-<span className="comment">// Primera "destrucción" - toma ownership</span>
-<span className="type">std::unique_ptr</span>&lt;<span className="keyword">int</span>&gt; <span className="keyword">ptr2</span> = <span className="type">std::move</span>(<span className="keyword">ptr</span>);
-<span className="comment">// ptr ahora es nullptr automáticamente</span>
+// Primera "destrucción" - toma ownership
+std::unique_ptr<int> ptr2 = std::move(ptr);
+// ptr ahora es nullptr automáticamente
 
-<span className="comment">// Intentar "double delete"</span>
-<span className="keyword">ptr</span>.<span className="type">reset</span>();  <span className="comment">// ✅ Seguro: no hace nada si es nullptr</span>
+// Intentar "double delete"
+ptr.reset();  // ✅ Seguro: no hace nada si es nullptr
 
-<span className="comment">// ✅ PREVENCIÓN: Verificación manual</span>
-<span className="keyword">int</span>* <span className="keyword">raw_ptr</span> = <span className="keyword">new</span> <span className="keyword">int</span>(<span className="number">42</span>);
+// ✅ PREVENCIÓN: Verificación manual
+int* raw_ptr = new int(42);
 
-<span className="keyword">if</span> (<span className="keyword">raw_ptr</span>) {
-    <span className="keyword">delete</span> <span className="keyword">raw_ptr</span>;
-    <span className="safe">raw_ptr = nullptr;</span>  <span className="comment">// ← Crítico: evita double delete</span>
+if (raw_ptr) {
+    delete raw_ptr;
+    raw_ptr = nullptr;  // ← Crítico: evita double delete
 }
 
-<span className="comment">// Segundo delete ahora es seguro</span>
-<span className="keyword">delete</span> <span className="keyword">raw_ptr</span>;  <span className="comment">// ✅ delete nullptr es seguro (no-op)</span></code>
+// Segundo delete ahora es seguro
+delete raw_ptr;  // ✅ delete nullptr es seguro (no-op)`}
         </CodeBlock>
 
         <h4>🔧 Sistema de Detección Personalizado</h4>
         <CodeBlock>
-<code><span className="comment">// Debug allocator con tracking</span>
-<span className="type">#include</span> <span className="string">&lt;unordered_set&gt;</span>
-<span className="type">#include</span> <span className="string">&lt;mutex&gt;</span>
-<span className="type">#include</span> <span className="string">&lt;iostream&gt;</span>
+          {`// Debug allocator con tracking
+#include <unordered_set>
+#include <mutex>
+#include <iostream>
 
-<span className="keyword">class</span> <span className="type">DebugAllocator</span> {
-    <span className="keyword">static</span> <span className="type">std::unordered_set</span>&lt;<span className="keyword">void</span>*&gt; <span className="keyword">allocated_pointers</span>;
-    <span className="keyword">static</span> <span className="type">std::mutex</span> <span className="keyword">mutex</span>;
+class DebugAllocator {
+    static std::unordered_set<void*> allocated_pointers;
+    static std::mutex mutex;
 
-<span className="keyword">public</span>:
-    <span className="keyword">static</span> <span className="keyword">void</span>* <span className="type">allocate</span>(<span className="keyword">size_t</span> <span className="keyword">size</span>) {
-        <span className="keyword">void</span>* <span className="keyword">ptr</span> = <span className="type">malloc</span>(<span className="keyword">size</span>);
+public:
+    static void* allocate(size_t size) {
+        void* ptr = malloc(size);
         
-        <span className="type">std::lock_guard</span>&lt;<span className="type">std::mutex</span>&gt; <span className="keyword">lock</span>(<span className="keyword">mutex</span>);
-        <span className="keyword">allocated_pointers</span>.<span className="type">insert</span>(<span className="keyword">ptr</span>);
+        std::lock_guard<std::mutex> lock(mutex);
+        allocated_pointers.insert(ptr);
         
-        <span className="type">std::cout</span> &lt;&lt; <span className="string">"Allocated: "</span> &lt;&lt; <span className="keyword">ptr</span> &lt;&lt; <span className="string">"\n"</span>;
-        <span className="keyword">return</span> <span className="keyword">ptr</span>;
+        std::cout << "Allocated: " << ptr << "\\n";
+        return ptr;
     }
     
-    <span className="keyword">static</span> <span className="keyword">void</span> <span className="type">deallocate</span>(<span className="keyword">void</span>* <span className="keyword">ptr</span>) {
-        <span className="keyword">if</span> (!<span className="keyword">ptr</span>) <span className="keyword">return</span>; <span className="comment">// delete nullptr es legal</span>
+    static void deallocate(void* ptr) {
+        if (!ptr) return; // delete nullptr es legal
         
-        <span className="type">std::lock_guard</span>&lt;<span className="type">std::mutex</span>&gt; <span className="keyword">lock</span>(<span className="keyword">mutex</span>);
+        std::lock_guard<std::mutex> lock(mutex);
         
-        <span className="keyword">auto</span> <span className="keyword">it</span> = <span className="keyword">allocated_pointers</span>.<span className="type">find</span>(<span className="keyword">ptr</span>);
-        <span className="keyword">if</span> (<span className="keyword">it</span> == <span className="keyword">allocated_pointers</span>.<span className="type">end</span>()) {
-            <span className="comment">// DOUBLE DELETE DETECTADO!</span>
-            <span className="danger">std::cerr &lt;&lt; "ERROR: Double delete detected for " &lt;&lt; ptr &lt;&lt; "\n";
-            std::terminate();</span>
+        auto it = allocated_pointers.find(ptr);
+        if (it == allocated_pointers.end()) {
+            // DOUBLE DELETE DETECTADO!
+            std::cerr << "ERROR: Double delete detected for " << ptr << "\\n";
+            std::terminate();
         }
         
-        <span className="keyword">allocated_pointers</span>.<span className="type">erase</span>(<span className="keyword">it</span>);
-        <span className="type">free</span>(<span className="keyword">ptr</span>);
-        <span className="type">std::cout</span> &lt;&lt; <span className="string">"Deallocated: "</span> &lt;&lt; <span className="keyword">ptr</span> &lt;&lt; <span className="string">"\n"</span>;
+        allocated_pointers.erase(it);
+        free(ptr);
+        std::cout << "Deallocated: " << ptr << "\\n";
     }
 };
 
-<span className="comment">// Uso del debug allocator</span>
-<span className="keyword">int</span>* <span className="keyword">ptr</span> = <span className="keyword">static_cast</span>&lt;<span className="keyword">int</span>*&gt;(<span className="type">DebugAllocator::allocate</span>(<span className="keyword">sizeof</span>(<span className="keyword">int</span>)));
-*<span className="keyword">ptr</span> = <span className="number">42</span>;
+// Uso del debug allocator
+int* ptr = static_cast<int*>(DebugAllocator::allocate(sizeof(int)));
+*ptr = 42;
 
-<span className="type">DebugAllocator::deallocate</span>(<span className="keyword">ptr</span>);   <span className="comment">// ✓ Primera llamada OK</span>
-<span className="type">DebugAllocator::deallocate</span>(<span className="keyword">ptr</span>);   <span className="comment">// ← DETECTADO y terminado!</span></code>
+DebugAllocator::deallocate(ptr);   // ✓ Primera llamada OK
+DebugAllocator::deallocate(ptr);   // ← DETECTADO y terminado!`}
         </CodeBlock>
 
         <h4>📋 Best Practices</h4>
@@ -648,20 +648,20 @@ export default function Lesson49_DoubleDeleteDetection({ onComplete, isCompleted
 
         <h4>🔬 Ejemplo de Testing</h4>
         <CodeBlock>
-<code><span className="comment">// Unit test que verifica protección contra double delete</span>
-<span className="type">#include</span> <span className="string">&lt;gtest/gtest.h&gt;</span>
+          {`// Unit test que verifica protección contra double delete
+#include <gtest/gtest.h>
 
-<span className="type">TEST</span>(<span className="type">SmartPointerTest</span>, <span className="type">DoubleDeletePrevention</span>) {
-    <span className="keyword">auto</span> <span className="keyword">ptr</span> = <span className="type">std::make_unique</span>&lt;<span className="keyword">int</span>&gt;(<span className="number">42</span>);
+TEST(SmartPointerTest, DoubleDeletePrevention) {
+    auto ptr = std::make_unique<int>(42);
     
-    <span className="comment">// Primera "delete" mediante move</span>
-    <span className="keyword">auto</span> <span className="keyword">ptr2</span> = <span className="type">std::move</span>(<span className="keyword">ptr</span>);
-    <span className="type">EXPECT_EQ</span>(<span className="keyword">ptr</span>.<span className="type">get</span>(), <span className="keyword">nullptr</span>); <span className="comment">// ptr debe ser nullptr</span>
+    // Primera "delete" mediante move
+    auto ptr2 = std::move(ptr);
+    EXPECT_EQ(ptr.get(), nullptr); // ptr debe ser nullptr
     
-    <span className="comment">// "Double delete" debe ser seguro</span>
-    <span className="type">EXPECT_NO_THROW</span>(<span className="keyword">ptr</span>.<span className="type">reset</span>());
-    <span className="type">EXPECT_NO_THROW</span>(<span className="keyword">ptr</span> = <span className="keyword">nullptr</span>);
-}</code>
+    // "Double delete" debe ser seguro
+    EXPECT_NO_THROW(ptr.reset());
+    EXPECT_NO_THROW(ptr = nullptr);
+}`}
         </CodeBlock>
       </Description>
 

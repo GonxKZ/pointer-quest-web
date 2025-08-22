@@ -716,27 +716,29 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
           <TheorySection>
             <h3>🔗 enable_shared_from_this</h3>
             <p>CRTP pattern para obtener shared_ptr válido desde this pointer:</p>
-            <CodeBlock>{`class Widget : public std::enable_shared_from_this<Widget> {
-public:
-    std::shared_ptr<Widget> getSelf() {
-        return shared_from_this();  // ✅ Safe
-    }
-    
-    void doAsyncWork() {
-        auto self = shared_from_this();
-        asyncFunction([self](){ 
-            // self mantiene objeto vivo
-        });
-    }
-};
-
-// ✅ Uso correcto
-auto widget = std::make_shared<Widget>();
-auto self = widget->getSelf();  // use_count = 2
-
-// ❌ ERROR - objeto no controlado por shared_ptr
-Widget* raw = new Widget();
-auto self = raw->shared_from_this();  // std::bad_weak_ptr</CodeBlock>
+            <CodeBlock>{[
+              'class Widget : public std::enable_shared_from_this<Widget> {',
+              'public:',
+              '    std::shared_ptr<Widget> getSelf() {',
+              '        return shared_from_this();  // ✅ Safe',
+              '    }',
+              '    ',
+              '    void doAsyncWork() {',
+              '        auto self = shared_from_this();',
+              '        asyncFunction([self](){ ',
+              '            // self mantiene objeto vivo',
+              '        });',
+              '    }',
+              '};',
+              '',
+              '// ✅ Uso correcto',
+              'auto widget = std::make_shared<Widget>();',
+              'auto self = widget->getSelf();  // use_count = 2',
+              '',
+              '// ❌ ERROR - objeto no controlado por shared_ptr',
+              'Widget* raw = new Widget();',
+              'auto self = raw->shared_from_this();  // std::bad_weak_ptr',
+            ].join('\n')}</CodeBlock>
           </TheorySection>
 
           <StepIndicator>
@@ -793,12 +795,14 @@ auto self = raw->shared_from_this();  // std::bad_weak_ptr</CodeBlock>
           <ErrorPanel show={state.errorState.hasError}>
             <h4>💥 {state.errorState.errorType}</h4>
             <p>{state.errorState.errorMessage}</p>
-            <CodeBlock>{`// Causa del error:
-Widget widget;  // Stack object o new Widget()
-auto self = widget.shared_from_this();  // BOOM!
-
-// El weak_ptr interno no fue inicializado porque
-// el objeto no fue creado mediante make_shared`}</CodeBlock>
+            <CodeBlock>{[
+              '// Causa del error:',
+              'Widget widget;  // Stack object o new Widget()',
+              'auto self = widget.shared_from_this();  // BOOM!',
+              '',
+              '// El weak_ptr interno no fue inicializado porque',
+              '// el objeto no fue creado mediante make_shared',
+            ].join('\n')}</CodeBlock>
           </ErrorPanel>
 
           <StatusPanel>
@@ -813,25 +817,27 @@ auto self = widget.shared_from_this();  // BOOM!
 
           <TheorySection>
             <h4>🏗️ Implementación Interna</h4>
-            <CodeBlock>{`template<class T>
-class enable_shared_from_this {
-private:
-    mutable std::weak_ptr<T> weak_this_;
-    
-public:
-    std::shared_ptr<T> shared_from_this() {
-        std::shared_ptr<T> result(weak_this_);
-        if (!result) {
-            throw std::bad_weak_ptr();
-        }
-        return result;
-    }
-    
-    // shared_ptr constructor llama a esto
-    void _internal_accept_owner(const std::shared_ptr<T>& owner) {
-        weak_this_ = owner;
-    }
-};`}</CodeBlock>
+            <CodeBlock>{[
+              'template<class T>',
+              'class enable_shared_from_this {',
+              'private:',
+              '    mutable std::weak_ptr<T> weak_this_;',
+              '',
+              'public:',
+              '    std::shared_ptr<T> shared_from_this() {',
+              '        std::shared_ptr<T> result(weak_this_);',
+              '        if (!result) {',
+              '            throw std::bad_weak_ptr();',
+              '        }',
+              '        return result;',
+              '    }',
+              '',
+              '    // shared_ptr constructor llama a esto',
+              '    void _internal_accept_owner(const std::shared_ptr<T>& owner) {',
+              '        weak_this_ = owner;',
+              '    }',
+              '};',
+            ].join('\n')}</CodeBlock>
           </TheorySection>
 
           <TheorySection>
@@ -848,28 +854,30 @@ public:
 
           <TheorySection>
             <h4>⚠️ Restricciones y Cuidados</h4>
-            <CodeBlock>{`// ❌ No llamar en constructor
-class Widget : public enable_shared_from_this<Widget> {
-public:
-    Widget() {
-        auto self = shared_from_this();  // BAD_WEAK_PTR
-    }
-};
-
-// ❌ Solo una herencia de enable_shared_from_this
-class A : public enable_shared_from_this<A> {};
-class B : public enable_shared_from_this<B> {};
-class C : public A, public B {};  // ERROR - ambiguous
-
-// ✅ Patrón correcto para factory
-class Widget : public enable_shared_from_this<Widget> {
-public:
-    static std::shared_ptr<Widget> create() {
-        return std::shared_ptr<Widget>(new Widget());
-    }
-private:
-    Widget() = default;  // No public constructor
-};`}</CodeBlock>
+            <CodeBlock>{[
+              '// ❌ No llamar en constructor',
+              'class Widget : public enable_shared_from_this<Widget> {',
+              'public:',
+              '    Widget() {',
+              '        auto self = shared_from_this();  // BAD_WEAK_PTR',
+              '    }',
+              '};',
+              '',
+              '// ❌ Solo una herencia de enable_shared_from_this',
+              'class A : public enable_shared_from_this<A> {};',
+              'class B : public enable_shared_from_this<B> {};',
+              'class C : public A, public B {};  // ERROR - ambiguous',
+              '',
+              '// ✅ Patrón correcto para factory',
+              'class Widget : public enable_shared_from_this<Widget> {',
+              'public:',
+              '    static std::shared_ptr<Widget> create() {',
+              '        return std::shared_ptr<Widget>(new Widget());',
+              '    }',
+              'private:',
+              '    Widget() = default;  // No public constructor',
+              '};',
+            ].join('\n')}</CodeBlock>
           </TheorySection>
 
           <Button onClick={resetDemo} variant="secondary">

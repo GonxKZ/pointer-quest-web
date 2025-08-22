@@ -1,7 +1,6 @@
 import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Text, Line, Html, OrbitControls } from '@react-three/drei';
-// import { useApp } from '../context/AppContext'; // Not used
 import * as THREE from 'three';
 
 // Tipos para el sistema automático
@@ -81,7 +80,8 @@ function AutoPointer({
       currentEnd[0], currentEnd[1], currentEnd[2]
     ]);
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.attributes.position.needsUpdate = true;
+    const posAttr = geometry.getAttribute('position') as THREE.BufferAttribute;
+    posAttr.needsUpdate = true;
 
     // Efecto de pulso
     const material = lineRef.current.material as THREE.LineBasicMaterial;
@@ -159,10 +159,12 @@ function AutoMemoryBlock({
 // Componente principal de demostración automática
 function AutoDemoScene({
   currentStep,
-  onStepChange
+  onStepChange,
+  autoPlay
 }: {
   currentStep: number;
   onStepChange?: (step: DemoStep) => void;
+  autoPlay?: boolean;
 }) {
   const demoSteps: DemoStep[] = useMemo(() => [
     {
@@ -202,17 +204,20 @@ function AutoDemoScene({
     }
   ], []);
 
-  const currentDemoStep = demoSteps[currentStep % demoSteps.length];
+  const currentDemoStep = demoSteps[currentStep % demoSteps.length] || demoSteps[0];
 
   // Cambiar paso automáticamente
   useEffect(() => {
+    if (!onStepChange || !autoPlay) return;
+    
     const interval = setInterval(() => {
       const nextStep = (currentStep + 1) % demoSteps.length;
-      onStepChange?.(demoSteps[nextStep]);
-    }, currentDemoStep.duration * 1000);
+      const next = demoSteps[nextStep];
+      if (next) onStepChange(next);
+    }, (currentDemoStep?.duration || 3) * 1000);
 
     return () => clearInterval(interval);
-  }, [currentStep, demoSteps, currentDemoStep.duration, onStepChange]);
+  }, [currentStep, demoSteps, currentDemoStep?.duration, onStepChange, autoPlay]);
 
   return (
     <>
@@ -277,10 +282,10 @@ function AutoDemoScene({
           minWidth: '300px'
         }}>
           <h3 style={{ color: '#00d4ff', marginBottom: '10px' }}>
-            {currentDemoStep.title}
+            {currentDemoStep?.title || 'Demo Step'}
           </h3>
           <p style={{ margin: 0 }}>
-            {currentDemoStep.description}
+            {currentDemoStep?.description || 'Demo description'}
           </p>
         </div>
       </Html>
@@ -291,7 +296,7 @@ function AutoDemoScene({
 // Componente principal exportado
 export default function Auto3DDemo({
   onStepChange,
-  autoPlay = true, // eslint-disable-line @typescript-eslint/no-unused-vars
+  autoPlay = true,
   speed = 1
 }: AutoDemoProps) {
   const [currentStep, setCurrentStep] = React.useState(0);
@@ -312,6 +317,7 @@ export default function Auto3DDemo({
         <AutoDemoScene
           currentStep={currentStep}
           onStepChange={handleStepChange}
+          autoPlay={autoPlay}
         />
       </Canvas>
 
