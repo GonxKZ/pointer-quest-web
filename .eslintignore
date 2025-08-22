@@ -1,0 +1,9 @@
+# Ignore unfinished/legacy lesson drafts from linting
+src/lessons/**
+
+# Build output
+build/**
+
+# Generated WASM bundle output (if present)
+src/wasm/**
+
