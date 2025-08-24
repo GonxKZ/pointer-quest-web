@@ -1,7 +1,6 @@
 import React from 'react';
 // import { Link } from 'react-router-dom'; // Not used
 import styled from 'styled-components';
-import { useApp } from '../context/AppContext';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { Text, OrbitControls } from '@react-three/drei';
@@ -4062,7 +4061,6 @@ const Enhanced3DVisualization = ({ lesson, animationStep, isAnimating }: {
   animationStep: number,
   isAnimating: boolean
 }) => {
-  const { state } = useApp(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Crear datos de visualización basados en la lección y paso actual
   const getVisualizationData = () => {
@@ -5011,7 +5009,6 @@ const CelebrationStatLabel = styled.div`
 
 
 export default function LessonList() {
-  const { state } = useApp(); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [filter, setFilter] = React.useState<'all' | 'beginner' | 'intermediate' | 'advanced' | 'completed' | 'pending'>('all');
   const [selectedLesson, setSelectedLesson] = React.useState<any>(null);
   const [show3D, setShow3D] = React.useState(false);

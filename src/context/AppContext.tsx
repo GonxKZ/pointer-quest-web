@@ -8,6 +8,7 @@ interface AppState {
   is3DMode: boolean;
   showError: boolean;
   errorMessage: string;
+  language: 'en' | 'es';
 }
 
 type AppAction =
@@ -17,7 +18,8 @@ type AppAction =
   | { type: 'TOGGLE_3D_MODE' }
   | { type: 'SHOW_ERROR'; payload: string }
   | { type: 'HIDE_ERROR' }
-  | { type: 'RESET_MEMORY' };
+  | { type: 'RESET_MEMORY' }
+  | { type: 'CHANGE_LANGUAGE'; payload: 'en' | 'es' };
 
 const initialState: AppState = {
   userProgress: {
@@ -46,6 +48,7 @@ const initialState: AppState = {
   is3DMode: false,
   showError: false,
   errorMessage: '',
+  language: 'en',
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -88,6 +91,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
           pointers: [],
         },
       };
+
+    case 'CHANGE_LANGUAGE':
+      return { ...state, language: action.payload };
 
     default:
       return state;

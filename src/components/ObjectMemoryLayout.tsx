@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, Suspense } from 'react';
 import styled from 'styled-components';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Text, Html } from '@react-three/drei';
+import { useOptimizedAnimation } from '../hooks/useOptimizedAnimation';
+import * as THREE from 'three';
 
 const Container = styled.div`
   background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
@@ -204,9 +208,251 @@ const objectLayouts = {
   }
 };
 
+// 3D Memory Block Component
+const MemoryBlock3D = React.memo(({ 
+  position, 
+  field, 
+  byteIndex, 
+  isHovered = false,
+ 
+}: {
+  position: [number, number, number];
+  field: { name: string; type: string; offset: number; size: number; value: string };
+  byteIndex: number;
+  isHovered?: boolean;
+  animated?: boolean;
+}) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  const getBlockColor = () => {
+    switch (field.type) {
+      case 'int': return '#4CAF50';
+      case 'pointer': return '#2196F3';
+      case 'vtable': return '#FF9800';
+      case 'padding': return '#666666';
+      default: return '#9E9E9E';
+    }
+  };
+  
+  useOptimizedAnimation(
+    `memory-block-${byteIndex}`,
+    React.useCallback((state) => {
+      if (!meshRef.current) return;
+      
+      const time = state.clock.elapsedTime;
+      
+      if (isHovered) {
+        const pulse = 1 + Math.sin(time * 8) * 0.15;
+        meshRef.current.scale.setScalar(pulse);
+      } else {
+        meshRef.current.scale.setScalar(1);
+      }
+    }, [isHovered]),
+    1,
+    [position, isHovered]
+  );
+  
+  return (
+    <group position={position}>
+      <mesh ref={meshRef}>
+        <boxGeometry args={[0.8, 0.6, 0.4]} />
+        <meshStandardMaterial
+          color={getBlockColor()}
+          transparent
+          opacity={isHovered ? 1 : 0.8}
+          emissive={getBlockColor()}
+          emissiveIntensity={isHovered ? 0.3 : 0.05}
+        />
+      </mesh>
+      
+      {/* Byte value */}
+      <Text
+        position={[0, 0, 0.25]}
+        fontSize={0.15}
+        color="#FFFFFF"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/FiraCode-Regular.woff"
+      >
+        {field.type === 'int' && field.value !== '???' ? 
+          (((parseInt(field.value) >> ((byteIndex - field.offset) * 8)) & 0xFF).toString(16).padStart(2, '0')).toUpperCase() :
+          field.type === 'pointer' && field.value !== '???' ?
+          (((parseInt(field.value, 16) >> ((byteIndex - field.offset) * 8)) & 0xFF).toString(16).padStart(2, '0')).toUpperCase() :
+          '00'
+        }
+      </Text>
+      
+      {/* Field type indicator */}
+      <Text
+        position={[0, -0.4, 0]}
+        fontSize={0.08}
+        color="#CCCCCC"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/FiraCode-Regular.woff"
+      >
+        {field.type}
+      </Text>
+      
+      {/* Interactive tooltip */}
+      {isHovered && (
+        <Html position={[0, 0.8, 0]} center>
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            padding: '6px 10px',
+            borderRadius: '6px',
+            fontSize: '11px',
+            fontFamily: 'monospace',
+            textAlign: 'center',
+            border: `2px solid ${getBlockColor()}`,
+            whiteSpace: 'nowrap'
+          }}>
+            <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>{field.name}</div>
+            <div>Byte {byteIndex}: {field.type}</div>
+            <div>Offset: +{byteIndex}</div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+});
+
+// 3D Object Layout Scene
+const ObjectLayout3DScene = React.memo(({ 
+  layout,
+  hoveredByte,
+  onByteHover 
+}: {
+  layout: any;
+  hoveredByte: number | null;
+  onByteHover: (index: number | null) => void;
+}) => {
+  // Create 3D representation of memory bytes
+  const memoryBlocks = [];
+  for (let i = 0; i < layout.size; i++) {
+    const field = layout.fields.find((f: any) => i >= f.offset && i < f.offset + f.size);
+    if (field) {
+      memoryBlocks.push({
+        position: [i * 1.2 - (layout.size * 0.6), 0, 0] as [number, number, number],
+        field,
+        byteIndex: i,
+        isHovered: hoveredByte === i
+      });
+    }
+  }
+  
+  return (
+    <>
+      {/* Lighting */}
+      <ambientLight intensity={0.6} />
+      <pointLight position={[10, 10, 10]} intensity={0.8} />
+      <pointLight position={[-10, 5, 5]} intensity={0.4} />
+      
+      {/* Camera controls */}
+      <OrbitControls
+        enablePan={true}
+        enableZoom={true}
+        enableRotate={true}
+        minDistance={5}
+        maxDistance={20}
+        maxPolarAngle={Math.PI / 2}
+      />
+      
+      {/* Memory blocks */}
+      {memoryBlocks.map((block, index) => (
+        <group
+          key={index}
+          onPointerEnter={() => onByteHover(block.byteIndex)}
+          onPointerLeave={() => onByteHover(null)}
+        >
+          <MemoryBlock3D
+            position={block.position}
+            field={block.field}
+            byteIndex={block.byteIndex}
+            isHovered={block.isHovered}
+          />
+        </group>
+      ))}
+      
+      {/* Memory layout title */}
+      <Text
+        position={[0, 2, 0]}
+        fontSize={0.4}
+        color="#00D4FF"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/FiraCode-Regular.woff"
+      >
+        {layout.name} Memory Layout
+      </Text>
+      
+      {/* Size and alignment info */}
+      <Text
+        position={[0, -2, 0]}
+        fontSize={0.2}
+        color="#4CAF50"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/FiraCode-Regular.woff"
+      >
+        Size: {layout.size} bytes • Alignment: {layout.alignment} bytes
+      </Text>
+      
+      {/* Address markers */}
+      {Array.from({ length: Math.ceil(layout.size / 4) }).map((_, i) => (
+        <group key={i} position={[i * 4 * 1.2 - (layout.size * 0.6), -1.5, 0]}>
+          <Text
+            fontSize={0.12}
+            color="#666666"
+            anchorX="center"
+            anchorY="middle"
+            font="/fonts/FiraCode-Regular.woff"
+          >
+            +{i * 4}
+          </Text>
+        </group>
+      ))}
+      
+      {/* Interactive field boundaries */}
+      {layout.fields.map((field: any, index: number) => (
+        <group key={index}>
+          {/* Field boundary lines */}
+          <mesh position={[(field.offset + field.size/2) * 1.2 - (layout.size * 0.6), 0.8, 0]}>
+            <cylinderGeometry args={[0.02, 0.02, 1.6]} />
+            <meshBasicMaterial color="#FF9800" transparent opacity={0.6} />
+          </mesh>
+          
+          {/* Field name label */}
+          <Html position={[(field.offset + field.size/2) * 1.2 - (layout.size * 0.6), 1.2, 0]} center>
+            <div style={{
+              background: 'rgba(255, 152, 0, 0.9)',
+              color: 'white',
+              padding: '2px 6px',
+              borderRadius: '3px',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
+              {field.name}
+            </div>
+          </Html>
+        </group>
+      ))}
+      
+      {/* Background grid */}
+      <mesh position={[0, -0.5, -1]} rotation={[-Math.PI/2, 0, 0]}>
+        <planeGeometry args={[layout.size * 1.5, 4]} />
+        <meshBasicMaterial color="#0a0a0a" transparent opacity={0.3} />
+      </mesh>
+    </>
+  );
+});
+
 export default function ObjectMemoryLayout() {
   const [selectedObject, setSelectedObject] = useState('simple_struct');
   const [hoveredByte, setHoveredByte] = useState<number | null>(null);
+  const [show3D, setShow3D] = useState(false);
 
   const currentLayout = objectLayouts[selectedObject as keyof typeof objectLayouts];
 
@@ -340,6 +586,137 @@ export default function ObjectMemoryLayout() {
           • <strong>Considerar cache:</strong> Campos accedidos juntos deberían estar cerca<br/>
           • <strong>sizeof():</strong> Siempre usa para obtener el tamaño real del objeto<br/>
           • <strong>Debuggers:</strong> Aprende a usar el visualizador de memoria de tu debugger
+        </InfoText>
+      </ObjectInfo>
+      {/* 3D Visualization Toggle */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        margin: '20px 0'
+      }}>
+        <button
+          onClick={() => setShow3D(!show3D)}
+          style={{
+            padding: '12px 24px',
+            background: show3D ? 
+              'linear-gradient(45deg, #00d4ff, #4ecdc4)' :
+              'linear-gradient(45deg, #666, #444)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+            boxShadow: show3D ? '0 4px 15px rgba(0, 212, 255, 0.4)' : 'none'
+          }}
+        >
+          {show3D ? '🔄 Switch to 2D View' : '🎯 Switch to 3D View'}
+        </button>
+      </div>
+      
+      {/* 3D Visualization */}
+      {show3D && (
+        <div style={{
+          width: '100%',
+          height: '500px',
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2a 100%)',
+          borderRadius: '15px',
+          border: '1px solid rgba(0, 212, 255, 0.3)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <Suspense fallback={
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              color: '#00d4ff',
+              fontSize: '18px'
+            }}>
+              🔄 Loading 3D Memory Layout...
+            </div>
+          }>
+            <Canvas 
+              camera={{ position: [0, 3, 8], fov: 60 }}
+              style={{ background: 'transparent' }}
+            >
+              <ObjectLayout3DScene
+                layout={currentLayout}
+                hoveredByte={hoveredByte}
+                onByteHover={setHoveredByte}
+              />
+            </Canvas>
+          </Suspense>
+          
+          {/* 3D Controls hint */}
+          <div style={{
+            position: 'absolute',
+            bottom: '10px',
+            left: '10px',
+            background: 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontFamily: 'monospace'
+          }}>
+            🖱️ Drag to rotate • 🔍 Scroll to zoom • Hover bytes for details
+          </div>
+        </div>
+      )}
+      
+      {/* Enhanced Memory Analysis */}
+      <ObjectInfo>
+        <InfoTitle>🔬 Advanced Memory Analysis</InfoTitle>
+        <InfoText>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '20px',
+            marginTop: '15px'
+          }}>
+            <div>
+              <strong style={{ color: '#4CAF50' }}>Memory Efficiency:</strong>
+              <div style={{ fontSize: '12px', marginTop: '5px', lineHeight: '1.4' }}>
+                • <strong>Utilization:</strong> {((currentLayout.fields.filter((f: any) => f.type !== 'padding').reduce((acc: number, f: any) => acc + f.size, 0) / currentLayout.size) * 100).toFixed(1)}%<br/>
+                • <strong>Padding bytes:</strong> {currentLayout.fields.filter((f: any) => f.type === 'padding').reduce((acc: number, f: any) => acc + f.size, 0)}<br/>
+                • <strong>Wasted space:</strong> {currentLayout.size - currentLayout.fields.filter((f: any) => f.type !== 'padding').reduce((acc: number, f: any) => acc + f.size, 0)} bytes
+              </div>
+            </div>
+            
+            <div>
+              <strong style={{ color: '#2196F3' }}>Cache Performance:</strong>
+              <div style={{ fontSize: '12px', marginTop: '5px', lineHeight: '1.4' }}>
+                • <strong>Cache lines:</strong> {Math.ceil(currentLayout.size / 64)}<br/>
+                • <strong>Alignment:</strong> {currentLayout.alignment}-byte aligned<br/>
+                • <strong>Access pattern:</strong> {currentLayout.size <= 64 ? 'Single cache line' : 'Multiple cache lines'}
+              </div>
+            </div>
+          </div>
+          
+          <div style={{
+            marginTop: '15px',
+            padding: '10px',
+            background: 'rgba(0, 212, 255, 0.1)',
+            borderRadius: '6px',
+            border: '1px solid rgba(0, 212, 255, 0.3)'
+          }}>
+            <strong style={{ color: '#00D4FF' }}>🚀 Optimization Suggestions:</strong>
+            <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', fontSize: '12px', lineHeight: '1.4' }}>
+              {currentLayout.fields.filter((f: any) => f.type === 'padding').length > 0 && (
+                <li>Consider reordering fields to minimize padding</li>
+              )}
+              {currentLayout.size > 64 && (
+                <li>Large object - consider splitting for better cache performance</li>
+              )}
+              {currentLayout.alignment < 8 && currentLayout.size >= 8 && (
+                <li>Consider using alignas() for better alignment</li>
+              )}
+              <li>Use #pragma pack carefully - may hurt performance</li>
+            </ul>
+          </div>
         </InfoText>
       </ObjectInfo>
     </Container>

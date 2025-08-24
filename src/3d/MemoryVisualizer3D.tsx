@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback, memo, Suspense } from 'react';
+import { useRef, useMemo, useCallback, memo, Suspense, useState, useEffect } from 'react';
 import type { RootState } from '@react-three/fiber';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
@@ -6,6 +6,7 @@ import { useApp } from '../context/AppContext';
 import { MemoryBlock3D, Pointer3D } from '../types';
 import { useOptimizedAnimation, useAnimationFrame, usePerformanceAnimation } from '../hooks/useOptimizedAnimation';
 import { useMemoryManagement, useMaterialSharing } from '../hooks/useMemoryManagement';
+import { get3DTranslation, get3DLabel, get3DMessage } from '../translations/3d-visualization.es';
 import * as THREE from 'three';
 
 // Optimized memory block component with memoization
@@ -106,6 +107,248 @@ const MemoryBlock = memo(({ block, position }: { block: MemoryBlock3D; position:
 });
 
 
+
+// Advanced Dangling Pointer Detection Component
+const DanglingPointerWarning = memo(({ position, isActive }: {
+  position: [number, number, number];
+  isActive: boolean;
+}) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useOptimizedAnimation(
+    `dangling-warning-${position.join('-')}`,
+    useCallback((state) => {
+      if (!meshRef.current || !isActive) return;
+      
+      const time = state.clock.elapsedTime;
+      const flash = Math.sin(time * 8) * 0.5 + 0.5;
+      
+      if ('opacity' in meshRef.current.material) {
+        (meshRef.current.material as any).opacity = flash * 0.8 + 0.2;
+      }
+      meshRef.current.rotation.z = time * 2;
+    }, [isActive]),
+    2, // High priority for warnings
+    [position, isActive]
+  );
+  
+  if (!isActive) return null;
+  
+  return (
+    <group position={position}>
+      <mesh ref={meshRef}>
+        <ringGeometry args={[0.3, 0.5, 8]} />
+        <meshStandardMaterial
+          color="#FF5252"
+          transparent
+          emissive="#FF5252"
+          emissiveIntensity={0.5}
+        />
+      </mesh>
+      <Text
+        position={[0, 0, 0.1]}
+        fontSize={0.15}
+        color="#FFFFFF"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/FiraCode-Regular.woff"
+      >
+        ⚠
+      </Text>
+      <Html position={[0, -0.8, 0]} center>
+        <div style={{
+          background: 'rgba(255, 82, 82, 0.9)',
+          color: 'white',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontSize: '10px',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          border: '1px solid #FF1744'
+        }}>
+          {get3DMessage('danglingPointer')}
+        </div>
+      </Html>
+    </group>
+  );
+});
+
+// Memory Leak Detection Component
+const MemoryLeakIndicator = memo(({ position, severity }: {
+  position: [number, number, number];
+  severity: 'low' | 'medium' | 'high';
+}) => {
+  const particlesRef = useRef<THREE.Group>(null);
+  
+  const colors = {
+    low: '#FFC107',
+    medium: '#FF9800',
+    high: '#FF5252'
+  };
+  
+  const particleCount = {
+    low: 3,
+    medium: 6,
+    high: 10
+  };
+  
+  useOptimizedAnimation(
+    `leak-indicator-${position.join('-')}`,
+    useCallback((state) => {
+      if (!particlesRef.current) return;
+      
+      const time = state.clock.elapsedTime;
+      
+      particlesRef.current.children.forEach((particle, index) => {
+        const offset = index * 0.5;
+        particle.position.y = Math.sin(time * 2 + offset) * 0.2;
+        particle.rotation.y = time + offset;
+      });
+    }, []),
+    1, // Medium priority
+    [position, severity]
+  );
+  
+  return (
+    <group position={position}>
+      <group ref={particlesRef}>
+        {Array.from({ length: particleCount[severity] }).map((_, i) => {
+          const angle = (i * Math.PI * 2) / particleCount[severity];
+          const radius = 0.4;
+          return (
+            <mesh
+              key={i}
+              position={[
+                Math.cos(angle) * radius,
+                0,
+                Math.sin(angle) * radius
+              ]}
+            >
+              <sphereGeometry args={[0.05, 6, 6]} />
+              <meshStandardMaterial
+                color={colors[severity]}
+                emissive={colors[severity]}
+                emissiveIntensity={0.6}
+              />
+            </mesh>
+          );
+        })}
+      </group>
+      
+      <Html position={[0, -0.6, 0]} center>
+        <div style={{
+          background: `rgba(${severity === 'high' ? '255,82,82' : severity === 'medium' ? '255,152,0' : '255,193,7'}, 0.9)`,
+          color: 'white',
+          padding: '2px 6px',
+          borderRadius: '3px',
+          fontSize: '8px',
+          fontWeight: 'bold',
+          textAlign: 'center'
+        }}>
+          {severity.toUpperCase()} LEAK
+        </div>
+      </Html>
+    </group>
+  );
+});
+
+// Enhanced Memory Region Visualization
+const MemoryRegion = memo(({ type, position, blocks, showBoundaries = true }: {
+  type: 'stack' | 'heap' | 'global';
+  position: [number, number, number];
+  blocks: MemoryBlock3D[];
+  showBoundaries?: boolean;
+}) => {
+  const regionRef = useRef<THREE.Group>(null);
+  
+  const regionColors = {
+    stack: { primary: '#00FF88', secondary: 'rgba(0, 255, 136, 0.1)', border: '#00FF88' },
+    heap: { primary: '#FF6B6B', secondary: 'rgba(255, 107, 107, 0.1)', border: '#FF6B6B' },
+    global: { primary: '#FFA500', secondary: 'rgba(255, 165, 0, 0.1)', border: '#FFA500' }
+  };
+  
+  const colors = regionColors[type];
+  
+  return (
+    <group ref={regionRef} position={position}>
+      {/* Region boundary */}
+      {showBoundaries && (
+        <mesh position={[0, 0, -0.5]}>
+          <planeGeometry args={[4, 6]} />
+          <meshStandardMaterial
+            color={colors.secondary}
+            transparent
+            opacity={0.2}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+      
+      {/* Region border */}
+      {showBoundaries && (
+        <line>
+          <bufferGeometry>
+            <bufferAttribute
+              args={[new Float32Array([
+                -2, -3, 0, 2, -3, 0,
+                2, -3, 0, 2, 3, 0,
+                2, 3, 0, -2, 3, 0,
+                -2, 3, 0, -2, -3, 0
+              ]), 3]}
+              attach="attributes-position"
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color={colors.border} linewidth={2} />
+        </line>
+      )}
+      
+      {/* Memory growth direction indicator for stack */}
+      {type === 'stack' && (
+        <group position={[-1.5, 2.5, 0]}>
+          <Text
+            position={[0, 0, 0]}
+            fontSize={0.2}
+            color={colors.primary}
+            anchorX="center"
+            anchorY="middle"
+            font="/fonts/FiraCode-Regular.woff"
+          >
+            ↓ GROWS DOWN
+          </Text>
+        </group>
+      )}
+      
+      {/* Dynamic allocation indicator for heap */}
+      {type === 'heap' && (
+        <group position={[1.5, 2.5, 0]}>
+          <Text
+            position={[0, 0, 0]}
+            fontSize={0.2}
+            color={colors.primary}
+            anchorX="center"
+            anchorY="middle"
+            font="/fonts/FiraCode-Regular.woff"
+          >
+            🔄 DYNAMIC
+          </Text>
+        </group>
+      )}
+      
+      {/* Memory blocks within this region */}
+      {blocks.map((block) => (
+        <MemoryBlock 
+          key={block.id} 
+          block={block} 
+          position={[
+            block.position[0] - position[0],
+            block.position[1] - position[1], 
+            block.position[2] - position[2]
+          ]} 
+        />
+      ))}
+    </group>
+  );
+});
 
 // Optimized pointer component with better performance
 const Pointer3DComponent = memo(({ pointer }: { pointer: Pointer3D }) => {
@@ -246,6 +489,102 @@ const Pointer3DComponent = memo(({ pointer }: { pointer: Pointer3D }) => {
   );
 });
 
+// Advanced Memory Analysis Component
+const MemoryAnalytics = memo(({ memoryBlocks, pointers }: {
+  memoryBlocks: MemoryBlock3D[];
+  pointers: Pointer3D[];
+}) => {
+  const analytics = useMemo(() => {
+    const stackBlocks = memoryBlocks.filter(b => b.type === 'stack');
+    const heapBlocks = memoryBlocks.filter(b => b.type === 'heap');
+    const globalBlocks = memoryBlocks.filter(b => b.type === 'global');
+    
+    // Detect potential issues
+    const danglingPointers = pointers.filter(p => {
+      const targetExists = memoryBlocks.some(b => b.id === p.id);
+      return !targetExists;
+    });
+    
+    const memoryLeaks = heapBlocks.filter(block => {
+      const hasPointer = pointers.some(p => p.start.toString() === block.position.toString());
+      return !hasPointer;
+    });
+    
+    return {
+      stackUsage: stackBlocks.length,
+      heapUsage: heapBlocks.length,
+      globalUsage: globalBlocks.length,
+      totalPointers: pointers.length,
+      danglingCount: danglingPointers.length,
+      leakCount: memoryLeaks.length,
+      memoryEfficiency: Math.max(0, 100 - (memoryLeaks.length * 20) - (danglingPointers.length * 15))
+    };
+  }, [memoryBlocks, pointers]);
+  
+  return (
+    <Html position={[8, 8, 0]} style={{ pointerEvents: 'none' }}>
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,40,0.95))',
+        padding: '15px',
+        borderRadius: '12px',
+        border: `2px solid ${analytics.memoryEfficiency > 80 ? '#4CAF50' : analytics.memoryEfficiency > 60 ? '#FF9800' : '#F44336'}`,
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 0 25px rgba(0,212,255,0.3)',
+        minWidth: '200px',
+        color: 'white',
+        fontSize: '12px',
+        fontFamily: 'monospace'
+      }}>
+        <h4 style={{ color: '#00D4FF', margin: '0 0 10px 0', textAlign: 'center' }}>
+          🧠 Memory Analytics
+        </h4>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+          <div>
+            <div style={{ color: '#00FF88', fontWeight: 'bold' }}>Stack: {analytics.stackUsage}</div>
+            <div style={{ color: '#FF6B6B', fontWeight: 'bold' }}>Heap: {analytics.heapUsage}</div>
+            <div style={{ color: '#FFA500', fontWeight: 'bold' }}>Global: {analytics.globalUsage}</div>
+          </div>
+          <div>
+            <div style={{ color: '#00D4FF', fontWeight: 'bold' }}>Ptrs: {analytics.totalPointers}</div>
+            <div style={{ color: '#FF5252', fontWeight: 'bold' }}>Leaks: {analytics.leakCount}</div>
+            <div style={{ color: '#FF9800', fontWeight: 'bold' }}>Dangling: {analytics.danglingCount}</div>
+          </div>
+        </div>
+        
+        <div style={{ 
+          borderTop: '1px solid rgba(255,255,255,0.2)', 
+          paddingTop: '8px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '11px', color: '#999' }}>Memory Efficiency</div>
+          <div style={{ 
+            fontSize: '16px', 
+            fontWeight: 'bold',
+            color: analytics.memoryEfficiency > 80 ? '#4CAF50' : analytics.memoryEfficiency > 60 ? '#FF9800' : '#F44336'
+          }}>
+            {analytics.memoryEfficiency}%
+          </div>
+        </div>
+        
+        {analytics.leakCount > 0 && (
+          <div style={{
+            marginTop: '8px',
+            padding: '4px 8px',
+            background: 'rgba(244, 67, 54, 0.2)',
+            borderRadius: '4px',
+            fontSize: '10px',
+            textAlign: 'center',
+            border: '1px solid #F44336'
+          }}>
+            ⚠️ Memory leaks detected!
+          </div>
+        )}
+      </div>
+    </Html>
+  );
+});
+
 // Componente principal de visualización 3D
 export function MemoryScene() {
   const { state } = useApp();
@@ -374,15 +713,63 @@ export function MemoryScene() {
         GLOBAL
       </Text>
 
-      {/* Renderizar bloques de memoria */}
-      {memoryBlocks.map((block) => (
-        <MemoryBlock key={block.id} block={block} position={block.position} />
-      ))}
+      {/* Enhanced memory regions */}
+      <MemoryRegion 
+        type="stack" 
+        position={[-6, 0, 0]} 
+        blocks={memoryBlocks.filter(b => b.type === 'stack')}
+        showBoundaries={true}
+      />
+      
+      <MemoryRegion 
+        type="heap" 
+        position={[0, 0, 0]} 
+        blocks={memoryBlocks.filter(b => b.type === 'heap')}
+        showBoundaries={true}
+      />
+      
+      <MemoryRegion 
+        type="global" 
+        position={[6, 0, 0]} 
+        blocks={memoryBlocks.filter(b => b.type === 'global')}
+        showBoundaries={true}
+      />
 
-      {/* Renderizar punteros */}
+      {/* Renderizar punteros con detección de problemas */}
       {pointer3D.map((ptr) => (
-        <Pointer3DComponent key={ptr.id} pointer={ptr} />
+        <group key={ptr.id}>
+          <Pointer3DComponent pointer={ptr} />
+          
+          {/* Dangling pointer warning */}
+          <DanglingPointerWarning
+            position={ptr.start}
+            isActive={!memoryBlocks.some(b => 
+              Math.abs(b.position[0] - ptr.end[0]) < 0.5 &&
+              Math.abs(b.position[1] - ptr.end[1]) < 0.5 &&
+              Math.abs(b.position[2] - ptr.end[2]) < 0.5
+            )}
+          />
+        </group>
       ))}
+      
+      {/* Memory leak indicators */}
+      {memoryBlocks
+        .filter(block => block.type === 'heap' && !pointer3D.some(p => 
+          Math.abs(p.end[0] - block.position[0]) < 0.5 &&
+          Math.abs(p.end[1] - block.position[1]) < 0.5 &&
+          Math.abs(p.end[2] - block.position[2]) < 0.5
+        ))
+        .map((block, index) => (
+          <MemoryLeakIndicator
+            key={`leak-${block.id}`}
+            position={[block.position[0], block.position[1] + 1, block.position[2]]}
+            severity={index % 3 === 0 ? 'high' : index % 2 === 0 ? 'medium' : 'low'}
+          />
+        ))
+      }
+      
+      {/* Memory analytics display */}
+      <MemoryAnalytics memoryBlocks={memoryBlocks} pointers={pointer3D} />
 
       {/* Efectos visuales adicionales */}
       {/* Líneas de referencia del sistema de memoria */}
@@ -410,6 +797,66 @@ export function MemoryScene() {
         <lineBasicMaterial color="#ff6b6b" opacity={0.5} transparent />
       </line>
 
+      {/* Enhanced memory layout guide */}
+      <Html position={[-8, -6, 0]} style={{ pointerEvents: 'none' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,40,0.95))',
+          padding: '15px',
+          borderRadius: '12px',
+          border: '2px solid rgba(0, 212, 255, 0.3)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 0 25px rgba(0,212,255,0.3)',
+          color: 'white',
+          fontSize: '11px',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          maxWidth: '300px'
+        }}>
+          <h4 style={{ color: '#00D4FF', margin: '0 0 10px 0', textAlign: 'center' }}>
+            🎯 Memory Management Guide
+          </h4>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ color: '#00FF88', fontWeight: 'bold', marginBottom: '4px' }}>🟢 Stack Memory:</div>
+            <div style={{ fontSize: '10px', lineHeight: '1.3', marginLeft: '8px' }}>
+              • Automatic allocation/deallocation<br/>
+              • LIFO (Last In, First Out)<br/>
+              • Limited size, fast access<br/>
+              • Local variables, function calls
+            </div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ color: '#FF6B6B', fontWeight: 'bold', marginBottom: '4px' }}>🔴 Heap Memory:</div>
+            <div style={{ fontSize: '10px', lineHeight: '1.3', marginLeft: '8px' }}>
+              • Manual allocation (new/malloc)<br/>
+              • Manual deallocation required<br/>
+              • Large capacity, slower access<br/>
+              • Dynamic objects, arrays
+            </div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ color: '#FFA500', fontWeight: 'bold', marginBottom: '4px' }}>🟠 Global Memory:</div>
+            <div style={{ fontSize: '10px', lineHeight: '1.3', marginLeft: '8px' }}>
+              • Program lifetime duration<br/>
+              • Initialized before main()<br/>
+              • Static and global variables<br/>
+              • Thread-shared data
+            </div>
+          </div>
+          
+          <div style={{
+            borderTop: '1px solid rgba(255,255,255,0.2)',
+            paddingTop: '8px',
+            fontSize: '10px',
+            textAlign: 'center',
+            color: '#999'
+          }}>
+            🔍 Watch for leaks and dangling pointers
+          </div>
+        </div>
+      </Html>
+      
       {/* Información de debug mejorada */}
       <Html position={[-8, 8, 0]} style={{ color: 'white', fontSize: '12px' }}>
         <div style={{
@@ -425,23 +872,37 @@ export function MemoryScene() {
             <div>
               <p style={{ margin: '5px 0', color: '#00ff88', fontWeight: 'bold' }}>📚 Stack</p>
               <p style={{ margin: '5px 0', fontSize: '11px', color: '#00ff88' }}>{state.memoryVisualization.stack.length} variables</p>
+              <p style={{ margin: '2px 0', fontSize: '9px', color: '#4ecdc4' }}>Auto-managed</p>
             </div>
             <div>
               <p style={{ margin: '5px 0', color: '#ff6b6b', fontWeight: 'bold' }}>🔥 Heap</p>
               <p style={{ margin: '5px 0', fontSize: '11px', color: '#ff6b6b' }}>{state.memoryVisualization.heap.length} objetos</p>
+              <p style={{ margin: '2px 0', fontSize: '9px', color: '#ff8a80' }}>Manual cleanup</p>
             </div>
             <div>
-              <p style={{ margin: '5px 0', color: '#ff6b6b', fontWeight: 'bold' }}>🌐 Global</p>
-              <p style={{ margin: '5px 0', fontSize: '11px', color: '#ff6b6b' }}>{state.memoryVisualization.global.length} datos</p>
+              <p style={{ margin: '5px 0', color: '#ffa500', fontWeight: 'bold' }}>🌐 Global</p>
+              <p style={{ margin: '5px 0', fontSize: '11px', color: '#ffa500' }}>{state.memoryVisualization.global.length} datos</p>
+              <p style={{ margin: '2px 0', fontSize: '9px', color: '#ffcc02' }}>Program lifetime</p>
             </div>
             <div>
               <p style={{ margin: '5px 0', color: '#00d4ff', fontWeight: 'bold' }}>➡️ Punteros</p>
               <p style={{ margin: '5px 0', fontSize: '11px', color: '#00d4ff' }}>{state.memoryVisualization.pointers.length} conexiones</p>
+              <p style={{ margin: '2px 0', fontSize: '9px', color: '#64b5f6' }}>Active references</p>
             </div>
           </div>
-          <p style={{ margin: '10px 0 0 0', fontSize: '10px', color: '#888', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}>
-            🖱️ Interactúa • 📏 Zoom • 🎯 Explora
-          </p>
+          <div style={{ 
+            margin: '10px 0 0 0', 
+            fontSize: '10px', 
+            color: '#888', 
+            textAlign: 'center', 
+            borderTop: '1px solid rgba(255,255,255,0.1)', 
+            paddingTop: '8px' 
+          }}>
+            <div style={{ marginBottom: '4px' }}>🖱️ Interactúa • 📏 Zoom • 🎯 Explora</div>
+            <div style={{ fontSize: '9px', color: '#666' }}>
+              🔴 Leak Detection • ⚠️ Dangling Pointers • 📊 Memory Analytics
+            </div>
+          </div>
         </div>
       </Html>
     </>
@@ -502,7 +963,7 @@ export default function MemoryVisualizer3D() {
         borderRadius: '5px',
         fontFamily: 'monospace'
       }}>
-        🖱️ Click y arrastra para rotar • 📏 Rueda para zoom
+        🖱️ {get3DLabel('controls.rotate', 'Click y arrastra para rotar')} • 📏 {get3DLabel('controls.zoom', 'Rueda para zoom')}
       </div>
     </div>
   );

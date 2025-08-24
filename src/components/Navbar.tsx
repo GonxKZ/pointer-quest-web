@@ -169,7 +169,7 @@ const ProgressBarContainer = styled.div`
 
 export default function Navbar() {
   const location = useLocation();
-  const { state } = useApp();
+  const { state, dispatch } = useApp();
 
   const getProgress = () => {
     const totalLessons = 120; // Total de lecciones planeadas
@@ -178,6 +178,11 @@ export default function Navbar() {
   };
 
   const progress = getProgress();
+
+  const handleLanguageSwitch = () => {
+    const newLanguage = state.language === 'en' ? 'es' : 'en';
+    dispatch({ type: 'CHANGE_LANGUAGE', payload: newLanguage });
+  };
 
   return (
     <Nav>
@@ -191,19 +196,32 @@ export default function Navbar() {
             to="/lessons"
             className={location.pathname === '/lessons' ? 'active' : ''}
           >
-            📚 Lecciones
+            📚 {state.language === 'en' ? 'Lessons' : 'Lecciones'}
           </NavLink>
 
           <NavLink
             to="/3d"
             className={location.pathname === '/3d' ? 'active' : ''}
           >
-            🕶️ Visualización 3D
+            🕶️ {state.language === 'en' ? '3D Visualization' : 'Visualización 3D'}
           </NavLink>
+          
+          <button 
+            onClick={handleLanguageSwitch} 
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'white', 
+              cursor: 'pointer', 
+              fontSize: '1rem' 
+            }}
+          >
+            {state.language === 'en' ? '🇪🇸' : '🇬🇧'}
+          </button>
         </NavLinks>
 
         <ProgressSection>
-          <ProgressText>Progreso:</ProgressText>
+          <ProgressText>{state.language === 'en' ? 'Progress:' : 'Progreso:'}</ProgressText>
           <ProgressValue>{progress}%</ProgressValue>
           <ProgressBarContainer>
             <div style={{

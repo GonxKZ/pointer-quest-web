@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
 import CodeEditor from '../components/CodeEditor';
 import * as THREE from 'three';
+import { Lesson01_RawPtrTranslation, Lesson01_StepsSpanish, Lesson01_MessagesSpanish } from '../translations/lessons/Lesson01_RawPtr.es';
 
 const LessonContainer = styled.div`
   display: grid;
@@ -247,7 +248,7 @@ function Lesson01Scene({ memoryState }: { memoryState: MemoryState }) {
 }
 
 export default function Lesson01_RawPtr() {
-  const { dispatch } = useApp();
+  const { state, dispatch } = useApp();
   
   const [memoryState, setMemoryState] = useState<MemoryState>({
     x: 42,
@@ -255,17 +256,19 @@ export default function Lesson01_RawPtr() {
     pValue: 42,
     showArrow: true,
     status: 'normal',
-    message: 'p apunta correctamente a x'
+    message: state.language === 'en' ? 'p points correctly to x' : Lesson01_MessagesSpanish.initialMessage
   });
 
   const [currentStep, setCurrentStep] = useState(0);
 
-  const steps = [
-    "Declaración inicial: int x = 42; int* p = &x;",
-    "Observa cómo p almacena la dirección de x",
-    "Modifica x y verifica que p sigue apuntando a la misma dirección",
-    "El puntero no cambia porque almacena una dirección, no un valor"
-  ];
+  const steps = state.language === 'en' 
+    ? [
+      "Initial declaration: int x = 42; int* p = &x;",
+      "Observe how p stores the address of x",
+      "Modify x and verify that p continues pointing to the same address",
+      "The pointer doesn't change because it stores an address, not a value"
+    ]
+    : Lesson01_StepsSpanish;
 
   const modifyX = () => {
     const newValue = memoryState.x + 10;
@@ -274,14 +277,18 @@ export default function Lesson01_RawPtr() {
       x: newValue,
       pValue: newValue,
       status: 'modified',
-      message: `x modificado a ${newValue}. p sigue apuntando a la misma dirección!`
+      message: state.language === 'en' 
+        ? `x modified to ${newValue}. p continues pointing to the same address!`
+        : `${Lesson01_MessagesSpanish.modifiedMessage} ${newValue}`
     }));
     
     setTimeout(() => {
       setMemoryState(prev => ({
         ...prev,
         status: 'normal',
-        message: 'p apunta correctamente a x'
+        message: state.language === 'en' 
+          ? 'p points correctly to x' 
+          : Lesson01_MessagesSpanish.initialMessage
       }));
     }, 3000);
   };
@@ -329,31 +336,58 @@ int main() {
   return (
     <LessonContainer>
       <TheoryPanel>
-        <Title>Tarea 1: Punteros Básicos - int* p = &x</Title>
+        <Title>
+          {state.language === 'en' 
+            ? 'Task 1: Basic Pointers - int* p = &x' 
+            : Lesson01_RawPtrTranslation.title}
+        </Title>
         
         <Section>
-          <SectionTitle>📖 Teoría Fundamental</SectionTitle>
+          <SectionTitle>📖 {state.language === 'en' ? 'Fundamental Theory' : 'Teoría Fundamental'}</SectionTitle>
           <p>
-            Los punteros son variables que almacenan <strong>direcciones de memoria</strong> en lugar de valores directos.
-            Esta es la diferencia fundamental que necesitas interiorizar.
+            {state.language === 'en' 
+              ? 'Pointers are variables that store memory addresses instead of direct values. This is the fundamental difference you need to internalize.'
+              : 'Los punteros son variables que almacenan direcciones de memoria en lugar de valores directos. Esta es la diferencia fundamental que necesitas interiorizar.'}
           </p>
           
-          <h4 style={{ color: '#4ecdc4', marginTop: '1rem' }}>Conceptos Clave:</h4>
+          <h4 style={{ color: '#4ecdc4', marginTop: '1rem' }}>
+            {state.language === 'en' ? 'Key Concepts:' : 'Conceptos Clave:'}
+          </h4>
           <ul style={{ lineHeight: '1.6' }}>
-            <li><strong>int x = 42;</strong> - Variable normal que almacena el valor 42 en la pila</li>
-            <li><strong>int* p = &x;</strong> - Puntero que almacena la dirección donde vive x</li>
-            <li><strong>&x</strong> - Operador address-of: "dame la dirección de x"</li>
-            <li><strong>*p</strong> - Operador de desreferencia: "dame el valor en la dirección p"</li>
+            <li>
+              <strong>int x = 42;</strong> 
+              {state.language === 'en' 
+                ? ' - Normal variable storing value 42 on the stack'
+                : ' - Variable normal que almacena el valor 42 en la pila'}
+            </li>
+            <li>
+              <strong>int* p = &x;</strong>
+              {state.language === 'en' 
+                ? ' - Pointer storing the address where x lives'
+                : ' - Puntero que almacena la dirección donde vive x'}
+            </li>
+            <li>
+              <strong>&x</strong>
+              {state.language === 'en' 
+                ? ' - Address-of operator: "give me the address of x"'
+                : ' - Operador address-of: "dame la dirección de x"'}
+            </li>
+            <li>
+              <strong>*p</strong>
+              {state.language === 'en' 
+                ? ' - Dereference operator: "give me the value at the address p"'
+                : ' - Operador de desreferencia: "dame el valor en la dirección p"'}
+            </li>
           </ul>
         </Section>
 
         <Section>
-          <SectionTitle>💻 Código C++ de Ejemplo</SectionTitle>
+          <SectionTitle>💻 {state.language === 'en' ? 'C++ Example Code' : 'Código C++ de Ejemplo'}</SectionTitle>
           <CodeBlock>{cppCode}</CodeBlock>
         </Section>
 
         <Section>
-          <SectionTitle>🔍 Punto Crítico de Entendimiento</SectionTitle>
+          <SectionTitle>🔍 {state.language === 'en' ? 'Critical Understanding Point' : 'Punto Crítico de Entendimiento'}</SectionTitle>
           <div style={{
             background: 'rgba(255, 202, 40, 0.1)',
             border: '1px solid #ffca28',
@@ -361,51 +395,81 @@ int main() {
             padding: '1rem',
             margin: '1rem 0'
           }}>
-            <strong>⚠️ Concepto Fundamental:</strong><br/>
-            Cuando reasignas <code>x = 100</code>, el puntero <code>p</code> NO cambia porque 
-            almacena una <strong>dirección</strong>, no un valor. La dirección de x permanece 
-            constante durante toda su vida útil.
+            <strong>⚠️ {state.language === 'en' ? 'Fundamental Concept:' : 'Concepto Fundamental:'}</strong><br/>
+            {state.language === 'en' 
+              ? `When you reassign <code>x = 100</code>, the pointer <code>p</code> does NOT change because it stores an 
+                <strong>address</strong>, not a value. The address of x remains constant throughout its lifetime.`
+              : `Cuando reasignas <code>x = 100</code>, el puntero <code>p</code> NO cambia porque 
+                almacena una <strong>dirección</strong>, no un valor. La dirección de x permanece 
+                constante durante toda su vida útil.`}
           </div>
         </Section>
 
         <Section>
-          <SectionTitle>🎮 Interacción</SectionTitle>
-          <p><strong>Paso {currentStep + 1} de {steps.length}:</strong> {steps[currentStep]}</p>
+          <SectionTitle>🎮 {state.language === 'en' ? 'Interaction' : 'Interacción'}</SectionTitle>
+          <p>
+            <strong>
+              {state.language === 'en' 
+                ? `Step ${currentStep + 1} of ${steps.length}:` 
+                : `Paso ${currentStep + 1} de ${steps.length}:`}
+            </strong> {steps[currentStep]}
+          </p>
           
           <Interactive>
             <Button onClick={modifyX}>
-              Modificar x (+10)
+              {state.language === 'en' ? 'Modify x (+10)' : 'Modificar x (+10)'}
             </Button>
             <Button onClick={nextStep} variant="warning">
-              Siguiente Paso
+              {state.language === 'en' ? 'Next Step' : 'Siguiente Paso'}
             </Button>
             <Button onClick={resetValues} variant="danger">
-              Reset
+              {state.language === 'en' ? 'Reset' : 'Reiniciar'}
             </Button>
           </Interactive>
         </Section>
 
         <Section>
-          <SectionTitle>📚 Referencias y Mejores Prácticas</SectionTitle>
+          <SectionTitle>📚 {state.language === 'en' ? 'References and Best Practices' : 'Referencias y Mejores Prácticas'}</SectionTitle>
           <ul style={{ lineHeight: '1.6' }}>
             <li>
               <a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-resource" 
                  style={{ color: '#00d4ff' }} target="_blank" rel="noopener noreferrer">
-                Core Guidelines - Resource Management
+                {state.language === 'en' 
+                  ? 'Core Guidelines - Resource Management'
+                  : 'Pautas Centrales - Gestión de Recursos'}
               </a>
             </li>
-            <li><strong>Regla de Oro:</strong> Siempre inicializa los punteros</li>
-            <li><strong>Verificación:</strong> Comprueba si el puntero es válido antes de desreferenciar</li>
-            <li><strong>Modernidad:</strong> Prefiere smart pointers en código moderno</li>
+            <li>
+              <strong>{state.language === 'en' ? 'Golden Rule:' : 'Regla de Oro:'}</strong> 
+              {state.language === 'en' 
+                ? ' Always initialize pointers'
+                : ' Siempre inicializa los punteros'}
+            </li>
+            <li>
+              <strong>{state.language === 'en' ? 'Verification:' : 'Verificación:'}</strong>
+              {state.language === 'en' 
+                ? ' Check if the pointer is valid before dereferencing'
+                : ' Comprueba si el puntero es válido antes de desreferenciar'}
+            </li>
+            <li>
+              <strong>{state.language === 'en' ? 'Modernity:' : 'Modernidad:'}</strong>
+              {state.language === 'en' 
+                ? ' Prefer smart pointers in modern code'
+                : ' Prefiere smart pointers en código moderno'}
+            </li>
           </ul>
         </Section>
       </TheoryPanel>
 
       <VisualizationPanel>
         <StatusDisplay>
-          <div>🎯 Tarea 1: Raw Pointers</div>
-          <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
-          <div>🔗 Estado: {memoryState.status}</div>
+          <div>🎯 {state.language === 'en' ? 'Task 1: Raw Pointers' : 'Tarea 1: Punteros Básicos'}</div>
+          <div>
+            📍 {state.language === 'en' ? `Step: ${currentStep + 1}/${steps.length}` : `Paso: ${currentStep + 1}/${steps.length}`}
+          </div>
+          <div>
+            🔗 {state.language === 'en' ? `Status: ${memoryState.status}` : `Estado: ${memoryState.status}`}
+          </div>
         </StatusDisplay>
         
         <Canvas camera={{ position: [0, 5, 8], fov: 45 }}>
