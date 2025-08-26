@@ -8,7 +8,7 @@
 import React, { useState, ReactNode } from 'react';
 import styled, { css } from 'styled-components';
 import { theme } from '../theme';
-import { Button, IconButton } from './Button';
+import { IconButton } from './Button';
 
 // CodeBlock props interface
 export interface CodeBlockProps {

@@ -2037,3 +2037,5 @@ void demonstrate_compiler_assumptions_and_semantics() {
     </div>
   );
 }
+
+export default Lesson105_CompilerOptimizationInsights;

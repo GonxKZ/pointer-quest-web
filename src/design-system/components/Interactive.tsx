@@ -596,11 +596,3 @@ export const LearningObjectives: React.FC<LearningObjectivesProps> = ({
   );
 };
 
-export default {
-  InteractiveSection,
-  InteractiveControls,
-  StepExercise,
-  CodePlayground,
-  MemoryVisualizerControls,
-  LearningObjectives
-};

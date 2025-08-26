@@ -1051,10 +1051,568 @@ void memory_layout_demo() {
 }`
     },
     {
+      title: state.language === 'en' ? 'Cross-Platform File Handling' : 'Manejo de Archivos Multiplataforma',
+      code: `#include <fstream>
+#include <filesystem>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <algorithm>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#endif
+
+// Cross-platform file path handling
+class CrossPlatformPath {
+private:
+    std::filesystem::path path_;
+
+public:
+    CrossPlatformPath() = default;
+    explicit CrossPlatformPath(const std::string& path) : path_(path) {
+        normalize_path();
+    }
+    
+    // Platform-specific path separators
+    static constexpr char native_separator() {
+#ifdef _WIN32
+        return '\\\\';
+#else
+        return '/';
+#endif
+    }
+    
+    // Convert to platform-native path
+    std::string native() const {
+        return path_.string();
+    }
+    
+    // Convert to portable path (always forward slashes)
+    std::string portable() const {
+        std::string result = path_.string();
+        std::replace(result.begin(), result.end(), '\\\\', '/');
+        return result;
+    }
+    
+    // Join paths in platform-appropriate way
+    CrossPlatformPath operator/(const std::string& other) const {
+        CrossPlatformPath result;
+        result.path_ = path_ / other;
+        return result;
+    }
+    
+    // Check if path exists
+    bool exists() const {
+        std::error_code ec;
+        return std::filesystem::exists(path_, ec);
+    }
+    
+    // Check if it's a directory
+    bool is_directory() const {
+        std::error_code ec;
+        return std::filesystem::is_directory(path_, ec);
+    }
+    
+    // Get file size
+    std::uintmax_t file_size() const {
+        std::error_code ec;
+        return std::filesystem::file_size(path_, ec);
+    }
+    
+    // Create directory (and parents if needed)
+    bool create_directories() const {
+        std::error_code ec;
+        return std::filesystem::create_directories(path_, ec);
+    }
+
+private:
+    void normalize_path() {
+        // Normalize path separators and resolve . and ..
+        path_ = std::filesystem::absolute(path_);
+        path_ = path_.lexically_normal();
+    }
+};
+
+// Cross-platform file I/O with proper encoding handling
+class CrossPlatformFile {
+private:
+    std::fstream file_;
+    CrossPlatformPath path_;
+    bool is_binary_;
+
+public:
+    enum class Mode { READ, WRITE, APPEND, READ_WRITE };
+    enum class Encoding { UTF8, UTF16LE, UTF16BE, ASCII };
+    
+    CrossPlatformFile(const CrossPlatformPath& path, Mode mode, 
+                     bool binary = false, Encoding encoding = Encoding::UTF8)
+        : path_(path), is_binary_(binary) {
+        
+        std::ios::openmode flags = std::ios::in;
+        
+        switch (mode) {
+        case Mode::READ:
+            flags = std::ios::in;
+            break;
+        case Mode::WRITE:
+            flags = std::ios::out | std::ios::trunc;
+            break;
+        case Mode::APPEND:
+            flags = std::ios::out | std::ios::app;
+            break;
+        case Mode::READ_WRITE:
+            flags = std::ios::in | std::ios::out;
+            break;
+        }
+        
+        if (binary) {
+            flags |= std::ios::binary;
+        }
+        
+        // Platform-specific file opening
+#ifdef _WIN32
+        // Windows: Handle Unicode file names properly
+        std::wstring wide_path = std::filesystem::path(path.native()).wstring();
+        file_.open(wide_path, flags);
+#else
+        // Unix-like: UTF-8 file names work directly
+        file_.open(path.native(), flags);
+#endif
+        
+        if (!file_.is_open()) {
+            throw std::runtime_error("Failed to open file: " + path.native());
+        }
+        
+        // Handle BOM for text files
+        if (!binary && (mode == Mode::READ || mode == Mode::READ_WRITE)) {
+            handle_bom(encoding);
+        }
+    }
+    
+    ~CrossPlatformFile() {
+        if (file_.is_open()) {
+            file_.close();
+        }
+    }
+    
+    // Read data with proper encoding handling
+    std::vector<uint8_t> read_binary(size_t max_bytes = SIZE_MAX) {
+        if (!is_binary_) {
+            throw std::runtime_error("File not opened in binary mode");
+        }
+        
+        file_.seekg(0, std::ios::end);
+        auto file_size = static_cast<size_t>(file_.tellg());
+        file_.seekg(0, std::ios::beg);
+        
+        size_t bytes_to_read = std::min(max_bytes, file_size);
+        std::vector<uint8_t> buffer(bytes_to_read);
+        
+        file_.read(reinterpret_cast<char*>(buffer.data()), bytes_to_read);
+        buffer.resize(static_cast<size_t>(file_.gcount()));
+        
+        return buffer;
+    }
+    
+    std::string read_text() {
+        if (is_binary_) {
+            throw std::runtime_error("File opened in binary mode");
+        }
+        
+        std::ostringstream content;
+        content << file_.rdbuf();
+        return content.str();
+    }
+    
+    // Write data with proper encoding
+    void write_binary(const std::vector<uint8_t>& data) {
+        if (!is_binary_) {
+            throw std::runtime_error("File not opened in binary mode");
+        }
+        
+        file_.write(reinterpret_cast<const char*>(data.data()), data.size());
+        file_.flush();
+    }
+    
+    void write_text(const std::string& text, Encoding encoding = Encoding::UTF8) {
+        if (is_binary_) {
+            throw std::runtime_error("File opened in binary mode");
+        }
+        
+        switch (encoding) {
+        case Encoding::UTF8:
+            file_ << text;
+            break;
+        case Encoding::UTF16LE:
+            write_utf16_le(text);
+            break;
+        case Encoding::UTF16BE:
+            write_utf16_be(text);
+            break;
+        case Encoding::ASCII:
+            // Filter non-ASCII characters
+            for (char c : text) {
+                if (static_cast<unsigned char>(c) < 128) {
+                    file_ << c;
+                }
+            }
+            break;
+        }
+        file_.flush();
+    }
+    
+    bool is_open() const { return file_.is_open(); }
+    std::streampos tell() { return file_.tellg(); }
+    void seek(std::streampos pos) { file_.seekg(pos); }
+
+private:
+    void handle_bom(Encoding expected_encoding) {
+        // Read potential BOM
+        std::streampos initial_pos = file_.tellg();
+        std::array<char, 4> bom_buffer = {};
+        file_.read(bom_buffer.data(), 4);
+        auto bytes_read = file_.gcount();
+        
+        // Check for UTF-8 BOM (EF BB BF)
+        if (bytes_read >= 3 && 
+            static_cast<unsigned char>(bom_buffer[0]) == 0xEF &&
+            static_cast<unsigned char>(bom_buffer[1]) == 0xBB &&
+            static_cast<unsigned char>(bom_buffer[2]) == 0xBF) {
+            
+            if (expected_encoding == Encoding::UTF8) {
+                file_.seekg(initial_pos + std::streamoff(3));
+                return;
+            }
+        }
+        
+        // Check for UTF-16 LE BOM (FF FE)
+        if (bytes_read >= 2 &&
+            static_cast<unsigned char>(bom_buffer[0]) == 0xFF &&
+            static_cast<unsigned char>(bom_buffer[1]) == 0xFE) {
+            
+            if (expected_encoding == Encoding::UTF16LE) {
+                file_.seekg(initial_pos + std::streamoff(2));
+                return;
+            }
+        }
+        
+        // Check for UTF-16 BE BOM (FE FF)
+        if (bytes_read >= 2 &&
+            static_cast<unsigned char>(bom_buffer[0]) == 0xFE &&
+            static_cast<unsigned char>(bom_buffer[1]) == 0xFF) {
+            
+            if (expected_encoding == Encoding::UTF16BE) {
+                file_.seekg(initial_pos + std::streamoff(2));
+                return;
+            }
+        }
+        
+        // No BOM found or doesn't match expected encoding
+        file_.seekg(initial_pos);
+    }
+    
+    void write_utf16_le(const std::string& text) {
+        // Simple UTF-8 to UTF-16LE conversion (basic implementation)
+        for (size_t i = 0; i < text.length(); ++i) {
+            char c = text[i];
+            if (static_cast<unsigned char>(c) < 128) {
+                // ASCII character
+                file_.put(c);
+                file_.put('\\0');
+            } else {
+                // For full UTF-8 to UTF-16 conversion, use proper library
+                // This is a simplified version
+                file_.put('?');
+                file_.put('\\0');
+            }
+        }
+    }
+    
+    void write_utf16_be(const std::string& text) {
+        // Similar to write_utf16_le but with bytes swapped
+        for (size_t i = 0; i < text.length(); ++i) {
+            char c = text[i];
+            if (static_cast<unsigned char>(c) < 128) {
+                file_.put('\\0');
+                file_.put(c);
+            } else {
+                file_.put('\\0');
+                file_.put('?');
+            }
+        }
+    }
+};
+
+// Cross-platform directory operations
+class DirectoryOperations {
+public:
+    static std::vector<CrossPlatformPath> list_directory(const CrossPlatformPath& dir_path) {
+        std::vector<CrossPlatformPath> entries;
+        
+        std::error_code ec;
+        for (const auto& entry : std::filesystem::directory_iterator(dir_path.native(), ec)) {
+            if (!ec) {
+                entries.emplace_back(entry.path().string());
+            }
+        }
+        
+        return entries;
+    }
+    
+    static bool copy_file(const CrossPlatformPath& from, const CrossPlatformPath& to) {
+        std::error_code ec;
+        return std::filesystem::copy_file(from.native(), to.native(), ec);
+    }
+    
+    static bool move_file(const CrossPlatformPath& from, const CrossPlatformPath& to) {
+        std::error_code ec;
+        std::filesystem::rename(from.native(), to.native(), ec);
+        return !ec;
+    }
+    
+    static bool remove_file(const CrossPlatformPath& file_path) {
+        std::error_code ec;
+        return std::filesystem::remove(file_path.native(), ec);
+    }
+    
+    static std::uintmax_t remove_all(const CrossPlatformPath& dir_path) {
+        std::error_code ec;
+        return std::filesystem::remove_all(dir_path.native(), ec);
+    }
+    
+    // Get platform-specific temporary directory
+    static CrossPlatformPath temp_directory() {
+        std::error_code ec;
+        auto temp_path = std::filesystem::temp_directory_path(ec);
+        if (ec) {
+#ifdef _WIN32
+            return CrossPlatformPath("C:\\\\Temp");
+#else
+            return CrossPlatformPath("/tmp");
+#endif
+        }
+        return CrossPlatformPath(temp_path.string());
+    }
+    
+    // Get platform-specific application data directory
+    static CrossPlatformPath app_data_directory(const std::string& app_name) {
+#ifdef _WIN32
+        // Windows: %APPDATA%\\AppName
+        const char* appdata = std::getenv("APPDATA");
+        if (appdata) {
+            return CrossPlatformPath(appdata) / app_name;
+        }
+        return CrossPlatformPath("C:\\\\ProgramData") / app_name;
+#elif defined(__APPLE__)
+        // macOS: ~/Library/Application Support/AppName
+        const char* home = std::getenv("HOME");
+        if (home) {
+            return CrossPlatformPath(home) / "Library" / "Application Support" / app_name;
+        }
+        return CrossPlatformPath("/Library/Application Support") / app_name;
+#else
+        // Linux/Unix: ~/.local/share/AppName or follow XDG Base Directory spec
+        const char* xdg_data = std::getenv("XDG_DATA_HOME");
+        if (xdg_data) {
+            return CrossPlatformPath(xdg_data) / app_name;
+        }
+        
+        const char* home = std::getenv("HOME");
+        if (home) {
+            return CrossPlatformPath(home) / ".local" / "share" / app_name;
+        }
+        return CrossPlatformPath("/usr/local/share") / app_name;
+#endif
+    }
+};
+
+// Memory-mapped file for efficient large file handling
+class MemoryMappedFile {
+private:
+#ifdef _WIN32
+    HANDLE file_handle_;
+    HANDLE mapping_handle_;
+#else
+    int file_descriptor_;
+#endif
+    void* mapped_data_;
+    size_t file_size_;
+    bool is_writable_;
+
+public:
+    MemoryMappedFile(const CrossPlatformPath& path, bool writable = false)
+        : mapped_data_(nullptr), file_size_(0), is_writable_(writable) {
+        
+#ifdef _WIN32
+        // Windows implementation
+        DWORD access = writable ? (GENERIC_READ | GENERIC_WRITE) : GENERIC_READ;
+        DWORD share = FILE_SHARE_READ;
+        DWORD creation = OPEN_EXISTING;
+        
+        file_handle_ = CreateFileW(
+            std::filesystem::path(path.native()).wstring().c_str(),
+            access, share, nullptr, creation, FILE_ATTRIBUTE_NORMAL, nullptr);
+            
+        if (file_handle_ == INVALID_HANDLE_VALUE) {
+            throw std::runtime_error("Failed to open file for memory mapping");
+        }
+        
+        LARGE_INTEGER size;
+        if (!GetFileSizeEx(file_handle_, &size)) {
+            CloseHandle(file_handle_);
+            throw std::runtime_error("Failed to get file size");
+        }
+        file_size_ = static_cast<size_t>(size.QuadPart);
+        
+        DWORD protect = writable ? PAGE_READWRITE : PAGE_READONLY;
+        mapping_handle_ = CreateFileMappingW(file_handle_, nullptr, protect, 0, 0, nullptr);
+        if (!mapping_handle_) {
+            CloseHandle(file_handle_);
+            throw std::runtime_error("Failed to create file mapping");
+        }
+        
+        DWORD map_access = writable ? FILE_MAP_WRITE : FILE_MAP_READ;
+        mapped_data_ = MapViewOfFile(mapping_handle_, map_access, 0, 0, 0);
+        if (!mapped_data_) {
+            CloseHandle(mapping_handle_);
+            CloseHandle(file_handle_);
+            throw std::runtime_error("Failed to map file view");
+        }
+        
+#else
+        // Unix implementation
+        int flags = writable ? O_RDWR : O_RDONLY;
+        file_descriptor_ = open(path.native().c_str(), flags);
+        if (file_descriptor_ == -1) {
+            throw std::runtime_error("Failed to open file for memory mapping");
+        }
+        
+        struct stat file_stat;
+        if (fstat(file_descriptor_, &file_stat) == -1) {
+            close(file_descriptor_);
+            throw std::runtime_error("Failed to get file statistics");
+        }
+        file_size_ = static_cast<size_t>(file_stat.st_size);
+        
+        int prot = PROT_READ | (writable ? PROT_WRITE : 0);
+        mapped_data_ = mmap(nullptr, file_size_, prot, MAP_SHARED, file_descriptor_, 0);
+        if (mapped_data_ == MAP_FAILED) {
+            close(file_descriptor_);
+            throw std::runtime_error("Failed to map file");
+        }
+#endif
+    }
+    
+    ~MemoryMappedFile() {
+#ifdef _WIN32
+        if (mapped_data_) UnmapViewOfFile(mapped_data_);
+        if (mapping_handle_) CloseHandle(mapping_handle_);
+        if (file_handle_) CloseHandle(file_handle_);
+#else
+        if (mapped_data_ != MAP_FAILED) {
+            munmap(mapped_data_, file_size_);
+        }
+        if (file_descriptor_ != -1) {
+            close(file_descriptor_);
+        }
+#endif
+    }
+    
+    const void* data() const { return mapped_data_; }
+    void* data() { return is_writable_ ? mapped_data_ : nullptr; }
+    size_t size() const { return file_size_; }
+    
+    // Hint the OS about access patterns
+    void advise_sequential() {
+#ifdef _WIN32
+        // Windows doesn't have direct equivalent, but can use prefetch
+#else
+        if (mapped_data_ != MAP_FAILED) {
+            madvise(mapped_data_, file_size_, MADV_SEQUENTIAL);
+        }
+#endif
+    }
+    
+    void advise_random() {
+#ifdef _WIN32
+        // Windows doesn't have direct equivalent
+#else
+        if (mapped_data_ != MAP_FAILED) {
+            madvise(mapped_data_, file_size_, MADV_RANDOM);
+        }
+#endif
+    }
+};
+
+void cross_platform_file_demo() {
+    std::cout << "=== Cross-Platform File Handling Demo ===" << std::endl;
+    
+    try {
+        // Test path operations
+        CrossPlatformPath app_dir = DirectoryOperations::app_data_directory("PointerQuest");
+        std::cout << "App data directory: " << app_dir.native() << std::endl;
+        std::cout << "Portable path: " << app_dir.portable() << std::endl;
+        
+        // Create directory structure
+        if (!app_dir.exists()) {
+            if (app_dir.create_directories()) {
+                std::cout << "Created application directory" << std::endl;
+            }
+        }
+        
+        // Test file I/O
+        CrossPlatformPath test_file = app_dir / "test_file.txt";
+        {
+            CrossPlatformFile file(test_file, CrossPlatformFile::Mode::WRITE);
+            file.write_text("Hello, cross-platform world!\\n");
+            file.write_text("This file was created with proper platform handling.\\n");
+        }
+        
+        // Read back the file
+        {
+            CrossPlatformFile file(test_file, CrossPlatformFile::Mode::READ);
+            std::string content = file.read_text();
+            std::cout << "File content:\\n" << content << std::endl;
+        }
+        
+        // Test directory listing
+        auto entries = DirectoryOperations::list_directory(app_dir);
+        std::cout << "Directory contents:" << std::endl;
+        for (const auto& entry : entries) {
+            std::cout << "  " << entry.native();
+            if (entry.is_directory()) {
+                std::cout << " [DIR]";
+            } else {
+                std::cout << " (" << entry.file_size() << " bytes)";
+            }
+            std::cout << std::endl;
+        }
+        
+        // Clean up
+        DirectoryOperations::remove_file(test_file);
+        
+    } catch (const std::exception& e) {
+        std::cout << "File operation error: " << e.what() << std::endl;
+    }
+}`
+    },
+    {
       title: state.language === 'en' ? 'Platform Optimization Opportunities' : 'Oportunidades de Optimización por Plataforma',
       code: `#include <immintrin.h>  // Intel intrinsics
 #ifdef __aarch64__
 #include <arm_neon.h>   // ARM NEON intrinsics
+#endif
+#include <vector>
+#include <chrono>
+#include <numeric>
+#include <iostream>
+#ifdef _WIN32
+#include <intrin.h>
 #endif
 
 // Platform-specific optimization dispatcher
@@ -1482,6 +2040,15 @@ void optimization_demo() {
             </div>
             
             <div className="concept-card">
+              <h4>{state.language === 'en' ? 'Cross-Platform File I/O' : 'E/S de Archivos Multiplataforma'}</h4>
+              <p>
+                {state.language === 'en'
+                  ? 'Unified file handling across platforms with proper encoding support, path normalization, and memory-mapped file access.'
+                  : 'Manejo unificado de archivos entre plataformas con soporte adecuado de codificación, normalización de rutas y acceso a archivos mapeados en memoria.'}
+              </p>
+            </div>
+            
+            <div className="concept-card">
               <h4>{state.language === 'en' ? 'Platform Optimization' : 'Optimización por Plataforma'}</h4>
               <p>
                 {state.language === 'en'
@@ -1514,6 +2081,11 @@ void optimization_demo() {
               {state.language === 'en'
                 ? 'Implement platform-specific optimizations with clear fallback mechanisms'
                 : 'Implementa optimizaciones específicas de plataforma con mecanismos de fallback claros'}
+            </li>
+            <li>
+              {state.language === 'en'
+                ? 'Use platform-agnostic file path operations and handle text encoding properly'
+                : 'Usa operaciones de rutas de archivos independientes de plataforma y maneja la codificación de texto apropiadamente'}
             </li>
             <li>
               {state.language === 'en'

@@ -5,7 +5,7 @@
  * Ensures inclusive design for all learners.
  */
 
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import styled from 'styled-components';
 import { theme } from '../theme';
 import { 
@@ -392,7 +392,6 @@ export const AccessibleProgress: React.FC<AccessibleProgressProps> = ({
 }) => {
   const percentage = Math.round((value / max) * 100);
   const progressId = `progress-${Math.random().toString(36).substr(2, 9)}`;
-  const progressRef = useRef<HTMLDivElement>(null);
   
   // Announce progress changes to screen readers
   useEffect(() => {
@@ -407,7 +406,6 @@ export const AccessibleProgress: React.FC<AccessibleProgressProps> = ({
       </ProgressLabel>
       
       <ProgressBar
-        ref={progressRef}
         color={color}
         role="progressbar"
         id={progressId}
@@ -568,12 +566,3 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
   );
 };
 
-export default {
-  SkipLink,
-  ScreenReaderOnly,
-  AccessibleHeading,
-  AccessibleButton,
-  AccessibleCodeBlock,
-  AccessibleProgress,
-  AccessibleModal
-};

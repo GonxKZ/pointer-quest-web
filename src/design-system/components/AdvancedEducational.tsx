@@ -5,11 +5,11 @@
  * Handles complex topics like UB, atomics, PMR, and performance optimization.
  */
 
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { theme, LessonTopic, LessonDifficulty, mediaQuery } from '../theme';
-import { Button, ButtonGroup } from './Button';
-import { CodeBlockComponent, InlineCode } from './CodeBlock';
+import { theme, mediaQuery } from '../theme';
+import { Button } from './Button';
+import { CodeBlockComponent } from './CodeBlock';
 
 // Danger zone animation for undefined behavior lessons
 const dangerPulse = keyframes`
@@ -723,9 +723,3 @@ export const AtomicOperationDemo: React.FC<AtomicOperationDemoProps> = ({
   );
 };
 
-export default {
-  UndefinedBehaviorWarning,
-  PerformanceComparison,
-  MemoryLayoutVisualizer,
-  AtomicOperationDemo
-};

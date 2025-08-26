@@ -5,7 +5,7 @@
  * navigation, learning objectives, and assessment feedback.
  */
 
-import React, { ReactNode, useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { theme, LessonTopic, LessonDifficulty, mediaQuery, getLessonTopic, getTopicName, getDifficultyColor } from '../theme';
 import { Button, ButtonGroup } from './Button';
@@ -680,10 +680,3 @@ export const LessonMap: React.FC<LessonMapProps> = ({
   );
 };
 
-export default {
-  ProgressTracker,
-  NavigationFooter,
-  AchievementNotification,
-  LearningPathSelector,
-  LessonMap
-};

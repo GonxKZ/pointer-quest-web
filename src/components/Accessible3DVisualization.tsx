@@ -15,7 +15,6 @@ import styled from 'styled-components';
 import { theme } from '../design-system/theme';
 import { 
   focusVisible, 
-  respectsReducedMotion,
   AccessibilityAnnouncer,
   keyboardNavigation
 } from '../design-system/utils/accessibility';
@@ -214,29 +213,33 @@ export default function Accessible3DVisualization({
   const [showTextAlternative, setShowTextAlternative] = useState(false);
   const [showKeyboardInstructions, setShowKeyboardInstructions] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   const announcer = AccessibilityAnnouncer.getInstance();
 
   // Check for user preferences
   useEffect(() => {
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const highContrastQuery = window.matchMedia('(prefers-contrast: high)');
     
     setReducedMotion(reducedMotionQuery.matches);
-    setHighContrast(highContrastQuery.matches);
     
     const handleReducedMotionChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    const handleHighContrastChange = (e: MediaQueryListEvent) => setHighContrast(e.matches);
     
     reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
-    highContrastQuery.addEventListener('change', handleHighContrastChange);
     
     return () => {
       reducedMotionQuery.removeEventListener('change', handleReducedMotionChange);
-      highContrastQuery.removeEventListener('change', handleHighContrastChange);
     };
   }, []);
+
+  const toggleTextAlternative = () => {
+    const newState = !showTextAlternative;
+    setShowTextAlternative(newState);
+    announcer.announce(
+      newState 
+        ? 'Switched to text description of 3D visualization' 
+        : 'Switched back to 3D visualization'
+    );
+  };
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -280,17 +283,7 @@ export default function Accessible3DVisualization({
     
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showKeyboardInstructions, showTextAlternative, keyboardShortcuts]);
-
-  const toggleTextAlternative = () => {
-    const newState = !showTextAlternative;
-    setShowTextAlternative(newState);
-    announcer.announce(
-      newState 
-        ? 'Switched to text description of 3D visualization' 
-        : 'Switched back to 3D visualization'
-    );
-  };
+  }, [showKeyboardInstructions, showTextAlternative, keyboardShortcuts, announcer, toggleTextAlternative]);
 
   const toggleReducedMotion = () => {
     setReducedMotion(!reducedMotion);
