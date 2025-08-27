@@ -5,7 +5,7 @@
  * and optimize garbage collection.
  */
 
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 import { logger } from './logger';
 
 export interface ManagedResource {

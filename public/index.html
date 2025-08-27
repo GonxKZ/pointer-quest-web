@@ -4,11 +4,45 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#00d4ff" />
+    <meta name="color-scheme" content="dark light" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Interactive C++ pointers and memory management learning platform with 3D visualizations and hands-on exercises. Master C++ pointers through gamified lessons."
     />
+    <meta name="keywords" content="C++, pointers, memory management, programming, education, interactive learning, 3D visualization" />
+    <meta name="author" content="Pointer Quest Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Pointer Quest - Master C++ Pointers" />
+    <meta property="og:description" content="Interactive C++ pointers and memory management learning platform with 3D visualizations and hands-on exercises." />
+    <meta property="og:image" content="%PUBLIC_URL%/logo512.png" />
+    <meta property="og:url" content="https://pointerquest.dev" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pointer Quest - Master C++ Pointers" />
+    <meta name="twitter:description" content="Interactive C++ pointers and memory management learning platform with 3D visualizations and hands-on exercises." />
+    <meta name="twitter:image" content="%PUBLIC_URL%/logo512.png" />
+    
+    <!-- Apple Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PointerQuest" />
+    
+    <!-- Microsoft Tags -->
+    <meta name="msapplication-TileColor" content="#00d4ff" />
+    <meta name="msapplication-config" content="%PUBLIC_URL%/browserconfig.xml" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="%PUBLIC_URL%/fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="%PUBLIC_URL%/fonts/fira-code.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -24,20 +58,146 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>Pointer Quest - Interactive C++ Learning Platform</title>
+    
+    <!-- Color blindness SVG filters -->
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="position: absolute; width: 0; height: 0;">
+      <defs>
+        <filter id="protanopia">
+          <feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
+        </filter>
+        <filter id="deuteranopia">
+          <feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
+        </filter>
+        <filter id="tritanopia">
+          <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+        </filter>
+      </defs>
+    </svg>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
+    <noscript>
+      <div style="text-align: center; padding: 2rem; font-family: system-ui, sans-serif; background: #0f0f23; color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <div>
+          <h1>🚀 Pointer Quest</h1>
+          <p>You need to enable JavaScript to run this interactive C++ learning app.</p>
+          <p>Please enable JavaScript in your browser settings and reload the page.</p>
+          <div style="margin-top: 2rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <h3>Alternative Learning Resources:</h3>
+            <ul style="text-align: left; margin-top: 1rem;">
+              <li><a href="https://cppreference.com" style="color: #00d4ff;">C++ Reference Documentation</a></li>
+              <li><a href="https://learncpp.com" style="color: #00d4ff;">Learn C++ Tutorial</a></li>
+              <li><a href="https://github.com/pointer-quest" style="color: #00d4ff;">Pointer Quest GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </noscript>
+    <div id="root" role="application" aria-label="Pointer Quest Interactive Learning Platform"></div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      // Register service worker for PWA functionality
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+              console.log('[PWA] Service Worker registered successfully:', registration.scope);
+              
+              // Check for updates
+              registration.addEventListener('updatefound', function() {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', function() {
+                  if (newWorker.state === 'installed') {
+                    if (navigator.serviceWorker.controller) {
+                      console.log('[PWA] New content available, will refresh on next visit.');
+                      // Could show update notification here
+                    } else {
+                      console.log('[PWA] Content cached for offline use.');
+                    }
+                  }
+                });
+              });
+            })
+            .catch(function(error) {
+              console.log('[PWA] Service Worker registration failed:', error);
+            });
+        });
+      } else {
+        console.log('[PWA] Service Worker not supported');
+      }
+      
+      // PWA install prompt handling
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the mini-infobar from appearing
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('[PWA] Install prompt available');
+      });
+      
+      // Analytics and performance monitoring (placeholder)
+      window.addEventListener('load', function() {
+        // Web Vitals monitoring
+        if ('PerformanceObserver' in window) {
+          // Monitor Core Web Vitals
+          const observer = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+              console.log('[Performance]', entry.name, entry.value);
+            }
+          });
+          
+          observer.observe({ entryTypes: ['measure', 'navigation'] });
+        }
+        
+        // Monitor memory usage (if available)
+        if ('memory' in performance) {
+          console.log('[Memory]', {
+            used: performance.memory.usedJSHeapSize,
+            total: performance.memory.totalJSHeapSize,
+            limit: performance.memory.jsHeapSizeLimit
+          });
+        }
+      });
+      
+      // Accessibility: Check for reduced motion preference
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (prefersReducedMotion.matches) {
+        document.documentElement.classList.add('reduced-motion');
+      }
+      
+      // Accessibility: Check for high contrast preference
+      const prefersHighContrast = window.matchMedia('(prefers-contrast: high)');
+      if (prefersHighContrast.matches) {
+        document.documentElement.classList.add('high-contrast');
+      }
+      
+      // Error boundary for uncaught errors
+      window.addEventListener('error', function(e) {
+        console.error('[Global Error]', e.error);
+        // Could send to error tracking service
+      });
+      
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('[Unhandled Promise Rejection]', e.reason);
+        // Could send to error tracking service
+      });
+    </script>
+    <!-- 
+      Pointer Quest - Interactive C++ Learning Platform
+      Built with React, TypeScript, Three.js, and WebAssembly
+      
+      Features:
+      - Progressive Web App (PWA)
+      - Offline functionality
+      - 3D memory visualizations
+      - WCAG 2.1 AA accessibility compliance
+      - Dark/Light theme support
+      - Interactive code execution
+      - Real-time memory debugging
+      
+      For development: npm start
+      For production: npm run build
     -->
   </body>
 </html>

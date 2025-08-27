@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "jest-canvas-mock": "^2.5.2",
-    "webpack-bundle-analyzer": "^4.10.1"
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "eslintConfig": {
     "extends": [

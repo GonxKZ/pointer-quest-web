@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Text, Html, Line, Cylinder, Torus } from '@react-three/drei';
 import { useOptimizedAnimation } from '../hooks/useOptimizedAnimation';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 // Professional color scheme for const correctness visualization
 const CONST_COLORS = {

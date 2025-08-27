@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import { useOptimizedAnimation } from '../hooks/useOptimizedAnimation';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 const Container = styled.div`
   background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);

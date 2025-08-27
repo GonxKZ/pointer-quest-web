@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pointer Quest - Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .offline-container {
+            max-width: 600px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        h1 {
+            color: #00d4ff;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: #b8c5d6;
+        }
+        
+        .features-list {
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+        
+        .features-list li {
+            margin: 0.5rem 0;
+            color: #9e9e9e;
+        }
+        
+        .features-list li::before {
+            content: "✓ ";
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        .retry-button {
+            background: linear-gradient(45deg, #00d4ff, #4ecdc4);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .retry-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .cached-lessons {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .cached-lessons h3 {
+            color: #4ecdc4;
+            margin-bottom: 1rem;
+        }
+        
+        .lesson-link {
+            display: inline-block;
+            color: #00d4ff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            border: 1px solid #00d4ff;
+            border-radius: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .lesson-link:hover {
+            background: #00d4ff;
+            color: #0f0f23;
+        }
+        
+        .network-status {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .network-offline {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .network-online {
+            background: #00ff88;
+            color: #0f0f23;
+        }
+    </style>
+</head>
+<body>
+    <div id="networkStatus" class="network-status network-offline">
+        🔴 You're offline
+    </div>
+    
+    <div class="offline-container">
+        <div class="offline-icon">🚀</div>
+        <h1>Pointer Quest is Available Offline!</h1>
+        
+        <p class="description">
+            Don't worry! Even without an internet connection, you can still continue your C++ learning journey. 
+            We've cached essential content for offline studying.
+        </p>
+        
+        <ul class="features-list">
+            <li>Access your previously viewed lessons</li>
+            <li>Practice with interactive code examples</li>
+            <li>Review memory visualization concepts</li>
+            <li>Continue where you left off</li>
+        </ul>
+        
+        <button class="retry-button" onclick="retryConnection()">
+            🔄 Retry Connection
+        </button>
+        
+        <button class="retry-button" onclick="goToHomePage()">
+            🏠 Go to Home
+        </button>
+        
+        <div class="cached-lessons">
+            <h3>📚 Available Offline Lessons</h3>
+            <div id="cachedLessons">
+                <a href="/lessons/1" class="lesson-link">Lesson 1: Introduction to Pointers</a>
+                <a href="/lessons/2" class="lesson-link">Lesson 2: Pointer Basics</a>
+                <a href="/lessons/3" class="lesson-link">Lesson 3: Memory Addresses</a>
+                <a href="/lessons/4" class="lesson-link">Lesson 4: Dereferencing</a>
+                <a href="/lessons/5" class="lesson-link">Lesson 5: Pointer Arithmetic</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Network status monitoring
+        function updateNetworkStatus() {
+            const statusElement = document.getElementById('networkStatus');
+            if (navigator.onLine) {
+                statusElement.textContent = '🟢 You\'re back online!';
+                statusElement.className = 'network-status network-online';
+            } else {
+                statusElement.textContent = '🔴 You\'re offline';
+                statusElement.className = 'network-status network-offline';
+            }
+        }
+        
+        // Listen for network status changes
+        window.addEventListener('online', () => {
+            updateNetworkStatus();
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        });
+        
+        window.addEventListener('offline', updateNetworkStatus);
+        
+        // Check initial network status
+        updateNetworkStatus();
+        
+        // Retry connection
+        function retryConnection() {
+            if (navigator.onLine) {
+                window.location.reload();
+            } else {
+                // Try to navigate to home page anyway (might be cached)
+                window.location.href = '/';
+            }
+        }
+        
+        // Go to home page
+        function goToHomePage() {
+            window.location.href = '/';
+        }
+        
+        // Check for cached lessons dynamically
+        if ('caches' in window) {
+            caches.open('pointer-quest-v1.0.0').then(cache => {
+                cache.keys().then(keys => {
+                    const lessonUrls = keys
+                        .filter(key => key.url.includes('/lessons/'))
+                        .map(key => key.url);
+                    
+                    if (lessonUrls.length > 0) {
+                        const cachedLessonsContainer = document.getElementById('cachedLessons');
+                        cachedLessonsContainer.innerHTML = '';
+                        
+                        lessonUrls.forEach(url => {
+                            const lessonNumber = url.match(/\/lessons\/(\d+)/)[1];
+                            const lessonLink = document.createElement('a');
+                            lessonLink.href = url;
+                            lessonLink.className = 'lesson-link';
+                            lessonLink.textContent = `Lesson ${lessonNumber}`;
+                            cachedLessonsContainer.appendChild(lessonLink);
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

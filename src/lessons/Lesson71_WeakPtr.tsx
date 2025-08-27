@@ -7,7 +7,7 @@ import {
 } from '../design-system';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Line } from '@react-three/drei';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 interface WeakPtrAdvancedState {
   demonstrationType: 'cycle_breaking' | 'observer_pattern' | 'cache_implementation' | 'thread_safety';

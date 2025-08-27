@@ -5,7 +5,7 @@
  * for high-performance 3D calculations and memory operations.
  */
 
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 import { logger } from './logger';
 
 export interface WasmMemoryOperation {

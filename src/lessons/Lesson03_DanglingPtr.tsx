@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 const LessonContainer = styled.div`
   display: grid;
@@ -604,9 +604,15 @@ std::unique_ptr<int> modern_function() {
 }`;
 
   return (
-    <LessonContainer>
-      <TheoryPanel>
-        <Title>Tarea 3: Dangling Pointers - La Vitrina Desaparece</Title>
+    <LessonLayout
+      title="Dangling Pointers - La Vitrina Desaparece"
+      subtitle="Entendiendo los peligros de los punteros colgantes y gestión de memoria automática"
+      lessonNumber={3}
+      difficulty="Intermediate"
+      estimatedTime={18}
+      layoutType="two-panel"
+    >
+      <TheoryPanel topic="basic">
         
         <Section>
           <SectionTitle>💀 Concepto Mortal: Dangling Pointer</SectionTitle>
@@ -626,7 +632,20 @@ std::unique_ptr<int> modern_function() {
 
         <Section>
           <SectionTitle>💻 Código del Problema</SectionTitle>
-          <CodeBlock>{cppCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Ejemplo de Dangling Pointer (¡NO HAGAS ESTO!)"
+            copyable={true}
+            showLineNumbers={true}
+            highlightLines={[4, 7, 10]}
+            annotations={[
+              { line: 4, content: "Puntero declarado aquí apuntará a variable de scope interno", type: "warning" },
+              { line: 7, content: "PELIGRO: inner se destruye al final del bloque", type: "error" },
+              { line: 10, content: "UNDEFINED BEHAVIOR: acceso a memoria destruida", type: "error" }
+            ]}
+          >
+            {cppCode}
+          </CodeBlock>
         </Section>
 
         <Section>
@@ -639,41 +658,43 @@ std::unique_ptr<int> modern_function() {
             <strong>Variable inner:</strong> {state.innerVariable !== null ? `Existe (${state.innerVariable})` : 'No existe'}
           </ScopeBox>
           
-          <Interactive>
-            <Button 
-              onClick={enterInnerScope} 
-              variant="success"
-              disabled={state.innerScopeExists}
-            >
-              1. Entrar al Scope { }
-            </Button>
-            <Button 
-              onClick={assignPointer} 
-              disabled={!state.innerScopeExists || state.danglingPtr !== null}
-            >
-              2. d = &inner
-            </Button>
-            <Button 
-              onClick={exitScope} 
-              variant="warning"
-              disabled={!state.innerScopeExists}
-            >
-              3. Salir del Scope
-            </Button>
-            <Button 
-              onClick={attemptAccess} 
-              variant="danger"
-              disabled={state.status !== 'dangling'}
-            >
-              4. 💀 Intentar *d
-            </Button>
-            <Button onClick={nextStep} variant="warning">
-              Siguiente Paso
-            </Button>
-            <Button onClick={reset}>
-              Reset
-            </Button>
-          </Interactive>
+          <InteractiveSection>
+            <ButtonGroup orientation="horizontal" spacing="2">
+              <Button 
+                onClick={enterInnerScope} 
+                variant="success"
+                disabled={state.innerScopeExists}
+              >
+                1. Entrar al Scope { }
+              </Button>
+              <Button 
+                onClick={assignPointer} 
+                disabled={!state.innerScopeExists || state.danglingPtr !== null}
+              >
+                2. d = &inner
+              </Button>
+              <Button 
+                onClick={exitScope} 
+                variant="warning"
+                disabled={!state.innerScopeExists}
+              >
+                3. Salir del Scope
+              </Button>
+              <Button 
+                onClick={attemptAccess} 
+                variant="danger"
+                disabled={state.status !== 'dangling'}
+              >
+                4. 💀 Intentar *d
+              </Button>
+              <Button onClick={nextStep} variant="warning">
+                Siguiente Paso
+              </Button>
+              <Button onClick={reset}>
+                Reset
+              </Button>
+            </ButtonGroup>
+          </InteractiveSection>
 
           {state.status === 'ub_access' && (
             <UBWarning>
@@ -690,7 +711,15 @@ std::unique_ptr<int> modern_function() {
 
         <Section>
           <SectionTitle>✅ Técnicas de Prevención</SectionTitle>
-          <CodeBlock>{preventionCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Alternativas Seguras a Dangling Pointers"
+            copyable={true}
+            showLineNumbers={true}
+            highlightLines={[4, 11, 18, 23]}
+          >
+            {preventionCode}
+          </CodeBlock>
         </Section>
 
         <Section>
@@ -727,8 +756,8 @@ std::unique_ptr<int> modern_function() {
           </div>
         </Section>
       </TheoryPanel>
-
-      <VisualizationPanel>
+      
+      <VisualizationPanel topic="basic">
         <StatusDisplay>
           <div>🎯 Tarea 3: Dangling Pointers</div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
@@ -748,6 +777,6 @@ std::unique_ptr<int> modern_function() {
           />
         </Canvas>
       </VisualizationPanel>
-    </LessonContainer>
+    </LessonLayout>
   );
 }

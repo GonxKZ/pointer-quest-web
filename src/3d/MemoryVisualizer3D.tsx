@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback, memo, Suspense, useState, useEffect } from 'react';
+import { useRef, useMemo, useCallback, memo, Suspense } from 'react';
 import type { RootState } from '@react-three/fiber';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
@@ -6,8 +6,8 @@ import { useApp } from '../context/AppContext';
 import { MemoryBlock3D, Pointer3D } from '../types';
 import { useOptimizedAnimation, useAnimationFrame, usePerformanceAnimation } from '../hooks/useOptimizedAnimation';
 import { useMemoryManagement, useMaterialSharing } from '../hooks/useMemoryManagement';
-import { get3DTranslation, get3DLabel, get3DMessage } from '../translations/3d-visualization.es';
-import * as THREE from 'three';
+import { get3DLabel, get3DMessage } from "../translations/3d-visualization.es";
+import { THREE } from '../utils/three';
 
 // Optimized memory block component with memoization
 const MemoryBlock = memo(({ block, position }: { block: MemoryBlock3D; position: [number, number, number] }) => {

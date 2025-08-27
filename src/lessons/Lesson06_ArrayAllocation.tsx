@@ -1,168 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
-import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
+import { 
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  Button,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
-const LessonContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  gap: 1rem;
-  padding: 1rem;
-`;
 
-const TheoryPanel = styled.div`
-  background: rgba(26, 26, 46, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
+const ContractViolation: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div style={{
+    background: 'rgba(255, 107, 107, 0.1)',
+    border: '2px solid #ff6b6b',
+    borderRadius: '8px',
+    padding: '1rem',
+    margin: '1rem 0',
+    color: '#ff6b6b',
+    fontWeight: 'bold',
+    animation: 'contractError 2s infinite',
+  }}>
+    {children}
+    <style jsx>{`
+      @keyframes contractError {
+        0%, 100% { 
+          border-color: #ff6b6b;
+          background: rgba(255, 107, 107, 0.1);
+        }
+        50% { 
+          border-color: #ff0000;
+          background: rgba(255, 107, 107, 0.2);
+        }
+      }
+    `}</style>
+  </div>
+);
 
-const VisualizationPanel = styled.div`
-  background: rgba(22, 33, 62, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-`;
-
-const Title = styled.h1`
-  color: #00d4ff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px #00d4ff;
-`;
-
-const Section = styled.div`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-left: 3px solid #00d4ff;
-  border-radius: 5px;
-`;
-
-const SectionTitle = styled.h3`
-  color: #4ecdc4;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  color: #f8f8f2;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const Interactive = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'success' | 'raii' }>`
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  
-  ${props => {
-    switch (props.variant) {
-      case 'danger':
-        return `
-          background: linear-gradient(45deg, #ff6b6b, #ff5252);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); }
-        `;
-      case 'warning':
-        return `
-          background: linear-gradient(45deg, #ffca28, #ffa000);
-          color: #1a1a2e;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 202, 40, 0.4); }
-        `;
-      case 'success':
-        return `
-          background: linear-gradient(45deg, #4caf50, #45a049);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); }
-        `;
-      case 'raii':
-        return `
-          background: linear-gradient(45deg, #9c27b0, #673ab7);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4); }
-        `;
-      default:
-        return `
-          background: linear-gradient(45deg, #00d4ff, #4ecdc4);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); }
-        `;
-    }
-  }}
-  
-  ${props => props.disabled && `
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-  `}
-`;
-
-const ContractViolation = styled.div`
-  background: rgba(255, 107, 107, 0.1);
-  border: 2px solid #ff6b6b;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #ff6b6b;
-  font-weight: bold;
-  animation: contractError 2s infinite;
-  
-  @keyframes contractError {
-    0%, 100% { 
-      border-color: #ff6b6b;
-      background: rgba(255, 107, 107, 0.1);
-    }
-    50% { 
-      border-color: #ff0000;
-      background: rgba(255, 107, 107, 0.2);
-    }
-  }
-`;
-
-const RAIISolution = styled.div`
-  background: rgba(156, 39, 176, 0.1);
-  border: 2px solid #9c27b0;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #9c27b0;
-  font-weight: bold;
-`;
-
-const StatusDisplay = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 1rem;
-  border-radius: 8px;
-  color: white;
-  z-index: 100;
-  font-family: monospace;
-`;
+const RAIISolution: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div style={{
+    background: 'rgba(156, 39, 176, 0.1)',
+    border: '2px solid #9c27b0',
+    borderRadius: '8px',
+    padding: '1rem',
+    margin: '1rem 0',
+    color: '#9c27b0',
+    fontWeight: 'bold',
+  }}>
+    {children}
+  </div>
+);
 
 interface ArrayState {
   pointer: number | null;
@@ -624,9 +519,13 @@ delete[] array; // Llama destructor de todos los elementos
 // Comportamiento impredecible en futuras allocaciones`;
 
   return (
-    <LessonContainer>
+    <LessonLayout
+      title="Tarea 6: new[] vs delete[] - Contrato de Arrays"
+      difficulty="Básico"
+      topic="basic"
+      estimatedTime="15 minutos"
+    >
       <TheoryPanel>
-        <Title>Tarea 6: new[] vs delete[] - Contrato de Arrays</Title>
         
         <Section>
           <SectionTitle>📚 Array Allocation Contract</SectionTitle>
@@ -653,7 +552,7 @@ delete[] array; // Llama destructor de todos los elementos
           <SectionTitle>🎮 Simulación del Contract</SectionTitle>
           <p><strong>Paso {currentStep + 1} de {steps.length}:</strong> {steps[currentStep]}</p>
           
-          <Interactive>
+          <InteractiveSection>
             <Button 
               onClick={allocateArray} 
               disabled={state.isAllocated}
@@ -686,7 +585,7 @@ delete[] array; // Llama destructor de todos los elementos
             <Button onClick={reset}>
               Reset
             </Button>
-          </Interactive>
+          </InteractiveSection>
 
           {state.contractViolated && (
             <ContractViolation>
@@ -798,6 +697,6 @@ delete[] array; // Llama destructor de todos los elementos
           />
         </Canvas>
       </VisualizationPanel>
-    </LessonContainer>
+    </LessonLayout>
   );
 }

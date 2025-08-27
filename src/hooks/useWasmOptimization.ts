@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 import { WasmPerformanceAdapter, WasmPerformanceMetrics } from '../utils/WasmPerformanceAdapter';
 import { logger } from '../utils/logger';
 

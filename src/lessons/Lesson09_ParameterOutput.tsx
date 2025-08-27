@@ -1,180 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
-import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
+import { 
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  Button,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
-const LessonContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  gap: 1rem;
-  padding: 1rem;
-`;
 
-const TheoryPanel = styled.div`
-  background: rgba(26, 26, 46, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
-
-const VisualizationPanel = styled.div`
-  background: rgba(22, 33, 62, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-`;
-
-const Title = styled.h1`
-  color: #00d4ff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px #00d4ff;
-`;
-
-const Section = styled.div`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-left: 3px solid #00d4ff;
-  border-radius: 5px;
-`;
-
-const SectionTitle = styled.h3`
-  color: #4ecdc4;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  color: #f8f8f2;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const Interactive = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'success' | 'modern' | 'legacy' }>`
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  
-  ${props => {
-    switch (props.variant) {
-      case 'danger':
-        return `
-          background: linear-gradient(45deg, #ff6b6b, #ff5252);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); }
-        `;
-      case 'warning':
-        return `
-          background: linear-gradient(45deg, #ffca28, #ffa000);
-          color: #1a1a2e;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 202, 40, 0.4); }
-        `;
-      case 'success':
-        return `
-          background: linear-gradient(45deg, #4caf50, #45a049);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); }
-        `;
-      case 'modern':
-        return `
-          background: linear-gradient(45deg, #9c27b0, #673ab7);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4); }
-        `;
-      case 'legacy':
-        return `
-          background: linear-gradient(45deg, #795548, #5d4037);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(121, 85, 72, 0.4); }
-        `;
-      default:
-        return `
-          background: linear-gradient(45deg, #00d4ff, #4ecdc4);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); }
-        `;
-    }
-  }}
-  
-  ${props => props.disabled && `
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-  `}
-`;
-
-const ComparisonPanel = styled.div<{ type: 'legacy' | 'modern' | 'active' }>`
-  background: ${props => 
-    props.type === 'legacy' ? 'rgba(121, 85, 72, 0.1)' :
-    props.type === 'modern' ? 'rgba(156, 39, 176, 0.1)' : 
-    'rgba(76, 175, 80, 0.1)'
+const ComparisonPanel: React.FC<{ type: 'legacy' | 'modern' | 'active'; children: React.ReactNode }> = ({ type, children }) => {
+  const getStyles = () => {
+    const colorMap = {
+      legacy: { bg: 'rgba(121, 85, 72, 0.1)', border: '#795548', color: '#795548' },
+      modern: { bg: 'rgba(156, 39, 176, 0.1)', border: '#9c27b0', color: '#9c27b0' },
+      active: { bg: 'rgba(76, 175, 80, 0.1)', border: '#4caf50', color: '#4caf50' }
+    };
+    return colorMap[type];
   };
-  border: 2px solid ${props => 
-    props.type === 'legacy' ? '#795548' :
-    props.type === 'modern' ? '#9c27b0' : 
-    '#4caf50'
-  };
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: ${props => 
-    props.type === 'legacy' ? '#795548' :
-    props.type === 'modern' ? '#9c27b0' : 
-    '#4caf50'
-  };
-  font-weight: bold;
-`;
-
-const DebtIndicator = styled.div`
-  background: rgba(255, 202, 40, 0.1);
-  border: 2px solid #ffca28;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #ffca28;
-  font-weight: bold;
-  animation: debtPulse 2s infinite;
   
-  @keyframes debtPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-`;
+  const styles = getStyles();
+  
+  return (
+    <div style={{
+      background: styles.bg,
+      border: `2px solid ${styles.border}`,
+      borderRadius: '8px',
+      padding: '1rem',
+      margin: '1rem 0',
+      color: styles.color,
+      fontWeight: 'bold',
+    }}>
+      {children}
+    </div>
+  );
+};
 
-const StatusDisplay = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 1rem;
-  border-radius: 8px;
-  color: white;
-  z-index: 100;
-  font-family: monospace;
-`;
+const DebtIndicator: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div style={{
+    background: 'rgba(255, 202, 40, 0.1)',
+    border: '2px solid #ffca28',
+    borderRadius: '8px',
+    padding: '1rem',
+    margin: '1rem 0',
+    color: '#ffca28',
+    fontWeight: 'bold',
+    animation: 'debtPulse 2s infinite',
+  }}>
+    {children}
+    <style jsx>{`
+      @keyframes debtPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+    `}</style>
+  </div>
+);
 
 interface OutputParameterState {
   currentMethod: 'none' | 'double_pointer' | 'unique_ptr_ref';
@@ -663,9 +553,13 @@ auto create_widget() -> std::unique_ptr<Widget> {
 }`;
 
   return (
-    <LessonContainer>
+    <LessonLayout
+      title="Tarea 9: Output Parameters - Legacy vs Modern"
+      difficulty="Básico"
+      topic="basic"
+      estimatedTime="20 minutos"
+    >
       <TheoryPanel>
-        <Title>Tarea 9: Output Parameters - Legacy vs Modern</Title>
         
         <Section>
           <SectionTitle>🔄 Parámetros de Salida: Evolución del Patrón</SectionTitle>
@@ -716,17 +610,17 @@ auto create_widget() -> std::unique_ptr<Widget> {
             RAII automático, exception safe
           </ComparisonPanel>
           
-          <Interactive>
+          <InteractiveSection>
             <Button 
               onClick={demonstrateDoublePointer} 
-              variant="legacy"
+              variant="secondary"
               disabled={state.status === 'allocating'}
             >
               Legacy: adopt(int** out)
             </Button>
             <Button 
               onClick={demonstrateUniquePtr} 
-              variant="modern"
+              variant="primary"
               disabled={state.status === 'allocating'}
             >
               Modern: adopt(unique_ptr&amp; out)
@@ -737,7 +631,7 @@ auto create_widget() -> std::unique_ptr<Widget> {
             <Button onClick={reset}>
               Reset
             </Button>
-          </Interactive>
+          </InteractiveSection>
 
           {state.debtBalance > 0 && (
             <DebtIndicator>
@@ -824,6 +718,6 @@ auto create_widget() -> std::unique_ptr<Widget> {
           />
         </Canvas>
       </VisualizationPanel>
-    </LessonContainer>
+    </LessonLayout>
   );
 }

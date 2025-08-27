@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { useOptimizedAnimation } from '../hooks/useOptimizedAnimation';
 import { useMemoryManagement } from '../hooks/useMemoryManagement';
 import { get3DTranslation } from '../translations/3d-visualization.es';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 interface SceneProps {
   topic: 'basic' | 'smart' | 'arithmetic' | 'const';

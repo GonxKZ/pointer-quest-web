@@ -1,120 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
-import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
 import CodeEditor from '../components/CodeEditor';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 import { Lesson01_RawPtrTranslation, Lesson01_StepsSpanish, Lesson01_MessagesSpanish } from '../translations/lessons/Lesson01_RawPtr.es';
+import { 
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  Button,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
-const LessonContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  gap: 1rem;
-  padding: 1rem;
-`;
-
-const TheoryPanel = styled.div`
-  background: rgba(26, 26, 46, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
-
-const VisualizationPanel = styled.div`
-  background: rgba(22, 33, 62, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-`;
-
-const Title = styled.h1`
-  color: #00d4ff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px #00d4ff;
-`;
-
-const Section = styled.div`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-left: 3px solid #00d4ff;
-  border-radius: 5px;
-`;
-
-const SectionTitle = styled.h3`
-  color: #4ecdc4;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  color: #f8f8f2;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const Interactive = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' }>`
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  
-  ${props => {
-    switch (props.variant) {
-      case 'danger':
-        return `
-          background: linear-gradient(45deg, #ff6b6b, #ff5252);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); }
-        `;
-      case 'warning':
-        return `
-          background: linear-gradient(45deg, #ffca28, #ffa000);
-          color: #1a1a2e;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 202, 40, 0.4); }
-        `;
-      default:
-        return `
-          background: linear-gradient(45deg, #00d4ff, #4ecdc4);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); }
-        `;
-    }
-  }}
-`;
-
-const StatusDisplay = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 1rem;
-  border-radius: 8px;
-  color: white;
-  z-index: 100;
-  font-family: monospace;
-`;
 
 interface MemoryState {
   x: number;
@@ -334,13 +238,19 @@ int main() {
 }`;
 
   return (
-    <LessonContainer>
-      <TheoryPanel>
-        <Title>
-          {state.language === 'en' 
-            ? 'Task 1: Basic Pointers - int* p = &x' 
-            : Lesson01_RawPtrTranslation.title}
-        </Title>
+    <LessonLayout
+      title={state.language === 'en' 
+        ? 'Basic Pointers - int* p = &x' 
+        : Lesson01_RawPtrTranslation.title}
+      subtitle={state.language === 'en' 
+        ? 'Understanding pointer fundamentals and memory addresses'
+        : 'Entendiendo los fundamentos de punteros y direcciones de memoria'}
+      lessonNumber={1}
+      difficulty="Beginner"
+      estimatedTime={15}
+      layoutType="two-panel"
+    >
+      <TheoryPanel topic="basic">
         
         <Section>
           <SectionTitle>📖 {state.language === 'en' ? 'Fundamental Theory' : 'Teoría Fundamental'}</SectionTitle>
@@ -383,7 +293,14 @@ int main() {
 
         <Section>
           <SectionTitle>💻 {state.language === 'en' ? 'C++ Example Code' : 'Código C++ de Ejemplo'}</SectionTitle>
-          <CodeBlock>{cppCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title={state.language === 'en' ? 'Basic Pointer Declaration' : 'Declaración Básica de Punteros'}
+            copyable={true}
+            showLineNumbers={true}
+          >
+            {cppCode}
+          </CodeBlock>
         </Section>
 
         <Section>
@@ -415,17 +332,19 @@ int main() {
             </strong> {steps[currentStep]}
           </p>
           
-          <Interactive>
-            <Button onClick={modifyX}>
-              {state.language === 'en' ? 'Modify x (+10)' : 'Modificar x (+10)'}
-            </Button>
-            <Button onClick={nextStep} variant="warning">
-              {state.language === 'en' ? 'Next Step' : 'Siguiente Paso'}
-            </Button>
-            <Button onClick={resetValues} variant="danger">
-              {state.language === 'en' ? 'Reset' : 'Reiniciar'}
-            </Button>
-          </Interactive>
+          <InteractiveSection>
+            <ButtonGroup orientation="horizontal" spacing="3">
+              <Button onClick={modifyX}>
+                {state.language === 'en' ? 'Modify x (+10)' : 'Modificar x (+10)'}
+              </Button>
+              <Button onClick={nextStep} variant="warning">
+                {state.language === 'en' ? 'Next Step' : 'Siguiente Paso'}
+              </Button>
+              <Button onClick={resetValues} variant="danger">
+                {state.language === 'en' ? 'Reset' : 'Reiniciar'}
+              </Button>
+            </ButtonGroup>
+          </InteractiveSection>
         </Section>
 
         <Section>
@@ -460,8 +379,8 @@ int main() {
           </ul>
         </Section>
       </TheoryPanel>
-
-      <VisualizationPanel>
+      
+      <VisualizationPanel topic="basic">
         <StatusDisplay>
           <div>🎯 {state.language === 'en' ? 'Task 1: Raw Pointers' : 'Tarea 1: Punteros Básicos'}</div>
           <div>
@@ -483,6 +402,6 @@ int main() {
           />
         </Canvas>
       </VisualizationPanel>
-    </LessonContainer>
+    </LessonLayout>
   );
 }

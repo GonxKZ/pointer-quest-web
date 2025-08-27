@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Html, Line, Box, Cylinder } from '@react-three/drei';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 // RAII Lifecycle States
 export enum RAIIState {

@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Text, Line, Html, OrbitControls } from '@react-three/drei';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 // Tipos para el sistema automático
 interface DemoStep {

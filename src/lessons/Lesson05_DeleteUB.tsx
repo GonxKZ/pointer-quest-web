@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 const LessonContainer = styled.div`
   display: grid;
@@ -607,9 +607,15 @@ delete ptr;  // OK - no hace nada
    - Estado inconsistente`;
 
   return (
-    <LessonContainer>
-      <TheoryPanel>
-        <Title>Tarea 5: delete y Double Delete UB</Title>
+    <LessonLayout
+      title="delete y Double Delete UB"
+      subtitle="Explorando el peligroso mundo del double delete y sus consecuencias catastróficas"
+      lessonNumber={5}
+      difficulty="Advanced"
+      estimatedTime={25}
+      layoutType="two-panel"
+    >
+      <TheoryPanel topic="basic">
         
         <Section>
           <SectionTitle>🗑️ Operador delete: Liberación Manual</SectionTitle>
@@ -629,28 +635,48 @@ delete ptr;  // OK - no hace nada
 
         <Section>
           <SectionTitle>💻 Código del Problema</SectionTitle>
-          <CodeBlock>{cppCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Double Delete - El Error Más Peligroso"
+            copyable={true}
+            showLineNumbers={true}
+            highlightLines={[6, 10, 11]}
+            annotations={[
+              { line: 6, content: "Primera liberación - OK", type: "warning" },
+              { line: 10, content: "Segunda liberación - ¡UNDEFINED BEHAVIOR!", type: "error" },
+              { line: 11, content: "Cualquier comportamiento es posible desde aquí", type: "error" }
+            ]}
+          >
+            {cppCode}
+          </CodeBlock>
         </Section>
 
         <Section>
           <SectionTitle>🎮 Simulación del Double Delete</SectionTitle>
           <p><strong>Paso {currentStep + 1} de {steps.length}:</strong> {steps[currentStep]}</p>
           
-          <Interactive>
-            <Button 
-              onClick={performDelete} 
-              variant={state.deleteCount === 0 ? "success" : "critical"}
-              disabled={state.executionBlocked}
-            >
-              {state.deleteCount === 0 ? "delete d" : "💀 delete d (DOUBLE)"}
-            </Button>
-            <Button onClick={nextStep} variant="warning" disabled={state.executionBlocked}>
-              Siguiente Paso
-            </Button>
-            <Button onClick={reset}>
-              Reset
-            </Button>
-          </Interactive>
+          <InteractiveSection>
+            <ButtonGroup orientation="horizontal" spacing="2">
+              <Button 
+                onClick={performDelete} 
+                variant={state.deleteCount === 0 ? "success" : "danger"}
+                disabled={state.executionBlocked}
+                style={state.deleteCount === 1 ? {
+                  background: 'linear-gradient(45deg, #8B0000, #DC143C)',
+                  border: '2px solid #ff0000',
+                  animation: 'pulse 1.5s infinite'
+                } : {}}
+              >
+                {state.deleteCount === 0 ? "delete d" : "💀 delete d (DOUBLE)"}
+              </Button>
+              <Button onClick={nextStep} variant="warning" disabled={state.executionBlocked}>
+                Siguiente Paso
+              </Button>
+              <Button onClick={reset}>
+                Reset
+              </Button>
+            </ButtonGroup>
+          </InteractiveSection>
 
           {state.status === 'critical_ub' && (
             <CriticalError>
@@ -668,12 +694,27 @@ delete ptr;  // OK - no hace nada
 
         <Section>
           <SectionTitle>🛡️ Técnicas de Prevención</SectionTitle>
-          <CodeBlock>{preventionCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Técnicas Profesionales Anti-Double-Delete"
+            copyable={true}
+            showLineNumbers={true}
+            highlightLines={[3, 9, 16, 23]}
+          >
+            {preventionCode}
+          </CodeBlock>
         </Section>
 
         <Section>
           <SectionTitle>⚠️ Consecuencias del Double Delete</SectionTitle>
-          <CodeBlock>{ubConsequencesCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Posibles Consecuencias del Double Delete"
+            copyable={true}
+            showLineNumbers={true}
+          >
+            {ubConsequencesCode}
+          </CodeBlock>
         </Section>
 
         <Section>
@@ -721,8 +762,8 @@ delete ptr;  // OK - no hace nada
           </ul>
         </Section>
       </TheoryPanel>
-
-      <VisualizationPanel>
+      
+      <VisualizationPanel topic="basic">
         <StatusDisplay>
           <div>🎯 Tarea 5: Delete Operations</div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
@@ -743,6 +784,6 @@ delete ptr;  // OK - no hace nada
           />
         </Canvas>
       </VisualizationPanel>
-    </LessonContainer>
+    </LessonLayout>
   );
 }

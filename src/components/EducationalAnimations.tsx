@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, memo } from 'react';
 import styled from 'styled-components';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Text, Line, Html } from '@react-three/drei';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 interface AnimationSequence {
   id: string;

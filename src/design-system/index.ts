@@ -32,6 +32,11 @@ export {
   SectionTitle
 } from './components/Layout';
 
+// Legacy compatibility exports (temporary)
+export const TheoryPanel = Section;
+export const VisualizationPanel = Section;
+export const StatusDisplay = Section;
+
 // Button Components
 export {
   Button,

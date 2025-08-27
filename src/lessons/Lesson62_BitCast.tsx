@@ -7,7 +7,7 @@ import {
 } from '../design-system';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere } from '@react-three/drei';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 interface BitCastState {
   sourceType: 'float' | 'int32' | 'double' | 'uint64' | 'array';

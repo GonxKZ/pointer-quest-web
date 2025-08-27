@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 import { InstancingManager, InstancedObject, InstanceGroupConfig } from '../utils/InstancingManager';
 
 /**

@@ -5,7 +5,7 @@ import { useOptimizedAnimation } from '../hooks/useOptimizedAnimation';
 import { useMemoryManagement } from '../hooks/useMemoryManagement';
 import { useApp } from '../context/AppContext';
 import { get3DTranslation } from '../translations/3d-visualization.es';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 // Professional color palette for smart pointers
 const SMART_POINTER_COLORS = {

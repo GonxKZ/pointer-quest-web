@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 const LessonContainer = styled.div`
   display: grid;
@@ -630,12 +630,28 @@ std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
 
         <Section>
           <SectionTitle>📊 Stack vs Heap</SectionTitle>
-          <CodeBlock>{heapVsStackCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Comparación Stack vs Heap"
+            copyable={true}
+            showLineNumbers={true}
+            highlightLines={[2, 6, 9, 12]}
+          >
+            {heapVsStackCode}
+          </CodeBlock>
         </Section>
 
         <Section>
           <SectionTitle>🔒 Reglas de Ownership</SectionTitle>
-          <CodeBlock>{ownershipRulesCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Reglas de Ownership para Raw Pointers"
+            copyable={true}
+            showLineNumbers={true}
+            highlightLines={[11]}
+          >
+            {ownershipRulesCode}
+          </CodeBlock>
         </Section>
 
         <Section>

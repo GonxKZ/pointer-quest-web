@@ -1,156 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
-import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
+import { 
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  Button,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
-const LessonContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  gap: 1rem;
-  padding: 1rem;
-`;
+// Error and success notification components (using theme colors)
+const ErrorBox = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    background: `rgba(${parseInt(theme.colors.error.slice(1, 3), 16)}, ${parseInt(theme.colors.error.slice(3, 5), 16)}, ${parseInt(theme.colors.error.slice(5, 7), 16)}, 0.1)`,
+    border: `2px solid ${theme.colors.error}`,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[4],
+    margin: `${theme.spacing[4]} 0`,
+    color: theme.colors.error,
+    fontWeight: theme.typography.fontWeight.bold,
+    animation: 'pulse 2s infinite'
+  }}>
+    {children}
+    <style>{`
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+    `}</style>
+  </div>
+);
 
-const TheoryPanel = styled.div`
-  background: rgba(26, 26, 46, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
-
-const VisualizationPanel = styled.div`
-  background: rgba(22, 33, 62, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-`;
-
-const Title = styled.h1`
-  color: #00d4ff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px #00d4ff;
-`;
-
-const Section = styled.div`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-left: 3px solid #00d4ff;
-  border-radius: 5px;
-`;
-
-const SectionTitle = styled.h3`
-  color: #4ecdc4;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  color: #f8f8f2;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const Interactive = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'success' }>`
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  
-  ${props => {
-    switch (props.variant) {
-      case 'danger':
-        return `
-          background: linear-gradient(45deg, #ff6b6b, #ff5252);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); }
-        `;
-      case 'warning':
-        return `
-          background: linear-gradient(45deg, #ffca28, #ffa000);
-          color: #1a1a2e;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 202, 40, 0.4); }
-        `;
-      case 'success':
-        return `
-          background: linear-gradient(45deg, #4caf50, #45a049);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); }
-        `;
-      default:
-        return `
-          background: linear-gradient(45deg, #00d4ff, #4ecdc4);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); }
-        `;
-    }
-  }}
-  
-  ${props => props.disabled && `
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-  `}
-`;
-
-const ErrorBox = styled.div`
-  background: rgba(255, 107, 107, 0.1);
-  border: 2px solid #ff6b6b;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #ff6b6b;
-  font-weight: bold;
-  animation: pulse 2s infinite;
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-`;
-
-const SuccessBox = styled.div`
-  background: rgba(76, 175, 80, 0.1);
-  border: 2px solid #4caf50;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #4caf50;
-  font-weight: bold;
-`;
-
-const StatusDisplay = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 1rem;
-  border-radius: 8px;
-  color: white;
-  z-index: 100;
-  font-family: monospace;
-`;
+const SuccessBox = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    background: `rgba(${parseInt(theme.colors.success.slice(1, 3), 16)}, ${parseInt(theme.colors.success.slice(3, 5), 16)}, ${parseInt(theme.colors.success.slice(5, 7), 16)}, 0.1)`,
+    border: `2px solid ${theme.colors.success}`,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[4],
+    margin: `${theme.spacing[4]} 0`,
+    color: theme.colors.success,
+    fontWeight: theme.typography.fontWeight.bold
+  }}>
+    {children}
+  </div>
+);
 
 interface NullPtrState {
   x: number;
@@ -475,9 +376,15 @@ int main() {
 }`;
 
   return (
-    <LessonContainer>
-      <TheoryPanel>
-        <Title>Tarea 2: nullptr y Chequeo de Desreferencia</Title>
+    <LessonLayout
+      title="nullptr y Chequeo de Desreferencia"
+      subtitle="Entendiendo los peligros de nullptr y cómo manejarlos de forma segura"
+      lessonNumber={2}
+      difficulty="Beginner"
+      estimatedTime={12}
+      layoutType="two-panel"
+    >
+      <TheoryPanel topic="basic">
         
         <Section>
           <SectionTitle>🚨 Concepto Crítico de Seguridad</SectionTitle>
@@ -497,35 +404,45 @@ int main() {
 
         <Section>
           <SectionTitle>💻 Código C++ - Patrón Seguro</SectionTitle>
-          <CodeBlock>{cppCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Manejo Seguro de nullptr"
+            copyable={true}
+            showLineNumbers={true}
+            highlightLines={[7, 14, 20]}
+          >
+            {cppCode}
+          </CodeBlock>
         </Section>
 
         <Section>
           <SectionTitle>🎮 Experimento Interactivo</SectionTitle>
           <p><strong>Paso {currentStep + 1} de {steps.length}:</strong> {steps[currentStep]}</p>
           
-          <Interactive>
-            <Button 
-              onClick={attemptDereference} 
-              variant="danger"
-              disabled={state.blockingInput}
-            >
-              {state.isNullPtr ? "💀 Intentar *p" : "✅ Desreferenciar *p"}
-            </Button>
-            <Button 
-              onClick={assignToX} 
-              variant="success"
-              disabled={!state.isNullPtr}
-            >
-              p = &x
-            </Button>
-            <Button onClick={nextStep} variant="warning">
-              Siguiente Paso
-            </Button>
-            <Button onClick={resetToNull}>
-              Reset
-            </Button>
-          </Interactive>
+          <InteractiveSection>
+            <ButtonGroup orientation="horizontal" spacing="3">
+              <Button 
+                onClick={attemptDereference} 
+                variant="danger"
+                disabled={state.blockingInput}
+              >
+                {state.isNullPtr ? "💀 Intentar *p" : "✅ Desreferenciar *p"}
+              </Button>
+              <Button 
+                onClick={assignToX} 
+                variant="success"
+                disabled={!state.isNullPtr}
+              >
+                p = &x
+              </Button>
+              <Button onClick={nextStep} variant="warning">
+                Siguiente Paso
+              </Button>
+              <Button onClick={resetToNull}>
+                Reset
+              </Button>
+            </ButtonGroup>
+          </InteractiveSection>
 
           {attemptedDereference && state.isNullPtr && (
             <ErrorBox>
@@ -544,18 +461,18 @@ int main() {
 
         <Section>
           <SectionTitle>🔒 Técnicas de Prevención</SectionTitle>
-          <h4 style={{ color: '#4ecdc4' }}>1. Verificación Defensiva:</h4>
-          <CodeBlock>{`if (ptr != nullptr) {
+          <h4 style={{ color: theme.colors.secondary[500] }}>1. Verificación Defensiva:</h4>
+          <CodeBlock language="cpp" copyable={true}>{`if (ptr != nullptr) {
     // usar ptr de forma segura
     *ptr = value;
 }`}</CodeBlock>
 
-          <h4 style={{ color: '#4ecdc4' }}>2. Smart Pointers (Moderno):</h4>
-          <CodeBlock>{`std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
+          <h4 style={{ color: theme.colors.secondary[500] }}>2. Smart Pointers (Moderno):</h4>
+          <CodeBlock language="cpp" copyable={true}>{`std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
 // Nunca es nullptr si se crea correctamente`}</CodeBlock>
 
-          <h4 style={{ color: '#4ecdc4' }}>3. Referencias cuando no hay nulabilidad:</h4>
-          <CodeBlock>{`void process(int& value) {  // No puede ser null
+          <h4 style={{ color: theme.colors.secondary[500] }}>3. Referencias cuando no hay nulabilidad:</h4>
+          <CodeBlock language="cpp" copyable={true}>{`void process(int& value) {  // No puede ser null
     // value siempre es válido
 }`}</CodeBlock>
         </Section>
@@ -575,8 +492,8 @@ int main() {
           </ul>
         </Section>
       </TheoryPanel>
-
-      <VisualizationPanel>
+      
+      <VisualizationPanel topic="basic">
         <StatusDisplay>
           <div>🎯 Tarea 2: nullptr Safety</div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
@@ -595,6 +512,6 @@ int main() {
           />
         </Canvas>
       </VisualizationPanel>
-    </LessonContainer>
+    </LessonLayout>
   );
 }

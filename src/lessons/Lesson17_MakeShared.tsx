@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 interface AllocationState {
   method: 'none' | 'make_shared' | 'shared_ptr_new';

@@ -1,9 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
+import { useApp } from '../context/AppContext';
+import { 
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  Button,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
 interface SmartPtrState {
   hasObject: boolean;
@@ -28,116 +41,115 @@ interface MemoryBlock {
   isActive: boolean;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
-
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
-
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
-
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
-
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
-
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
-
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-  background: ${props => 
-    props.variant === 'danger' ? 'linear-gradient(45deg, #ff4444, #cc0000)' :
-    props.variant === 'secondary' ? 'linear-gradient(45deg, #666, #333)' :
-    'linear-gradient(45deg, #0066cc, #0099ff)'};
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.9em;
-  transition: all 0.3s ease;
+const SmartPointer: React.FC<{
+  position: [number, number, number];
+  hasObject: boolean;
+  label: string;
+  color: string;
+}> = ({ position, hasObject, label, color }) => {
+  const meshRef = useRef<Mesh>(null);
   
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 100, 200, 0.4);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
+  useFrame(() => {
+    if (meshRef.current && hasObject) {
+      meshRef.current.rotation.z += 0.05;
+    }
+  });
 
-const StatusDisplay = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  border: 1px solid #333;
-`;
+  return (
+    <group position={position}>
+      <mesh ref={meshRef}>
+        <boxGeometry args={[1.5, 0.8, 0.3]} />
+        <meshStandardMaterial 
+          color={hasObject ? color : '#333333'}
+          emissive={hasObject ? color : '#000000'}
+          emissiveIntensity={hasObject ? 0.3 : 0}
+        />
+      </mesh>
+      <Text
+        position={[0, -1, 0]}
+        fontSize={0.3}
+        color={hasObject ? color : '#666666'}
+        anchorX="center"
+        anchorY="middle"
+      >
+        {label}
+      </Text>
+    </group>
+  );
+};
+
+const MemoryBlockComponent: React.FC<{ block: MemoryBlock }> = ({ block }) => {
+  const meshRef = useRef<Mesh>(null);
+  
+  useFrame(() => {
+    if (meshRef.current && block.isActive) {
+      meshRef.current.scale.setScalar(1 + Math.sin(Date.now() * 0.01) * 0.1);
+    }
+  });
+
+  const getBlockColor = () => {
+    switch (block.owner) {
+      case 'unique_ptr': return '#00ff88';
+      case 'unique_ptr2': return '#ff8800';
+      case 'raw': return '#ff4444';
+      default: return '#666666';
+    }
+  };
+
+  return (
+    <group position={block.position}>
+      <mesh ref={meshRef}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial 
+          color={getBlockColor()}
+          emissive={getBlockColor()}
+          emissiveIntensity={block.isActive ? 0.4 : 0.1}
+          transparent
+          opacity={block.owner ? 0.8 : 0.3}
+        />
+      </mesh>
+      <Text
+        position={[0, 0, 0.6]}
+        fontSize={0.4}
+        color="white"
+        anchorX="center"
+        anchorY="middle"
+      >
+        {block.value}
+      </Text>
+      {block.owner && (
+        <Text
+          position={[0, -0.7, 0]}
+          fontSize={0.2}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {block.owner}
+        </Text>
+      )}
+    </group>
+  );
+};
+
+const OwnershipArrow: React.FC<{
+  from: [number, number, number];
+  to: [number, number, number];
+  color: string;
+}> = ({ from, to, color }) => {
+  const direction = new THREE.Vector3(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
+  const length = direction.length();
+  direction.normalize();
+
+  return (
+    <group position={from}>
+      <mesh rotation={[0, 0, Math.atan2(direction.y, direction.x)]}>
+        <cylinderGeometry args={[0.05, 0.05, length, 8]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} />
+      </mesh>
+    </group>
+  );
+};
 
 const MemoryVisualization: React.FC<{
   state: SmartPtrState;
@@ -150,116 +162,6 @@ const MemoryVisualization: React.FC<{
       groupRef.current.rotation.y += 0.002;
     }
   });
-
-  const SmartPointer = ({ position, hasObject, label, color }: {
-    position: [number, number, number];
-    hasObject: boolean;
-    label: string;
-    color: string;
-  }) => {
-    const meshRef = useRef<Mesh>(null);
-    
-    useFrame(() => {
-      if (meshRef.current && hasObject) {
-        meshRef.current.rotation.z += 0.05;
-      }
-    });
-
-    return (
-      <group position={position}>
-        <mesh ref={meshRef}>
-          <boxGeometry args={[1.5, 0.8, 0.3]} />
-          <meshStandardMaterial 
-            color={hasObject ? color : '#333333'}
-            emissive={hasObject ? color : '#000000'}
-            emissiveIntensity={hasObject ? 0.3 : 0}
-          />
-        </mesh>
-        <Text
-          position={[0, -1, 0]}
-          fontSize={0.3}
-          color={hasObject ? color : '#666666'}
-          anchorX="center"
-          anchorY="middle"
-        >
-          {label}
-        </Text>
-      </group>
-    );
-  };
-
-  const MemoryBlock = ({ block }: { block: MemoryBlock }) => {
-    const meshRef = useRef<Mesh>(null);
-    
-    useFrame(() => {
-      if (meshRef.current && block.isActive) {
-        meshRef.current.scale.setScalar(1 + Math.sin(Date.now() * 0.01) * 0.1);
-      }
-    });
-
-    const getBlockColor = () => {
-      switch (block.owner) {
-        case 'unique_ptr': return '#00ff88';
-        case 'unique_ptr2': return '#ff8800';
-        case 'raw': return '#ff4444';
-        default: return '#666666';
-      }
-    };
-
-    return (
-      <group position={block.position}>
-        <mesh ref={meshRef}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial 
-            color={getBlockColor()}
-            emissive={getBlockColor()}
-            emissiveIntensity={block.isActive ? 0.4 : 0.1}
-            transparent
-            opacity={block.owner ? 0.8 : 0.3}
-          />
-        </mesh>
-        <Text
-          position={[0, 0, 0.6]}
-          fontSize={0.4}
-          color="white"
-          anchorX="center"
-          anchorY="middle"
-        >
-          {block.value}
-        </Text>
-        {block.owner && (
-          <Text
-            position={[0, -0.7, 0]}
-            fontSize={0.2}
-            color="white"
-            anchorX="center"
-            anchorY="middle"
-          >
-            {block.owner}
-          </Text>
-        )}
-      </group>
-    );
-  };
-
-  const OwnershipArrow = ({ from, to, color }: {
-    from: [number, number, number];
-    to: [number, number, number];
-    color: string;
-  }) => {
-    const direction = new THREE.Vector3(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
-    const length = direction.length();
-    direction.normalize();
-
-    return (
-      <group position={from}>
-        <mesh rotation={[0, 0, Math.atan2(direction.y, direction.x)]}>
-          <cylinderGeometry args={[0.05, 0.05, length, 8]} />
-          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} />
-        </mesh>
-      </group>
-    );
-  };
 
   return (
     <group ref={groupRef}>
@@ -304,7 +206,7 @@ const MemoryVisualization: React.FC<{
       )}
 
       {memoryBlocks.map(block => (
-        <MemoryBlock key={block.id} block={block} />
+        <MemoryBlockComponent key={block.id} block={block} />
       ))}
 
       {state.hasObject && memoryBlocks.find(b => b.owner === 'unique_ptr') && (
@@ -336,7 +238,35 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson10_UniquePtr: React.FC = () => {
+const StatusIndicator: React.FC<{
+  children: React.ReactNode;
+  type: 'success' | 'warning' | 'info';
+}> = ({ children, type }) => {
+  const colorMap = {
+    success: { bg: 'rgba(76, 175, 80, 0.1)', border: '#4caf50', color: '#4caf50' },
+    warning: { bg: 'rgba(255, 152, 0, 0.1)', border: '#ff9800', color: '#ff9800' },
+    info: { bg: 'rgba(33, 150, 243, 0.1)', border: '#2196f3', color: '#2196f3' }
+  };
+  const styles = colorMap[type];
+
+  return (
+    <div style={{
+      background: styles.bg,
+      border: `1px solid ${styles.border}`,
+      borderRadius: '8px',
+      padding: '1rem',
+      margin: '1rem 0',
+      color: styles.color,
+      fontWeight: 'bold'
+    }}>
+      {children}
+    </div>
+  );
+};
+
+export default function Lesson10_UniquePtr() {
+  const { dispatch } = useApp();
+  
   const [state, setState] = useState<SmartPtrState>({
     hasObject: false,
     value: 0,
@@ -347,6 +277,14 @@ export const Lesson10_UniquePtr: React.FC = () => {
   });
 
   const [memoryBlocks, setMemoryBlocks] = useState<MemoryBlock[]>([]);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const steps = [
+    "Crear unique_ptr con make_unique<int>(42)",
+    "Observar ownership exclusivo y RAII automático",
+    "Explorar operaciones: reset(), release(), get()",
+    "Demostrar transferencia segura con move semantics"
+  ];
 
   const createMemoryBlock = (value: number, owner: 'unique_ptr' | 'unique_ptr2' | 'raw', position: [number, number, number]): MemoryBlock => ({
     id: `block_${Date.now()}_${Math.random()}`,
@@ -373,7 +311,7 @@ export const Lesson10_UniquePtr: React.FC = () => {
     if (!state.hasObject) {
       setState(prev => ({
         ...prev,
-        message: 'Error: unique_ptr está vacío, no hay nada que resetear'
+        message: '⚠️ unique_ptr está vacío, no hay nada que resetear'
       }));
       return;
     }
@@ -415,7 +353,7 @@ export const Lesson10_UniquePtr: React.FC = () => {
     if (!state.hasObject) {
       setState(prev => ({
         ...prev,
-        message: 'Error: unique_ptr está vacío, no se puede liberar ownership'
+        message: '⚠️ unique_ptr está vacío, no se puede liberar ownership'
       }));
       return;
     }
@@ -425,7 +363,7 @@ export const Lesson10_UniquePtr: React.FC = () => {
       operation: 'release',
       hasObject: false,
       rawPtr: { visible: true, value: prev.value },
-      message: 'int* raw = ptr.release() - transfiere ownership a puntero crudo'
+      message: '⚠️ int* raw = ptr.release() - transfiere ownership a puntero crudo'
     }));
 
     setMemoryBlocks(prev => prev.map(block => 
@@ -486,97 +424,213 @@ export const Lesson10_UniquePtr: React.FC = () => {
       value: 0,
       operation: 'none',
       rawPtr: { visible: false, value: null },
-      message: 'Escena reiniciada - todos los unique_ptr destruidos',
+      message: 'Escena reiniciada - todos los unique_ptr destruidos automáticamente',
       swapPartner: { hasObject: false, value: 0 }
     });
     setMemoryBlocks([]);
+    setCurrentStep(0);
   };
 
+  const nextStep = () => {
+    setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+  };
+
+  const cppCode = `#include <iostream>
+#include <memory>
+
+int main() {
+    // ✅ Creación segura con make_unique
+    auto ptr = std::make_unique<int>(42);
+    std::cout << "Valor: " << *ptr << std::endl;
+    
+    // Operaciones fundamentales
+    ptr.reset();                    // Destruye objeto
+    ptr.reset(new int(99));        // Reemplaza objeto
+    int* raw = ptr.release();      // ⚠️ Transfiere ownership
+    int* observer = ptr.get();     // Acceso sin transferir
+    
+    // Move semantics (C++11)
+    auto ptr2 = std::move(ptr);    // Transferencia de ownership
+    
+    // ptr ahora es nullptr, ptr2 posee el objeto
+    assert(ptr == nullptr);
+    assert(ptr2 != nullptr);
+    
+    return 0;
+    // Destrucción automática al salir del scope
+}`;
+
+  const raiiAdvantagesCode = `// VENTAJAS DE UNIQUE_PTR VS RAW POINTERS:
+
+// ❌ Raw pointers - propensos a errores
+int* create_legacy() {
+    int* ptr = new int(42);
+    // Si hay excepción aquí, leak garantizado
+    some_risky_operation();
+    return ptr; // Caller debe recordar delete
+}
+
+// ✅ unique_ptr - exception safe + RAII
+std::unique_ptr<int> create_modern() {
+    auto ptr = std::make_unique<int>(42);
+    // Si hay excepción aquí, destrucción automática
+    some_risky_operation();
+    return ptr; // Transferencia limpia de ownership
+}
+
+// BENEFICIOS CLAVE:
+// 1. Exception Safety - sin leaks en casos de error
+// 2. Automatic Cleanup - destructor garantizado
+// 3. Move Semantics - transferencia eficiente
+// 4. No Double Delete - único owner por diseño
+// 5. Clear Ownership - semánticas explícitas`;
+
+  const bestPracticesCode = `// MEJORES PRÁCTICAS CON UNIQUE_PTR:
+
+// ✅ HACER: Usar make_unique
+auto ptr = std::make_unique<Widget>(args);
+
+// ❌ EVITAR: new directo (no exception safe)
+std::unique_ptr<Widget> ptr(new Widget(args));
+
+// ✅ HACER: Move para transferir
+auto ptr2 = std::move(ptr);
+
+// ❌ EVITAR: Copiar (no compila)
+// auto ptr3 = ptr2; // ERROR: no copy constructor
+
+// ✅ HACER: Pasar por referencia para observar
+void use_widget(const Widget& w);
+use_widget(*ptr);
+
+// ✅ HACER: Pasar por puntero para ownership opcional
+void maybe_adopt(std::unique_ptr<Widget> w);
+maybe_adopt(std::move(ptr));
+
+// ✅ HACER: Retornar por valor (RVO)
+std::unique_ptr<Widget> factory() {
+    return std::make_unique<Widget>();
+}`;
+
   return (
-    <Container>
-      <Header>
-        <Title>Lección 10: std::unique_ptr&lt;int&gt;</Title>
-        <Subtitle>Propiedad Exclusiva y Operaciones Fundamentales</Subtitle>
-      </Header>
+    <LessonLayout
+      title="Tarea 10: std::unique_ptr - Introducción a Smart Pointers"
+      difficulty="Básico"
+      topic="basic"
+      estimatedTime="25 minutos"
+    >
+      <TheoryPanel>
+        <Section>
+          <SectionTitle>🚀 std::unique_ptr&lt;T&gt;</SectionTitle>
+          <p>
+            <strong>std::unique_ptr</strong> es el primer smart pointer que todo desarrollador C++ 
+            debe dominar. Garantiza ownership exclusivo de un recurso y destrucción automática 
+            usando RAII (Resource Acquisition Is Initialization).
+          </p>
+          
+          <h4 style={{ color: theme.colors.accent, marginTop: '1rem' }}>Características Principales:</h4>
+          <ul style={{ lineHeight: '1.6' }}>
+            <li><strong>Unique Ownership:</strong> Solo un unique_ptr puede poseer un objeto</li>
+            <li><strong>RAII:</strong> Destrucción automática al salir del scope</li>
+            <li><strong>Move-only:</strong> No copiable, solo transferible</li>
+            <li><strong>Exception Safe:</strong> Sin memory leaks en casos de error</li>
+            <li><strong>Zero Overhead:</strong> Sin costo en runtime vs raw pointer</li>
+          </ul>
+        </Section>
 
-      <MainContent>
-        <VisualizationPanel>
-          <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
-            <MemoryVisualization state={state} memoryBlocks={memoryBlocks} />
-            <OrbitControls enableZoom={true} enablePan={true} enableRotate={true} />
-          </Canvas>
-        </VisualizationPanel>
+        <Section>
+          <SectionTitle>💻 Código de Ejemplo</SectionTitle>
+          <CodeBlock>{cppCode}</CodeBlock>
+        </Section>
 
-        <ControlPanel>
-          <TheorySection>
-            <h3>🔒 std::unique_ptr&lt;T&gt;</h3>
-            <p>Smart pointer que garantiza propiedad exclusiva de un recurso:</p>
-            <CodeBlock>{`// Creación segura
-auto ptr = std::make_unique<int>(42);
+        <Section>
+          <SectionTitle>🎮 Demostración Interactiva</SectionTitle>
+          <p><strong>Paso {currentStep + 1} de {steps.length}:</strong> {steps[currentStep]}</p>
+          
+          <InteractiveSection>
+            <ButtonGroup>
+              <Button 
+                onClick={demonstrateMakeUnique} 
+                variant="primary"
+                annotation="Creación segura exception-safe"
+              >
+                make_unique&lt;int&gt;(42)
+              </Button>
+              
+              <Button 
+                onClick={demonstrateReset} 
+                disabled={!state.hasObject}
+                variant="danger"
+                annotation="Destrucción explícita"
+              >
+                reset()
+              </Button>
+              
+              <Button 
+                onClick={demonstrateResetWithValue}
+                variant="secondary"
+                annotation="Reemplazar objeto"
+              >
+                reset(new int(99))
+              </Button>
+            </ButtonGroup>
 
-// Operaciones fundamentales
-ptr.reset();              // Libera y destruye
-ptr.reset(new int(99));   // Reemplaza objeto
-int* raw = ptr.release(); // Transfiere ownership
-int* observer = ptr.get(); // Acceso sin transferir
-ptr.swap(other_ptr);      // Intercambio atómico`}</CodeBlock>
-          </TheorySection>
+            <ButtonGroup>
+              <Button 
+                onClick={demonstrateRelease} 
+                disabled={!state.hasObject}
+                variant="warning"
+                annotation="⚠️ Transferir a raw pointer"
+              >
+                release()
+              </Button>
+              
+              <Button 
+                onClick={demonstrateGet}
+                disabled={!state.hasObject}
+                variant="secondary"
+                annotation="Observar sin transferir"
+              >
+                get()
+              </Button>
+            </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🎮 Operaciones Básicas</h4>
-            
-            <Button onClick={demonstrateMakeUnique} variant="primary">
-              make_unique&lt;int&gt;(42)
-            </Button>
-            
-            <Button 
-              onClick={demonstrateReset} 
-              disabled={!state.hasObject}
-              variant="danger"
-            >
-              reset()
-            </Button>
-            
-            <Button 
-              onClick={demonstrateResetWithValue}
-              variant="secondary"
-            >
-              reset(new int(99))
-            </Button>
-            
-            <Button 
-              onClick={demonstrateRelease} 
-              disabled={!state.hasObject}
-              variant="danger"
-            >
-              release()
-            </Button>
-            
-            <Button 
-              onClick={demonstrateGet}
-              disabled={!state.hasObject}
-              variant="secondary"
-            >
-              get()
-            </Button>
-          </div>
+          <InteractiveSection>
+            <h4 style={{ color: theme.colors.accent }}>🔄 Operaciones de Intercambio</h4>
+            <ButtonGroup>
+              <Button 
+                onClick={createSecondPtr}
+                annotation="Crear segundo unique_ptr"
+              >
+                Crear ptr2
+              </Button>
+              
+              <Button 
+                onClick={demonstrateSwap}
+                disabled={!state.hasObject && !state.swapPartner.hasObject}
+                annotation="Intercambio atómico O(1)"
+              >
+                swap(ptr, ptr2)
+              </Button>
 
-          <div>
-            <h4>🔄 Operaciones de Intercambio</h4>
-            
-            <Button onClick={createSecondPtr}>
-              Crear ptr2
-            </Button>
-            
-            <Button 
-              onClick={demonstrateSwap}
-              disabled={!state.hasObject && !state.swapPartner.hasObject}
-            >
-              swap(ptr, ptr2)
-            </Button>
-          </div>
+              <Button onClick={nextStep} variant="success">
+                Siguiente Paso
+              </Button>
+              
+              <Button onClick={resetScene} variant="secondary">
+                🔄 Reset
+              </Button>
+            </ButtonGroup>
+          </InteractiveSection>
 
-          <StatusDisplay>
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.3)',
+            padding: '1rem',
+            borderRadius: '8px',
+            margin: '1rem 0',
+            border: '1px solid #333'
+          }}>
             <h4>📊 Estado Actual</h4>
             <div>unique_ptr: {state.hasObject ? `valor ${state.value}` : 'vacío'}</div>
             <div>unique_ptr2: {state.swapPartner.hasObject ? `valor ${state.swapPartner.value}` : 'vacío'}</div>
@@ -586,26 +640,94 @@ ptr.swap(other_ptr);      // Intercambio atómico`}</CodeBlock>
                 ⚠️ Raw pointer activo: {state.rawPtr.value} (requiere delete manual)
               </div>
             )}
-          </StatusDisplay>
+          </div>
 
-          <TheorySection>
-            <h4>🎯 Puntos Clave</h4>
-            <ul>
-              <li><strong>make_unique:</strong> Construcción exception-safe</li>
-              <li><strong>reset():</strong> Destrucción automática del objeto</li>
-              <li><strong>release():</strong> Transfiere ownership (¡peligroso!)</li>
-              <li><strong>get():</strong> Acceso de solo lectura al puntero</li>
-              <li><strong>swap():</strong> Intercambio eficiente O(1)</li>
-              <li><strong>Movible:</strong> Transferencia sin copia</li>
-              <li><strong>No copiable:</strong> Previene ownership compartido</li>
+          {state.rawPtr.visible && (
+            <StatusIndicator type="warning">
+              ⚠️ OWNERSHIP TRANSFERIDO A RAW POINTER<br/>
+              El objeto ahora requiere delete manual.<br/>
+              unique_ptr ya no gestiona la memoria.
+            </StatusIndicator>
+          )}
+
+          {state.operation === 'make_unique' && (
+            <StatusIndicator type="success">
+              ✅ RAII ACTIVADO<br/>
+              Objeto creado en heap con destrucción automática.<br/>
+              Exception safe y sin memory leaks.
+            </StatusIndicator>
+          )}
+        </Section>
+
+        <Section>
+          <SectionTitle>⚡ RAII vs Raw Pointers</SectionTitle>
+          <CodeBlock>{raiiAdvantagesCode}</CodeBlock>
+        </Section>
+
+        <Section>
+          <SectionTitle>🎯 Mejores Prácticas</SectionTitle>
+          <CodeBlock>{bestPracticesCode}</CodeBlock>
+        </Section>
+
+        <Section>
+          <SectionTitle>📚 Puntos Clave para Recordar</SectionTitle>
+          <div style={{
+            background: 'rgba(76, 175, 80, 0.1)',
+            border: '1px solid #4caf50',
+            borderRadius: '8px',
+            padding: '1rem'
+          }}>
+            <ul style={{ lineHeight: '1.8', margin: 0 }}>
+              <li><strong>make_unique:</strong> Siempre preferir sobre new directo</li>
+              <li><strong>Move semantics:</strong> std::move() para transferir ownership</li>
+              <li><strong>No copiar:</strong> unique_ptr es move-only por diseño</li>
+              <li><strong>RAII garantizado:</strong> Destrucción automática en todas las rutas</li>
+              <li><strong>Exception safe:</strong> Sin leaks incluso con excepciones</li>
+              <li><strong>Performance:</strong> Zero overhead vs raw pointers</li>
+              <li><strong>API limpia:</strong> Operaciones explícitas y seguras</li>
             </ul>
-          </TheorySection>
+          </div>
+        </Section>
 
-          <Button onClick={resetScene} variant="secondary">
-            🔄 Reiniciar Escena
-          </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+        <Section>
+          <SectionTitle>🔗 Transición a Smart Pointers</SectionTitle>
+          <p>
+            Esta lección marca la <strong>transición crucial</strong> de raw pointers a smart pointers. 
+            unique_ptr es la base para entender shared_ptr, weak_ptr y toda la gestión moderna 
+            de memoria en C++.
+          </p>
+          <p style={{ color: theme.colors.accent, fontWeight: 'bold' }}>
+            🎯 Próximas lecciones explorarán arrays con unique_ptr, move semantics 
+            avanzados y custom deleters.
+          </p>
+        </Section>
+      </TheoryPanel>
+
+      <VisualizationPanel>
+        <StatusDisplay style={{
+          position: 'absolute',
+          top: '1rem',
+          right: '1rem',
+          background: 'rgba(0, 0, 0, 0.8)',
+          padding: '1rem',
+          borderRadius: '8px',
+          color: 'white',
+          zIndex: 100,
+          fontFamily: 'monospace'
+        }}>
+          <div>🎯 Tarea 10: std::unique_ptr</div>
+          <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
+          <div>🔗 Operación: {state.operation}</div>
+          <div>📦 Objeto: {state.hasObject ? 'existe' : 'vacío'}</div>
+          <div>🎪 Valor: {state.hasObject ? state.value : 'N/A'}</div>
+          <div>🔄 Swap Partner: {state.swapPartner.hasObject ? 'activo' : 'vacío'}</div>
+        </StatusDisplay>
+        
+        <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
+          <MemoryVisualization state={state} memoryBlocks={memoryBlocks} />
+          <OrbitControls enableZoom={true} enablePan={true} enableRotate={true} />
+        </Canvas>
+      </VisualizationPanel>
+    </LessonLayout>
   );
-};
+}

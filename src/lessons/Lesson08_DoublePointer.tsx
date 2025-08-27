@@ -1,147 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
-import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
+import { 
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  Button,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
-const LessonContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  gap: 1rem;
-  padding: 1rem;
-`;
 
-const TheoryPanel = styled.div`
-  background: rgba(26, 26, 46, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
-
-const VisualizationPanel = styled.div`
-  background: rgba(22, 33, 62, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-`;
-
-const Title = styled.h1`
-  color: #00d4ff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px #00d4ff;
-`;
-
-const Section = styled.div`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-left: 3px solid #00d4ff;
-  border-radius: 5px;
-`;
-
-const SectionTitle = styled.h3`
-  color: #4ecdc4;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  color: #f8f8f2;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const Interactive = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'success' | 'indirection' }>`
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  
-  ${props => {
-    switch (props.variant) {
-      case 'danger':
-        return `
-          background: linear-gradient(45deg, #ff6b6b, #ff5252);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); }
-        `;
-      case 'warning':
-        return `
-          background: linear-gradient(45deg, #ffca28, #ffa000);
-          color: #1a1a2e;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 202, 40, 0.4); }
-        `;
-      case 'success':
-        return `
-          background: linear-gradient(45deg, #4caf50, #45a049);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); }
-        `;
-      case 'indirection':
-        return `
-          background: linear-gradient(45deg, #e91e63, #c2185b);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
-        `;
-      default:
-        return `
-          background: linear-gradient(45deg, #00d4ff, #4ecdc4);
-          color: white;
-          &:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); }
-        `;
-    }
-  }}
-  
-  ${props => props.disabled && `
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-  `}
-`;
-
-const IndirectionLevel = styled.div<{ level: number; active: boolean }>`
-  background: ${props => props.active ? 'rgba(233, 30, 99, 0.2)' : 'rgba(233, 30, 99, 0.05)'};
-  border: 2px solid ${props => props.active ? '#e91e63' : 'rgba(233, 30, 99, 0.3)'};
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 0.5rem 0;
-  color: ${props => props.active ? '#e91e63' : '#c2185b'};
-  font-weight: ${props => props.active ? 'bold' : 'normal'};
-  transition: all 0.3s ease;
-`;
-
-const StatusDisplay = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 1rem;
-  border-radius: 8px;
-  color: white;
-  z-index: 100;
-  font-family: monospace;
-`;
+const IndirectionLevel: React.FC<{ level: number; active: boolean; children: React.ReactNode }> = ({ level, active, children }) => (
+  <div style={{
+    background: active ? 'rgba(233, 30, 99, 0.2)' : 'rgba(233, 30, 99, 0.05)',
+    border: `2px solid ${active ? '#e91e63' : 'rgba(233, 30, 99, 0.3)'}`,
+    borderRadius: '8px',
+    padding: '1rem',
+    margin: '0.5rem 0',
+    color: active ? '#e91e63' : '#c2185b',
+    fontWeight: active ? 'bold' : 'normal',
+    transition: 'all 0.3s ease',
+  }}>
+    {children}
+  </div>
+);
 
 interface DoublePointerState {
   value: number;
@@ -593,9 +483,13 @@ ppp = &other_ppp;       // Modifica el puntero triple
 // REGLA: N asteriscos en declaración = N asteriscos para acceso completo`;
 
   return (
-    <LessonContainer>
+    <LessonLayout
+      title="Tarea 8: Double Pointers - Indirección Múltiple"
+      difficulty="Básico"
+      topic="basic"
+      estimatedTime="18 minutos"
+    >
       <TheoryPanel>
-        <Title>Tarea 8: Double Pointers - Indirección Múltiple</Title>
         
         <Section>
           <SectionTitle>🔗 Concepto: Puntero a Puntero</SectionTitle>
@@ -634,14 +528,14 @@ ppp = &other_ppp;       // Modifica el puntero triple
             </IndirectionLevel>
           </div>
           
-          <Interactive>
+          <InteractiveSection>
             <Button onClick={accessDirect}>
               value
             </Button>
-            <Button onClick={accessSingleIndirect} variant="indirection">
+            <Button onClick={accessSingleIndirect} variant="secondary">
               *pp
             </Button>
-            <Button onClick={accessDoubleIndirect} variant="indirection">
+            <Button onClick={accessDoubleIndirect} variant="secondary">
               **pp
             </Button>
             <Button onClick={modifyThroughDouble} variant="warning">
@@ -653,7 +547,7 @@ ppp = &other_ppp;       // Modifica el puntero triple
             <Button onClick={reset}>
               Reset
             </Button>
-          </Interactive>
+          </InteractiveSection>
         </Section>
 
         <Section>
@@ -744,6 +638,6 @@ ppp = &other_ppp;       // Modifica el puntero triple
           />
         </Canvas>
       </VisualizationPanel>
-    </LessonContainer>
+    </LessonLayout>
   );
 }

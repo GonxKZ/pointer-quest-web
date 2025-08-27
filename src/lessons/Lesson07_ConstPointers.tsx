@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
-import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
+import { 
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  Button,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
 const LessonContainer = styled.div`
   display: grid;
@@ -604,7 +616,7 @@ void modern_function(const int& value) {  // Más claro que const int*
             </ConstRule>
           </div>
           
-          <Interactive>
+          <InteractiveSection>
             <Button onClick={() => setConstType('none')}>
               int* ptr
             </Button>
@@ -617,9 +629,9 @@ void modern_function(const int& value) {  // Más claro que const int*
             <Button onClick={() => setConstType('const_both')} variant="const">
               const int* const ptr
             </Button>
-          </Interactive>
+          </InteractiveSection>
 
-          <Interactive>
+          <InteractiveSection>
             <Button onClick={attemptModifyValue} variant="warning">
               *ptr = new_value
             </Button>
@@ -632,7 +644,7 @@ void modern_function(const int& value) {  // Más claro que const int*
             <Button onClick={reset}>
               Reset
             </Button>
-          </Interactive>
+          </InteractiveSection>
 
           {state.status === 'error' && (
             <ErrorAttempt>

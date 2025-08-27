@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import styled from 'styled-components';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 // Styled components
 const Container = styled.div`

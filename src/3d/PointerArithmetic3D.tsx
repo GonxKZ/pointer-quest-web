@@ -3,9 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import { Text, Html, Line, Cylinder, Sphere } from '@react-three/drei';
 import { useOptimizedAnimation } from '../hooks/useOptimizedAnimation';
 import { useMemoryManagement } from '../hooks/useMemoryManagement';
-import { useApp } from '../context/AppContext';
 import { get3DTranslation } from '../translations/3d-visualization.es';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 
 // Professional color scheme for pointer arithmetic
 const POINTER_ARITHMETIC_COLORS = {

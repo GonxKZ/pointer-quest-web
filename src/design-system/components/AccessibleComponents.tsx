@@ -5,7 +5,7 @@
  * Ensures inclusive design for all learners.
  */
 
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { theme } from '../theme';
 import { 

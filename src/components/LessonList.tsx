@@ -1,7 +1,7 @@
 import React from 'react';
 // import { Link } from 'react-router-dom'; // Not used
 import styled from 'styled-components';
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 import { Canvas } from '@react-three/fiber';
 import { Text, OrbitControls } from '@react-three/drei';
 

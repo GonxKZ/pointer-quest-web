@@ -5,7 +5,7 @@
  * and improve rendering performance for multiple similar objects.
  */
 
-import * as THREE from 'three';
+import { THREE } from '../utils/three';
 import { logger } from './logger';
 
 export interface InstancedObject {
