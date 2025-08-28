@@ -2,6 +2,20 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder, Cone, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface MetaprogrammingMetrics {
   compilationComplexity: number;
@@ -1307,8 +1321,8 @@ struct PointerValidator {
 
       <div className="lesson-content">
         <div className="visualization-section">
-          <h3>{state.language === 'en' ? 'Metaprogramming Patterns Visualization' : 'Visualización de Patrones de Metaprogramación'}</h3>
-          <div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
+          <SectionTitle>{state.language === 'en' ? 'Metaprogramming Patterns Visualization' : 'Visualización de Patrones de Metaprogramación'}</SectionTitle>
+<div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
             <Canvas camera={{ position: [8, 5, 8] }}>
               <ambientLight intensity={0.6} />
               <pointLight position={[10, 10, 10]} />
@@ -1321,12 +1335,12 @@ struct PointerValidator {
           </div>
           
           <div className="pattern-info">
-            <h4>{state.language === 'en' ? 'Pattern Metrics' : 'Métricas de Patrones'}</h4>
-            <div className="metrics-grid">
+            <SectionTitle>{state.language === 'en' ? 'Pattern Metrics' : 'Métricas de Patrones'}</SectionTitle>
+<div className="metrics-grid">
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Compilation Complexity' : 'Complejidad de Compilación'}:</span>
                 <span className="metric-value">{(metrics.compilationComplexity * 100).toFixed(1)}%</span>
-              </div>
+          </div>
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Runtime Performance' : 'Rendimiento en Tiempo de Ejecución'}:</span>
                 <span className="metric-value">{(metrics.runtimePerformance * 100).toFixed(1)}%</span>
@@ -1347,9 +1361,8 @@ struct PointerValidator {
         </div>
 
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Metaprogramming Examples' : 'Ejemplos de Metaprogramación'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Metaprogramming Examples' : 'Ejemplos de Metaprogramación'}</SectionTitle>
+<div className="example-tabs">
             {Object.keys(examples).map(key => (
               <button
                 key={key}
@@ -1363,57 +1376,56 @@ struct PointerValidator {
 
           <div className="example-content">
             <div className="code-block">
-              <h4>{currentExample.title}</h4>
-              <pre>
+              <SectionTitle>{currentExample.title}</SectionTitle>
+<pre>
                 <code>{currentExample.code}</code>
               </pre>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="key-concepts-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          
-          <div className="concepts-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concepts-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'SFINAE Techniques' : 'Técnicas SFINAE'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'SFINAE Techniques' : 'Técnicas SFINAE'}</SectionTitle>
               <ul>
                 <li>{state.language === 'en' ? 'Smart pointer type detection' : 'Detección de tipos de smart pointers'}</li>
                 <li>{state.language === 'en' ? 'Method availability checking' : 'Verificación de disponibilidad de métodos'}</li>
                 <li>{state.language === 'en' ? 'Conditional function overloading' : 'Sobrecarga condicional de funciones'}</li>
                 <li>{state.language === 'en' ? 'Custom deleter detection' : 'Detección de deleters personalizados'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'C++20 Concepts' : 'Conceptos de C++20'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'C++20 Concepts' : 'Conceptos de C++20'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Smart pointer concepts' : 'Conceptos de smart pointers'}</li>
                 <li>{state.language === 'en' ? 'Ownership model constraints' : 'Restricciones de modelos de propiedad'}</li>
                 <li>{state.language === 'en' ? 'Concept-based template specialization' : 'Especialización de templates basada en conceptos'}</li>
                 <li>{state.language === 'en' ? 'Compile-time constraint checking' : 'Verificación de restricciones en tiempo de compilación'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Template Specialization' : 'Especialización de Templates'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Template Specialization' : 'Especialización de Templates'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Full specialization for specific pointer types' : 'Especialización completa para tipos específicos de punteros'}</li>
                 <li>{state.language === 'en' ? 'Partial specialization patterns' : 'Patrones de especialización parcial'}</li>
                 <li>{state.language === 'en' ? 'CRTP-based specialization' : 'Especialización basada en CRTP'}</li>
                 <li>{state.language === 'en' ? 'Allocator-aware specializations' : 'Especializaciones conscientes de asignadores'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Compile-time Analysis' : 'Análisis en Tiempo de Compilación'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Compile-time Analysis' : 'Análisis en Tiempo de Compilación'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Pointer category classification' : 'Clasificación de categorías de punteros'}</li>
                 <li>{state.language === 'en' ? 'Memory layout optimization' : 'Optimización de distribución de memoria'}</li>
                 <li>{state.language === 'en' ? 'Performance characteristic estimation' : 'Estimación de características de rendimiento'}</li>
                 <li>{state.language === 'en' ? 'Compile-time code generation' : 'Generación de código en tiempo de compilación'}</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
       </div>

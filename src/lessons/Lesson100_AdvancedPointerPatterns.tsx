@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function MasterPointerVisualization() {
   const [masterMetrics, setMasterMetrics] = useState({
@@ -27,19 +41,19 @@ function MasterPointerVisualization() {
   }, []);
 
   const expertAreas = [
-    { name: 'intrusive', pos: [-4, 2, 0], color: '#00ff88', label: 'Intrusive Containers' },
-    { name: 'allocators', pos: [-2, 2, 0], color: '#00d4ff', label: 'Custom Allocators' },
-    { name: 'patterns', pos: [0, 2, 0], color: '#ff6b6b', label: 'Design Patterns' },
-    { name: 'optimizations', pos: [2, 2, 0], color: '#ffa500', label: 'Optimizations' },
-    { name: 'mastery', pos: [4, 2, 0], color: '#ff1493', label: 'Mastery Level' }
-  ];
+    { name: 'intrusive', pos: [-4, 2, 0] as const, color: '#00ff88', label: 'Intrusive Containers' },
+    { name: 'allocators', pos: [-2, 2, 0] as const, color: '#00d4ff', label: 'Custom Allocators' },
+    { name: 'patterns', pos: [0, 2, 0] as const, color: '#ff6b6b', label: 'Design Patterns' },
+    { name: 'optimizations', pos: [2, 2, 0] as const, color: '#ffa500', label: 'Optimizations' },
+    { name: 'mastery', pos: [4, 2, 0] as const, color: '#ff1493', label: 'Mastery Level' }
+  ] as const;
 
   return (
     <group>
       {expertAreas.map((area) => (
         <group key={area.name}>
           <Box
-            position={area.pos}
+            position={area.pos as [number, number, number]}
             args={[1.2, 0.8, 0.4]}
           >
             <meshStandardMaterial
@@ -2067,9 +2081,8 @@ void future_features_demo() {
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Master-Level Pointer Techniques' : 'Técnicas de Punteros Nivel Maestro'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Master-Level Pointer Techniques' : 'Técnicas de Punteros Nivel Maestro'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -2083,64 +2096,64 @@ void future_features_demo() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Mastery Concepts' : 'Conceptos de Maestría'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Mastery Concepts' : 'Conceptos de Maestría'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Intrusive Design Patterns' : 'Patrones de Diseño Intrusivos'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Intrusive Design Patterns' : 'Patrones de Diseño Intrusivos'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'Master intrusive containers, self-organizing data structures, and zero-overhead abstractions for maximum performance.'
                   : 'Domina contenedores intrusivos, estructuras de datos auto-organizantes y abstracciones de cero overhead para máximo rendimiento.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Advanced Memory Management' : 'Gestión Avanzada de Memoria'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Advanced Memory Management' : 'Gestión Avanzada de Memoria'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Implement custom allocators, memory arenas, and SIMD-optimized operations for high-performance systems.'
                   : 'Implementa allocadores personalizados, arenas de memoria y operaciones optimizadas con SIMD para sistemas de alto rendimiento.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Design Pattern Mastery' : 'Maestría en Patrones de Diseño'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Design Pattern Mastery' : 'Maestría en Patrones de Diseño'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Apply advanced design patterns with smart pointers including Observer, Command, Strategy, and Factory patterns.'
                   : 'Aplica patrones de diseño avanzados con punteros inteligentes incluyendo Observer, Command, Strategy y Factory.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Future C++ Features' : 'Características Futuras de C++'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Future C++ Features' : 'Características Futuras de C++'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Explore upcoming C++26 features including reflection, pattern matching, and advanced coroutine integration.'
                   : 'Explora características futuras de C++26 incluyendo reflexión, pattern matching e integración avanzada de corrutinas.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="mastery-achievement">
-          <h3>{state.language === 'en' ? '🏆 C++ Pointer Mastery Achievement' : '🏆 Logro de Maestría en Punteros C++'}</h3>
-          <div className="achievement-content">
+          <SectionTitle>{state.language === 'en' ? '🏆 C++ Pointer Mastery Achievement' : '🏆 Logro de Maestría en Punteros C++'}</SectionTitle>
+<div className="achievement-content">
             <div className="achievement-badge">
               <span className="badge-icon">🎯</span>
-              <h4>{state.language === 'en' ? 'GRANDMASTER' : 'GRAN MAESTRO'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'GRANDMASTER' : 'GRAN MAESTRO'}</SectionTitle>
               <p>{state.language === 'en' ? 'C++ Pointer Systems Expert' : 'Experto en Sistemas de Punteros C++'}</p>
-            </div>
+          </div>
             
             <div className="mastery-skills">
-              <h4>{state.language === 'en' ? 'Mastered Skills:' : 'Habilidades Dominadas:'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Mastered Skills:' : 'Habilidades Dominadas:'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Intrusive containers and self-organizing structures' : 'Contenedores intrusivos y estructuras auto-organizantes'}</li>
                 <li>{state.language === 'en' ? 'Custom allocators and memory optimization' : 'Allocadores personalizados y optimización de memoria'}</li>
                 <li>{state.language === 'en' ? 'SIMD vectorization and performance tuning' : 'Vectorización SIMD y ajuste de rendimiento'}</li>
@@ -2148,13 +2161,13 @@ void future_features_demo() {
                 <li>{state.language === 'en' ? 'Lock-free programming and atomics mastery' : 'Programación lock-free y maestría en atomics'}</li>
                 <li>{state.language === 'en' ? 'Future C++ features and cutting-edge techniques' : 'Características futuras de C++ y técnicas de vanguardia'}</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Master-Level Best Practices' : 'Mejores Prácticas Nivel Maestro'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Master-Level Best Practices' : 'Mejores Prácticas Nivel Maestro'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Design for zero-cost abstractions while maintaining code clarity and maintainability'
@@ -2181,16 +2194,16 @@ void future_features_demo() {
                 : 'Mantente actualizado con estándares de C++ en evolución y características futuras del lenguaje'}
             </li>
           </ul>
-        </div>
+          </div>
 
         <div className="journey-complete">
-          <h3>{state.language === 'en' ? '🎉 Journey Complete!' : '🎉 ¡Viaje Completo!'}</h3>
-          <p className="completion-message">
+          <SectionTitle>{state.language === 'en' ? '🎉 Journey Complete!' : '🎉 ¡Viaje Completo!'}</SectionTitle>
+<p className="completion-message">
             {state.language === 'en'
               ? 'Congratulations! You have mastered the most advanced pointer techniques in C++. You are now equipped with expert-level knowledge to build high-performance, memory-efficient systems. Continue exploring and pushing the boundaries of what\'s possible with C++!'
               : '¡Felicitaciones! Has dominado las técnicas más avanzadas de punteros en C++. Ahora tienes conocimiento de nivel experto para construir sistemas de alto rendimiento y eficientes en memoria. ¡Continúa explorando y empujando los límites de lo que es posible con C++!'}
           </p>
-        </div>
+          </div>
       </div>
     </div>
   );

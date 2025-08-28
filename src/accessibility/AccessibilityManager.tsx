@@ -4,7 +4,7 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 // Accessibility context types
 interface AccessibilityContextValue {
@@ -206,7 +206,7 @@ class FocusTrap {
     
     // Focus first element
     if (this.focusableElements.length > 0) {
-      this.focusableElements[0].focus();
+      this.focusableElements[0]?.focus();
     }
   }
 
@@ -220,13 +220,13 @@ class FocusTrap {
       // Shift + Tab
       if (document.activeElement === firstElement) {
         event.preventDefault();
-        lastElement.focus();
+        lastElement?.focus();
       }
     } else {
       // Tab
       if (document.activeElement === lastElement) {
         event.preventDefault();
-        firstElement.focus();
+        firstElement?.focus();
       }
     }
   };
@@ -246,7 +246,7 @@ class ColorContrastUtils {
   static hexToRgb(hex: string): [number, number, number] {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
-      ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
+      ? [parseInt(result[1]!, 16), parseInt(result[2]!, 16), parseInt(result[3]!, 16)]
       : [0, 0, 0];
   }
 
@@ -256,7 +256,7 @@ class ColorContrastUtils {
       return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
     });
     
-    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+    return 0.2126 * (rs || 0) + 0.7152 * (gs || 0) + 0.0722 * (bs || 0);
   }
 
   static calculateContrastRatio(foreground: string, background: string): number {
@@ -556,9 +556,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
 
     inputs.forEach(input => {
       const id = input.id;
-      const name = input.getAttribute('name');
       const required = input.hasAttribute('required');
-      const type = input.getAttribute('type');
 
       // Check for labels
       const label = form.querySelector(`label[for="${id}"]`) as HTMLLabelElement;
@@ -745,7 +743,6 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
     };
 
     // Calculate score (0-100)
-    const totalIssues = summary.critical + summary.serious + summary.moderate + summary.minor;
     const weightedScore = (summary.critical * 4) + (summary.serious * 3) + (summary.moderate * 2) + summary.minor;
     const score = Math.max(0, 100 - (weightedScore * 2));
 

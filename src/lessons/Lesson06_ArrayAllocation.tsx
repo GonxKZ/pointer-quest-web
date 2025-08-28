@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
@@ -333,7 +333,7 @@ function Lesson06Scene({ state }: { state: ArrayState }) {
 }
 
 export default function Lesson06_ArrayAllocation() {
-  const { dispatch } = useApp();
+  const { state: appState } = useApp();
   
   const [state, setState] = useState<ArrayState>({
     pointer: null,
@@ -521,15 +521,15 @@ delete[] array; // Llama destructor de todos los elementos
   return (
     <LessonLayout
       title="Tarea 6: new[] vs delete[] - Contrato de Arrays"
-      difficulty="Básico"
+      difficulty="Beginner"
       topic="basic"
-      estimatedTime="15 minutos"
+      estimatedTime={15}
     >
       <TheoryPanel>
         
         <Section>
           <SectionTitle>📚 Array Allocation Contract</SectionTitle>
-          <p>
+<p>
             Los arrays asignados con <strong>new[]</strong> requieren liberación con <strong>delete[]</strong>.
             Usar <code>delete</code> simple viola el contrato y causa UB.
           </p>
@@ -575,7 +575,7 @@ delete[] array; // Llama destructor de todos los elementos
             </Button>
             <Button 
               onClick={showRaiiAlternatives} 
-              variant="raii"
+              variant="success"
             >
               Show RAII
             </Button>
@@ -585,7 +585,7 @@ delete[] array; // Llama destructor de todos los elementos
             <Button onClick={reset}>
               Reset
             </Button>
-          </InteractiveSection>
+        </InteractiveSection>
 
           {state.contractViolated && (
             <ContractViolation>
@@ -657,7 +657,7 @@ delete[] array; // Llama destructor de todos los elementos
 
         <Section>
           <SectionTitle>📚 Referencias Técnicas</SectionTitle>
-          <ul style={{ lineHeight: '1.6' }}>
+<ul style={{ lineHeight: '1.6' }}>
             <li>
               <a href="https://en.cppreference.com/w/cpp/memory/new/operator_delete" 
                  style={{ color: '#00d4ff' }} target="_blank" rel="noopener noreferrer">
@@ -678,7 +678,8 @@ delete[] array; // Llama destructor de todos los elementos
 
       <VisualizationPanel>
         <StatusDisplay>
-          <div>🎯 Tarea 6: Array Allocation</div>
+          <div>🎯 Tarea 6: Array Allocation
+          </div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
           <div>🔗 Estado: {state.status}</div>
           <div>📦 Array: {state.isAllocated ? `${state.arraySize} elements` : 'none'}</div>

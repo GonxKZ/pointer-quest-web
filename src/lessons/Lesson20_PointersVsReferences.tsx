@@ -4,6 +4,21 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+import { useApp } from '../context/AppContext';
+
+
 
 interface ComparisonState {
   objects: Array<{
@@ -52,81 +67,49 @@ interface PointerVisual {
   canBeNull: boolean;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
 
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
 
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
   background: ${props => 
@@ -157,13 +140,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
   }
 `;
 
-const ComparisonTable = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
-  border: 1px solid #333;
-`;
+
 
 const SafetyPanel = styled.div<{ level: 'safe' | 'unsafe' | 'checked' }>`
   background: ${props => 
@@ -420,7 +397,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson20_PointersVsReferences: React.FC = () => {
+const Lesson20_PointersVsReferences: React.FC = () => {
   const [state, setState] = useState<ComparisonState>({
     objects: [],
     pointers: [],
@@ -607,15 +584,27 @@ export const Lesson20_PointersVsReferences: React.FC = () => {
     setPointers([]);
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 20: Pointers vs References</Title>
-        <Subtitle>Semántica, Seguridad y Core Guidelines</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(20, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 20: Pointers vs References"
+      subtitle="Semántica, Seguridad y Core Guidelines"
+      lessonNumber={20}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 12], fov: 60 }}>
             <MemoryVisualization 
               state={state} 
@@ -626,7 +615,7 @@ export const Lesson20_PointersVsReferences: React.FC = () => {
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
+        <TheoryPanel>
           <div>
             <TabButton 
               active={state.currentComparison === 'ptr_vs_ref'}
@@ -650,10 +639,10 @@ export const Lesson20_PointersVsReferences: React.FC = () => {
 
           {state.currentComparison === 'ptr_vs_ref' && (
             <>
-              <TheorySection>
-                <h3>🔗 Pointers vs References</h3>
-                <p>Diferencias fundamentales en semántica y seguridad:</p>
-                <CodeBlock>{`// Pointer - puede ser null, reasignable
+              <Section>
+                <SectionTitle>🔗 Pointers vs References</SectionTitle>
+<p>Diferencias fundamentales en semántica y seguridad:</p>
+                <CodeBlock language="cpp">{`// Pointer - puede ser null, reasignable
 int* ptr = &target;
 ptr = nullptr;        // ✅ Legal
 ptr = &other;         // ✅ Legal  
@@ -664,12 +653,13 @@ int& ref = target;
 // ref = other;       // ❌ ERROR: no reasignable
 // int& bad;          // ❌ ERROR: debe inicializarse
 *ref;                 // ✅ Siempre seguro (no null check)`}</CodeBlock>
-              </TheorySection>
+              </Section>
 
-              <div>
-                <h4>🎮 Demostración Básica</h4>
+              <InteractiveSection>
+          <SectionTitle>🎮 Demostración Básica</SectionTitle>
                 
-                <Button onClick={createBasicComparison} variant="primary">
+                <ButtonGroup>
+            <Button onClick={createBasicComparison} variant="primary">
                   1. Crear ptr y ref
                 </Button>
                 
@@ -688,12 +678,14 @@ int& ref = target;
                 >
                   3. Reasignar pointer
                 </Button>
-              </div>
+          </ButtonGroup>
+        </InteractiveSection>
 
               <ComparisonTable>
-                <h4>📊 Comparación Detallada</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', fontSize: '0.9em' }}>
-                  <div><strong>Característica</strong></div>
+                <SectionTitle>📊 Comparación Detallada</SectionTitle>
+<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', fontSize: '0.9em' }}>
+                  <div><strong>Característica</strong>
+          </div>
                   <div><strong>Pointer (T*)</strong></div>
                   <div><strong>Reference (T&)</strong></div>
                   
@@ -727,10 +719,10 @@ int& ref = target;
 
           {state.currentComparison === 'not_null' && (
             <>
-              <TheorySection>
-                <h3>🛡️ gsl::not_null&lt;T*&gt;</h3>
-                <p>Wrapper que combina flexibilidad de pointers con seguridad de references:</p>
-                <CodeBlock>{`#include <gsl/gsl>
+              <Section>
+                <SectionTitle>🛡️ gsl::not_null&lt;T*&gt;</SectionTitle>
+<p>Wrapper que combina flexibilidad de pointers con seguridad de references:</p>
+                <CodeBlock language="cpp">{`#include <gsl/gsl>
 
 // not_null<T*> - pointer que garantiza no ser null
 gsl::not_null<int*> safe_ptr(&target);
@@ -750,10 +742,10 @@ void process(gsl::not_null<Widget*> widget) {
     // No null check necesario
     widget->method();  // ✅ Siempre seguro
 }`}</CodeBlock>
-              </TheorySection>
+              </Section>
 
-              <div>
-                <h4>🔧 not_null Demo</h4>
+              <InteractiveSection>
+          <SectionTitle>🔧 not_null Demo</SectionTitle>
                 
                 <Button 
                   onClick={introduceNotNull}
@@ -762,11 +754,12 @@ void process(gsl::not_null<Widget*> widget) {
                 >
                   4. Introducir not_null
                 </Button>
-              </div>
+          </InteractiveSection>
 
               <SafetyPanel level={state.safetyAnalysis.nullSafety}>
-                <h4>🛡️ Análisis de Seguridad</h4>
-                <div>Null Safety: {state.safetyAnalysis.nullSafety}</div>
+                <SectionTitle>🛡️ Análisis de Seguridad</SectionTitle>
+<div>Null Safety: {state.safetyAnalysis.nullSafety}
+          </div>
                 <div>Reassignment Risk: {state.safetyAnalysis.reassignmentRisk}</div>
                 <div>Performance Impact: {state.safetyAnalysis.performanceImpact}</div>
                 
@@ -781,10 +774,10 @@ void process(gsl::not_null<Widget*> widget) {
 
           {state.currentComparison === 'guidelines' && (
             <>
-              <TheorySection>
-                <h3>📋 Core Guidelines</h3>
-                <p>Recomendaciones oficiales para uso seguro:</p>
-                <CodeBlock>{`// F.60: Prefer T* over T& when "no argument" is valid
+              <Section>
+                <SectionTitle>📋 Core Guidelines</SectionTitle>
+<p>Recomendaciones oficiales para uso seguro:</p>
+                <CodeBlock language="cpp">{`// F.60: Prefer T* over T& when "no argument" is valid
 void process(Widget* widget) {    // ✅ Puede recibir nullptr
     if (!widget) return;          // ⚠️ Null check requerido
     widget->method();
@@ -799,19 +792,19 @@ void process(Widget& widget) {    // ✅ Garantiza objeto válido
 void process(gsl::not_null<Widget*> widget) {  // ✅ Best of both
     widget->method();             // ✅ No null check, reasignable
 }`}</CodeBlock>
-              </TheorySection>
+              </Section>
 
-              <div>
-                <h4>🎯 Guidelines Compliance</h4>
+              <InteractiveSection>
+          <SectionTitle>🎯 Guidelines Compliance</SectionTitle>
                 
                 <Button onClick={showGuidelinesCompliance} variant="success">
                   5. Mostrar Guidelines
                 </Button>
-              </div>
+          </InteractiveSection>
 
-              <TheorySection>
-                <h4>🎯 Decisión Matrix</h4>
-                <CodeBlock>{`// Cuándo usar cada uno:
+              <Section>
+                <SectionTitle>🎯 Decisión Matrix</SectionTitle>
+                <CodeBlock language="cpp">{`// Cuándo usar cada uno:
 
 T&           - Parameter debe existir, no ownership
              - Member variables que siempre son válidas
@@ -830,11 +823,11 @@ not_null<T*> - Parameter no-null pero reasignable
 unique_ptr<T>  - Exclusive ownership
 shared_ptr<T>  - Shared ownership
 weak_ptr<T>    - Non-owning observation`}</CodeBlock>
-              </TheorySection>
+              </Section>
 
-              <TheorySection>
-                <h4>🚨 Common Pitfalls</h4>
-                <CodeBlock>{`// ❌ Dangling reference
+              <Section>
+                <SectionTitle>🚨 Common Pitfalls</SectionTitle>
+                <CodeBlock language="cpp">{`// ❌ Dangling reference
 int& get_ref() {
     int local = 42;
     return local;     // ERROR: dangling reference
@@ -853,15 +846,16 @@ void confusing(int& ref) {
 std::optional<std::reference_wrapper<int>> opt_ref; // ✅ 
 gsl::not_null<int*> safe_ptr(&value);               // ✅
 auto& ref = get_valid_object();                     // ✅`}</CodeBlock>
-              </TheorySection>
+              </Section>
             </>
           )}
 
           <Button onClick={resetDemo} variant="secondary">
             🔄 Reiniciar Demostración
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson20_PointersVsReferences;

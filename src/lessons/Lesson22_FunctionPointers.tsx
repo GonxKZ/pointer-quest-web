@@ -4,6 +4,21 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+import { useApp } from '../context/AppContext';
+
+
 
 interface FunctionPtrState {
   functions: Array<{
@@ -53,81 +68,49 @@ interface FunctionPointerVisual {
   overhead: number;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
 
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
 
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
   background: ${props => 
@@ -158,13 +141,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
   }
 `;
 
-const PerformancePanel = styled.div`
-  background: rgba(150, 0, 150, 0.1);
-  border: 1px solid #aa00aa;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
-`;
+
 
 const TabButton = styled.button<{ active: boolean }>`
   background: ${props => props.active ? '#0066cc' : 'transparent'};
@@ -182,15 +159,7 @@ const TabButton = styled.button<{ active: boolean }>`
   }
 `;
 
-const SignatureDisplay = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0;
-  font-family: 'Courier New', monospace;
-  font-size: 0.85em;
-  border: 1px solid #333;
-`;
+
 
 const MemoryVisualization: React.FC<{
   state: FunctionPtrState;
@@ -444,7 +413,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson22_FunctionPointers: React.FC = () => {
+const Lesson22_FunctionPointers: React.FC = () => {
   const [state, setState] = useState<FunctionPtrState>({
     functions: [],
     functionPointers: [],
@@ -696,15 +665,27 @@ export const Lesson22_FunctionPointers: React.FC = () => {
     setFunctionPointers([]);
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 22: Function Pointers</Title>
-        <Subtitle>Indirection, std::function y Member Function Pointers</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(22, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 22: Function Pointers"
+      subtitle="Indirection, std::function y Member Function Pointers"
+      lessonNumber={22}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
             <MemoryVisualization 
               state={state} 
@@ -715,7 +696,7 @@ export const Lesson22_FunctionPointers: React.FC = () => {
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
+        <TheoryPanel>
           <div>
             <TabButton 
               active={state.currentDemo === 'basic'}
@@ -739,10 +720,10 @@ export const Lesson22_FunctionPointers: React.FC = () => {
 
           {state.currentDemo === 'basic' && (
             <>
-              <TheorySection>
-                <h3>📞 Function Pointers</h3>
-                <p>Indirection para código polimórfico sin herencia:</p>
-                <CodeBlock>{`// Raw function pointer - solo free functions
+              <Section>
+                <SectionTitle>📞 Function Pointers</SectionTitle>
+<p>Indirection para código polimórfico sin herencia:</p>
+                <CodeBlock language="cpp">{`// Raw function pointer - solo free functions
 int (*operation)(int, int) = &add;
 int result = operation(5, 3);  // Indirection call
 
@@ -755,12 +736,13 @@ op = std::bind(&Widget::method, &widget, _1, _2);  // Member functions
 // auto para lambdas específicas - zero overhead
 auto lambda = [](int a, int b) { return a * a + b * b; };
 // Más rápido que std::function para caso específico`}</CodeBlock>
-              </TheorySection>
+              </Section>
 
-              <div>
-                <h4>🎮 Crear Functions</h4>
+              <InteractiveSection>
+          <SectionTitle>🎮 Crear Functions</SectionTitle>
                 
-                <Button onClick={createBasicFunctions} variant="primary">
+                <ButtonGroup>
+            <Button onClick={createBasicFunctions} variant="primary">
                   1. Crear free functions
                 </Button>
                 
@@ -787,12 +769,13 @@ auto lambda = [](int a, int b) { return a * a + b * b; };
                 >
                   4. Lambda auto
                 </Button>
-              </div>
+          </ButtonGroup>
+        </InteractiveSection>
 
-              <div>
-                <h4>📞 Llamar Functions</h4>
-                
-                <Button onClick={() => demonstrateCall('raw_fptr')}>
+              <InteractiveSection>
+          <SectionTitle>📞 Llamar Functions</SectionTitle>
+<ButtonGroup>
+            <Button onClick={() => demonstrateCall('raw_fptr')}>
                   Call raw_fptr
                 </Button>
                 
@@ -803,29 +786,30 @@ auto lambda = [](int a, int b) { return a * a + b * b; };
                 <Button onClick={() => demonstrateCall('auto_lambda')}>
                   Call lambda
                 </Button>
-              </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
               {state.functionPointers.length > 0 && (
-                <div>
-                  <h4>📝 Signatures Activas</h4>
-                  {state.functionPointers.map(fptr => (
+                <InteractiveSection>
+          <SectionTitle>📝 Signatures Activas</SectionTitle>
+{state.functionPointers.map(fptr => (
                     <SignatureDisplay key={fptr.id}>
                       <strong>{fptr.name}:</strong> {fptr.signature}
                       <br />
                       <span style={{ color: '#ffcc00' }}>Overhead: {fptr.overhead} bytes</span>
                     </SignatureDisplay>
                   ))}
-                </div>
+          </InteractiveSection>
               )}
             </>
           )}
 
           {state.currentDemo === 'member' && (
             <>
-              <TheorySection>
-                <h3>🏗️ Member Function Pointers</h3>
-                <p>Punteros a métodos de clase - sintaxis especial:</p>
-                <CodeBlock>{`class Widget {
+              <Section>
+                <SectionTitle>🏗️ Member Function Pointers</SectionTitle>
+<p>Punteros a métodos de clase - sintaxis especial:</p>
+                <CodeBlock language="cpp">{`class Widget {
 public:
     int process(int value) { return value * 2; }
     int calculate(int a, int b) { return a + b; }
@@ -847,19 +831,19 @@ int (Widget::*methods[])(int, int) = {
 // std::function puede encapsular member functions
 std::function<int(int)> bound_method = 
     std::bind(&Widget::process, &widget, std::placeholders::_1);`}</CodeBlock>
-              </TheorySection>
+              </Section>
 
-              <div>
-                <h4>📞 Member Function Calls</h4>
+              <InteractiveSection>
+          <SectionTitle>📞 Member Function Calls</SectionTitle>
                 
                 <Button onClick={() => demonstrateCall('member_fptr')}>
                   Call member function
                 </Button>
-              </div>
+          </InteractiveSection>
 
-              <TheorySection>
-                <h4>⚡ Member Function Pointer Overhead</h4>
-                <CodeBlock>{`// Member function pointers can be larger than regular pointers
+              <Section>
+                <SectionTitle>⚡ Member Function Pointer Overhead</SectionTitle>
+<CodeBlock language="cpp">{`// Member function pointers can be larger than regular pointers
 sizeof(void*) == 8;                    // Regular pointer
 sizeof(int (Widget::*)(int)) == 16;    // Member function pointer
 
@@ -872,16 +856,16 @@ sizeof(int (Widget::*)(int)) == 16;    // Member function pointer
 // - Slightly slower than free function pointers
 // - May require this-pointer adjustment
 // - Virtual member functions add vtable lookup`}</CodeBlock>
-              </TheorySection>
+              </Section>
             </>
           )}
 
           {state.currentDemo === 'polymorphic' && (
             <>
-              <TheorySection>
-                <h3>🔄 Runtime Polymorphism</h3>
+              <Section>
+                <SectionTitle>🔄 Runtime Polymorphism</SectionTitle>
                 <p>std::function permite polymorphism sin herencia:</p>
-                <CodeBlock>{`// Traditional OOP polymorphism
+                <CodeBlock language="cpp">{`// Traditional OOP polymorphism
 class Operation {
 public:
     virtual int execute(int a, int b) = 0;
@@ -910,10 +894,10 @@ for (auto& op : operations) {
 // ✅ Can mix lambdas, functions, functors freely
 // ✅ Value semantics instead of pointer semantics
 // ✅ Better optimization opportunities`}</CodeBlock>
-              </TheorySection>
+              </Section>
 
-              <TheorySection>
-                <h4>🎯 Use Cases</h4>
+              <Section>
+                <SectionTitle>🎯 Use Cases</SectionTitle>
                 <ul>
                   <li><strong>Callbacks:</strong> Event handling without inheritance</li>
                   <li><strong>Strategy Pattern:</strong> Algorithm selection at runtime</li>
@@ -922,13 +906,14 @@ for (auto& op : operations) {
                   <li><strong>DSLs:</strong> Domain-specific language implementations</li>
                   <li><strong>State Machines:</strong> State transition functions</li>
                 </ul>
-              </TheorySection>
+              </Section>
             </>
           )}
 
           <PerformancePanel>
-            <h4>⚡ Performance Comparison</h4>
-            <div>Direct call: {state.performanceInfo.directCall}x (baseline)</div>
+            <SectionTitle>⚡ Performance Comparison</SectionTitle>
+            <div>Direct call: {state.performanceInfo.directCall}x (baseline)
+          </div>
             <div>Function pointer: {state.performanceInfo.functionPointer}x</div>
             <div>std::function: {state.performanceInfo.stdFunction}x</div>
             <div>Member function ptr: {state.performanceInfo.memberPointer}x</div>
@@ -938,9 +923,9 @@ for (auto& op : operations) {
             </div>
           </PerformancePanel>
 
-          <TheorySection>
-            <h4>🎯 When to Use What</h4>
-            <CodeBlock>{`// Raw function pointers - highest performance
+          <Section>
+            <SectionTitle>🎯 When to Use What</SectionTitle>
+            <CodeBlock language="cpp">{`// Raw function pointers - highest performance
 int (*fptr)(int, int) = &add;
 // ✅ Use for: C interop, performance-critical code
 // ❌ Limitations: Only free functions, no capture
@@ -959,13 +944,14 @@ std::function<int(int, int)> callable = lambda;
 int (Widget::*method)(int) = &Widget::process;
 // ✅ Use for: Calling methods via pointers/reflection
 // ❌ Limitations: Complex syntax, inheritance issues`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
           <Button onClick={resetDemo} variant="secondary">
             🔄 Reiniciar Demostración
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson22_FunctionPointers;

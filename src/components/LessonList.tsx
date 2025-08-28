@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 // import { Link } from 'react-router-dom'; // Not used
 import styled from 'styled-components';
 import { THREE } from '../utils/three';

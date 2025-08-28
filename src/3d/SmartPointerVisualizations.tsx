@@ -1,8 +1,7 @@
-import React, { useRef, useState, useCallback, useEffect, memo, useMemo } from 'react';
+import React, { useRef, useState, useCallback, useEffect, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Html, Line, Sphere, Box, RoundedBox } from '@react-three/drei';
 import { useOptimizedAnimation } from '../hooks/useOptimizedAnimation';
-import { useMemoryManagement } from '../hooks/useMemoryManagement';
 import { useApp } from '../context/AppContext';
 import { get3DTranslation } from '../translations/3d-visualization.es';
 import { THREE } from '../utils/three';

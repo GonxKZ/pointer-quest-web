@@ -1,5 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
@@ -43,81 +55,50 @@ interface MemoryBlock {
   isMoving: boolean;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}
+  </div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
 
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
 
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' }>`
   background: ${props => 
@@ -147,13 +128,16 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
   }
 `;
 
-const StatusDisplay = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  border: 1px solid #333;
+const StepIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: monospace;
+  font-size: 0.9em;
+  color: #cccccc;
 `;
+
+
 
 const ErrorPanel = styled.div<{ show: boolean }>`
   background: rgba(255, 0, 0, 0.2);
@@ -170,13 +154,7 @@ const ErrorPanel = styled.div<{ show: boolean }>`
   }
 `;
 
-const StepIndicator = styled.div`
-  background: rgba(0, 100, 200, 0.2);
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0;
-  border-left: 3px solid #0099ff;
-`;
+
 
 const MemoryVisualization: React.FC<{
   state: MoveState;
@@ -430,7 +408,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson12_UniquePtrMovable: React.FC = () => {
+const Lesson12_UniquePtrMovable: React.FC = () => {
   const [state, setState] = useState<MoveState>({
     ptr1: { hasObject: false, value: 0, name: 'ptr1', isMoved: false },
     ptr2: { hasObject: false, value: 0, name: 'ptr2', isMoved: false },
@@ -640,26 +618,38 @@ export const Lesson12_UniquePtrMovable: React.FC = () => {
     setMemoryBlocks([]);
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 12: unique_ptr Move Semantics</Title>
-        <Subtitle>No Copiable, Solo Movible - Transferencia de Ownership</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(12, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 12: unique_ptr Move Semantics"
+      subtitle="No Copiable, Solo Movible - Transferencia de Ownership"
+      lessonNumber={12}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
             <MemoryVisualization state={state} smartPtrs={smartPtrs} memoryBlocks={memoryBlocks} />
             <OrbitControls enableZoom={true} enablePan={true} enableRotate={true} />
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
-          <TheorySection>
-            <h3>🚀 Move Semantics</h3>
+        <TheoryPanel>
+          <Section>
+            <SectionTitle>🚀 Move Semantics</SectionTitle>
             <p>unique_ptr es move-only: elimina copy constructor y copy assignment:</p>
-            <CodeBlock>{`// ✅ Válido: move constructor
+            <CodeBlock language="cpp">{`// ✅ Válido: move constructor
 auto ptr1 = std::make_unique<int>(42);
 auto ptr2 = std::move(ptr1);  // ptr1 queda vacío
 
@@ -669,7 +659,7 @@ ptr2 = std::move(ptr1);
 // ❌ COMPILACIÓN ERROR: no copiable
 auto ptr3 = ptr1;  // deleted function
 ptr3 = ptr2;       // deleted function`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
           <StepIndicator>
             <strong>Paso {state.currentStep}/6:</strong> {
@@ -683,9 +673,10 @@ ptr3 = ptr2;       // deleted function`}</CodeBlock>
             }
           </StepIndicator>
 
-          <div>
-            <h4>🎮 Demostración Paso a Paso</h4>
+          <InteractiveSection>
+          <SectionTitle>🎮 Demostración Paso a Paso</SectionTitle>
             
+            <ButtonGroup>
             <Button onClick={createPtr1} variant="primary">
               1. Crear ptr1
             </Button>
@@ -705,11 +696,12 @@ ptr3 = ptr2;       // deleted function`}</CodeBlock>
             <Button onClick={attemptCopy} variant="danger">
               4. ❌ Intentar Copy
             </Button>
-          </div>
+          </ButtonGroup>
+        </InteractiveSection>
 
-          <div>
-            <h4>📤 Return Patterns</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>📤 Return Patterns</SectionTitle>
+<ButtonGroup>
             <Button onClick={demonstrateReturnMove} variant="secondary">
               return std::move(ptr)
             </Button>
@@ -717,11 +709,11 @@ ptr3 = ptr2;       // deleted function`}</CodeBlock>
             <Button onClick={demonstrateAutoMove} variant="secondary">
               return ptr (RVO)
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔍 Estado Moved-From</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🔍 Estado Moved-From</SectionTitle>
             <Button 
               onClick={accessMovedFrom}
               disabled={!state.ptr1.isMoved}
@@ -729,20 +721,20 @@ ptr3 = ptr2;       // deleted function`}</CodeBlock>
             >
               Acceder ptr1 moved-from
             </Button>
-          </div>
+          </InteractiveSection>
 
           <ErrorPanel show={!!state.error}>
-            <h4>💥 Error de Compilación</h4>
-            <code>{state.error}</code>
+            <SectionTitle>💥 Error de Compilación</SectionTitle>
+<code>{state.error}</code>
             <p>unique_ptr elimina explícitamente el copy constructor para prevenir ownership compartido accidental.</p>
           </ErrorPanel>
 
           <StatusDisplay>
-            <h4>📊 Estado de Punteros</h4>
+            <SectionTitle>📊 Estado de Punteros</SectionTitle>
             <div>
               ptr1: {state.ptr1.hasObject ? `valor ${state.ptr1.value}` : 'vacío'}
               {state.ptr1.isMoved && ' (moved-from)'}
-            </div>
+          </div>
             <div>
               ptr2: {state.ptr2.hasObject ? `valor ${state.ptr2.value}` : 'vacío'}
               {state.ptr2.isMoved && ' (moved-from)'}
@@ -751,8 +743,8 @@ ptr3 = ptr2;       // deleted function`}</CodeBlock>
             {state.animatingMove && <div>🔄 Transfiriendo ownership...</div>}
           </StatusDisplay>
 
-          <TheorySection>
-            <h4>🎯 Puntos Clave</h4>
+          <Section>
+            <SectionTitle>🎯 Puntos Clave</SectionTitle>
             <ul>
               <li><strong>Move-only:</strong> Copy constructor/assignment eliminados</li>
               <li><strong>std::move:</strong> Cast a rvalue reference</li>
@@ -762,24 +754,25 @@ ptr3 = ptr2;       // deleted function`}</CodeBlock>
               <li><strong>RVO/NRVO:</strong> Return automático sin std::move</li>
               <li><strong>Compilación:</strong> Errores detectados en tiempo de compilación</li>
             </ul>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>📋 Moved-From State</h4>
-            <CodeBlock>{`// Después de std::move(ptr1)
+          <Section>
+            <SectionTitle>📋 Moved-From State</SectionTitle>
+            <CodeBlock language="cpp">{`// Después de std::move(ptr1)
 assert(ptr1.get() == nullptr);   // ✅ Garantizado
 assert(ptr1 == nullptr);         // ✅ Equivalente  
 
 // ptr1 sigue siendo destructible
 ptr1.reset();                    // ✅ Válido (no-op)
 ptr1 = std::make_unique<int>(99); // ✅ Reutilizable`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
           <Button onClick={resetScene} variant="secondary">
             🔄 Reiniciar Demostración
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson12_UniquePtrMovable;

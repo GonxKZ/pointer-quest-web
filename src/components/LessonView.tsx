@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
+import { useLessonProgress, useStudySession } from '../hooks/useStudentProgress';
 import CodeEditor, { Terminal } from './CodeEditor';
 import MemoryVisualizer from './MemoryVisualizer';
+import { AchievementNotification } from './AchievementSystem';
+import { useAchievements } from '../hooks/useStudentProgress';
+import { Progress, Badge } from '../design-system';
 
 // Datos de ejemplo para las lecciones (esto se expandirá)
 const lessonData: Record<number, {
@@ -929,6 +933,57 @@ const Sidebar = styled.div`
   top: 100px;
 `;
 
+const ProgressCard = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const SessionTimer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #00ff88;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  
+  &::before {
+    content: '⏱️';
+  }
+`;
+
+const ScoreDisplay = styled.div<{ score: number }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: ${props => 
+    props.score >= 90 ? 'rgba(0, 255, 136, 0.2)' :
+    props.score >= 70 ? 'rgba(255, 165, 0, 0.2)' :
+    props.score > 0 ? 'rgba(255, 107, 107, 0.2)' :
+    'rgba(255, 255, 255, 0.05)'};
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  
+  .score-label {
+    color: #b8c5d6;
+    font-size: 0.9rem;
+  }
+  
+  .score-value {
+    color: ${props => 
+      props.score >= 90 ? '#00ff88' :
+      props.score >= 70 ? '#ffa500' :
+      props.score > 0 ? '#ff6b6b' :
+      '#666'};
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+`;
+
 const SidebarTitle = styled.h3`
   color: #00d4ff;
   margin-bottom: 1rem;
@@ -980,10 +1035,38 @@ const ErrorButton = styled(ActionButton)`
 export default function LessonView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { state, dispatch } = useApp();
-
+  const { dispatch } = useApp();
+  
   const lessonId = parseInt(id || '1');
   const lesson = lessonData[lessonId];
+  
+  // Progress hooks
+  const { 
+    progress, 
+    isCompleted, 
+    currentScore, 
+    timeSpent, 
+    completeLesson, 
+    resetLesson 
+  } = useLessonProgress(lessonId);
+  
+  const { 
+    isActive: sessionActive, 
+    start: startSession, 
+    formatDuration 
+  } = useStudySession();
+  
+  const { 
+    showAchievementNotification, 
+    dismissAchievementNotification 
+  } = useAchievements();
+
+  // Start session when lesson is loaded
+  useEffect(() => {
+    if (!sessionActive) {
+      startSession();
+    }
+  }, [sessionActive, startSession]);
 
 
 
@@ -997,12 +1080,32 @@ export default function LessonView() {
     );
   }
 
-  const handleComplete = () => {
-    // Aquí se implementará la lógica de completar lección
+  const handleComplete = async () => {
+    // Simulate a score calculation (in real app, this would come from exercises/tests)
+    const score = Math.floor(Math.random() * 30) + 70; // Random score between 70-100
+    const exercises: any[] = []; // Would contain actual exercise results
+    
+    try {
+      await completeLesson(score, exercises, `Lección ${lessonId} completada`);
+      
+      // Show success feedback
+      dispatch({
+        type: 'SHOW_ERROR',
+        payload: `¡Lección completada! Puntuación: ${score}%`
+      });
+      
+    } catch (error) {
+      console.error('Error completing lesson:', error);
+      dispatch({
+        type: 'SHOW_ERROR',
+        payload: 'Error al guardar el progreso. Inténtalo de nuevo.'
+      });
+    }
   };
 
   const handleReset = () => {
     dispatch({ type: 'RESET_MEMORY' });
+    resetLesson();
   };
 
   const handleSimulateError = () => {
@@ -1017,8 +1120,15 @@ export default function LessonView() {
   };
 
   return (
-    <Container>
-      <Header>
+    <>
+      {/* Achievement Notification */}
+      <AchievementNotification
+        achievement={showAchievementNotification}
+        onDismiss={dismissAchievementNotification}
+      />
+      
+      <Container>
+        <Header>
         <TitleSection>
           <Title>Lección {lessonId}: {lesson.title}</Title>
           <Description>{lesson.description}</Description>
@@ -1083,39 +1193,77 @@ export default function LessonView() {
         </MainContent>
 
         <Sidebar>
+          {/* Session Timer */}
+          {sessionActive && (
+            <SessionTimer>
+              Tiempo: {formatDuration(timeSpent)}
+            </SessionTimer>
+          )}
+          
+          {/* Lesson Progress */}
+          <ProgressCard>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <SidebarTitle style={{ margin: 0 }}>📊 Progreso</SidebarTitle>
+              {isCompleted && (
+                <Badge variant="success" size="small">Completada</Badge>
+              )}
+            </div>
+            
+            <ScoreDisplay score={currentScore}>
+              <span className="score-label">Mejor Puntuación:</span>
+              <span className="score-value">
+                {currentScore > 0 ? `${currentScore}%` : 'Sin intentos'}
+              </span>
+            </ScoreDisplay>
+            
+            {progress && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#b8c5d6', margin: '0.5rem 0' }}>
+                  <span>Intentos: {progress.attempts}</span>
+                  <span>Tiempo total: {formatDuration(progress.timeSpent)}</span>
+                </div>
+                
+                {progress.completedAt && (
+                  <div style={{ fontSize: '0.8rem', color: '#999', marginTop: '0.5rem' }}>
+                    Completada: {progress.completedAt.toLocaleDateString()}
+                  </div>
+                )}
+              </>
+            )}
+          </ProgressCard>
+          
           <SidebarTitle>🎮 Acciones</SidebarTitle>
 
           <CompleteButton onClick={handleComplete}>
-            ✅ Marcar como Completada
+            {isCompleted ? '🔄 Intentar de Nuevo' : '✅ Completar Lección'}
           </CompleteButton>
 
           <ResetButton onClick={handleReset}>
-            🔄 Reiniciar Memoria
+            🔄 Reiniciar
           </ResetButton>
 
           <ErrorButton onClick={handleSimulateError}>
             ⚠️ Simular Error
           </ErrorButton>
 
-          <SidebarTitle style={{ marginTop: '2rem' }}>📊 Progreso</SidebarTitle>
-          <div style={{ color: '#b8c5d6', fontSize: '0.9rem' }}>
-            <p>Lección actual: {lessonId + 1}/17</p>
-            <p>Completadas: {state.userProgress.completedLessons.length}</p>
-            <p>Puntuación: {state.userProgress.totalScore}</p>
-          </div>
-
-          <SidebarTitle style={{ marginTop: '2rem' }}>🏆 Logros</SidebarTitle>
-          <div style={{ color: '#b8c5d6', fontSize: '0.9rem' }}>
-            {state.userProgress.achievements.length === 0 ? (
-              <p>Sin logros aún</p>
-            ) : (
-              state.userProgress.achievements.map((achievement, index) => (
-                <div key={index}>🏆 {achievement}</div>
-              ))
-            )}
-          </div>
+          {/* Overall Progress */}
+          <ProgressCard style={{ marginTop: '1.5rem' }}>
+            <SidebarTitle style={{ margin: '0 0 1rem 0' }}>📈 Progreso Global</SidebarTitle>
+            <div style={{ color: '#b8c5d6', fontSize: '0.9rem' }}>
+              <p style={{ margin: '0.25rem 0' }}>Lección: {lessonId}/120</p>
+              <div style={{ margin: '0.75rem 0' }}>
+                <Progress 
+                  value={(lessonId / 120) * 100} 
+                  max={100} 
+                  variant="primary"
+                  size="small"
+                />
+              </div>
+            </div>
+          </ProgressCard>
         </Sidebar>
       </ContentGrid>
-    </Container>
+      </Container>
+    </>
   );
 }

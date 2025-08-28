@@ -1,74 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
 
-const LessonContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  gap: 1rem;
-  padding: 1rem;
-`;
 
-const TheoryPanel = styled.div`
-  background: rgba(26, 26, 46, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
 
-const VisualizationPanel = styled.div`
-  background: rgba(22, 33, 62, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-`;
 
-const Title = styled.h1`
-  color: #00d4ff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px #00d4ff;
-`;
 
-const Section = styled.div`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-left: 3px solid #00d4ff;
-  border-radius: 5px;
-`;
 
-const SectionTitle = styled.h3`
-  color: #4ecdc4;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
 
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  color: #f8f8f2;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
 
-const Interactive = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-`;
+
+
+
+
+
+
+
+
+
+
 
 const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'success' }>`
   padding: 0.8rem 1.5rem;
@@ -138,33 +103,9 @@ const OwnershipBadge = styled.div<{ owner: 'none' | 'raw' | 'deleted' }>`
   }};
 `;
 
-const DebtWarning = styled.div`
-  background: rgba(255, 202, 40, 0.1);
-  border: 2px solid #ffca28;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #ffca28;
-  font-weight: bold;
-  animation: pulse 2s infinite;
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
-  }
-`;
 
-const StatusDisplay = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 1rem;
-  border-radius: 8px;
-  color: white;
-  z-index: 100;
-  font-family: monospace;
-`;
+
+
 
 interface HeapState {
   danglingPtr: number | null;
@@ -425,7 +366,7 @@ function Lesson04Scene({ state }: { state: HeapState }) {
 }
 
 export default function Lesson04_HeapOwnership() {
-  const { dispatch } = useApp();
+  const { state: appState } = useApp();
   
   const [state, setState] = useState<HeapState>({
     danglingPtr: null,
@@ -562,9 +503,18 @@ std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
 // Ownership automático: no necesita delete manual`;
 
   return (
-    <LessonContainer>
-      <TheoryPanel>
-        <Title>Tarea 4: new int(42) y Heap Ownership</Title>
+    <LessonLayout
+      title="Heap Ownership - new y delete"
+      subtitle="Entendiendo la asignación dinámica y la responsabilidad del ownership"
+      lessonNumber={4}
+      difficulty="Intermediate"
+      estimatedTime={20}
+      layoutType="two-panel"
+    >
+      <TheoryPanel topic="basic">
+        <Section>
+          <SectionTitle>Tarea 4: new int(42) y Heap Ownership</SectionTitle>
+        </Section>
         
         <Section>
           <SectionTitle>🏗️ Dynamic Allocation - El Heap</SectionTitle>
@@ -584,7 +534,12 @@ std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
 
         <Section>
           <SectionTitle>💻 Código de Ejemplo</SectionTitle>
-          <CodeBlock>{cppCode}</CodeBlock>
+          <CodeBlock
+            language="cpp"
+            title="Heap Allocation Example"
+            copyable={true}
+            showLineNumbers={true}
+          >{cppCode}</CodeBlock>
         </Section>
 
         <Section>
@@ -597,7 +552,8 @@ std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
              'Memory deleted'}
           </OwnershipBadge>
           
-          <Interactive>
+          <InteractiveSection>
+            <ButtonGroup orientation="horizontal" spacing="3">
             <Button 
               onClick={allocateHeap} 
               variant="danger"
@@ -617,14 +573,23 @@ std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
             <Button onClick={reset}>
               Reset
             </Button>
-          </Interactive>
+            </ButtonGroup>
+          </InteractiveSection>
 
           {state.needsDelete && (
-            <DebtWarning>
+            <div style={{
+              background: 'rgba(255, 202, 40, 0.1)',
+              border: '2px solid #ffca28',
+              borderRadius: '8px',
+              padding: '1rem',
+              margin: '1rem 0',
+              color: '#ffca28',
+              fontWeight: 'bold'
+            }}>
               ⚠️ DEUDA DE DELETE PENDIENTE<br/>
               La memoria asignada con new int(42) debe ser liberada con delete d;<br/>
               Sin delete: MEMORY LEAK garantizado.
-            </DebtWarning>
+            </div>
           )}
         </Section>
 
@@ -694,9 +659,10 @@ std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
         </Section>
       </TheoryPanel>
 
-      <VisualizationPanel>
+      <VisualizationPanel topic="basic">
         <StatusDisplay>
-          <div>🎯 Tarea 4: Heap Ownership</div>
+          <div>🎯 Tarea 4: Heap Ownership
+          </div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
           <div>🔗 Estado: {state.status}</div>
           <div>💾 Heap: {state.heapBlock.exists ? 'ALLOCATED' : 'EMPTY'}</div>
@@ -714,6 +680,6 @@ std::unique_ptr<int> smart_ptr = std::make_unique<int>(42);
           />
         </Canvas>
       </VisualizationPanel>
-    </LessonContainer>
+    </LessonLayout>
   );
 }

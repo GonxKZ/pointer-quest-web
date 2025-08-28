@@ -42,6 +42,28 @@ export const theme = {
     error: '#FF6B6B',
     info: '#00D4FF',
 
+    // Border Colors
+    border: {
+      primary: 'rgba(255, 255, 255, 0.2)',
+      secondary: 'rgba(255, 255, 255, 0.1)',
+      focus: '#00D4FF',
+      error: '#FF6B6B',
+      success: '#00FF88',
+      warning: '#FFCA28'
+    },
+
+    // Memory Colors (alias for memoryVisualization for backward compatibility)
+    memory: {
+      stack: '#00FF88',
+      heap: '#FF6B6B',
+      global: '#FFA500',
+      pointer: '#00D4FF',
+      reference: '#4ECDC4',
+      null: '#757575',
+      danger: '#FF4444',
+      modified: '#FFCA28'
+    },
+
     // Neutral Colors
     gray: {
       50: '#FAFAFA',
@@ -61,9 +83,11 @@ export const theme = {
       primary: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
       secondary: 'linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9))',
       tertiary: 'rgba(0, 212, 255, 0.05)',
+      surface: 'rgba(255, 255, 255, 0.02)',
       glass: 'rgba(255, 255, 255, 0.1)',
       dark: 'rgba(0, 0, 0, 0.8)',
-      code: 'rgba(0, 0, 0, 0.7)'
+      code: 'rgba(0, 0, 0, 0.7)',
+      elevated: 'rgba(255, 255, 255, 0.08)'
     },
 
     // Text Colors
@@ -73,7 +97,8 @@ export const theme = {
       tertiary: '#9E9E9E',
       accent: '#00D4FF',
       code: '#F8F8F2',
-      muted: 'rgba(255, 255, 255, 0.7)'
+      muted: 'rgba(255, 255, 255, 0.7)',
+      inverse: '#FFFFFF'
     },
 
     // Educational Topic Colors (120 lessons across 6 categories)
@@ -140,7 +165,7 @@ export const theme = {
     },
 
     // Memory Visualization Colors
-    memory: {
+    memoryVisualization: {
       stack: '#00FF88',
       heap: '#FF6B6B',
       global: '#FFA500',
@@ -224,7 +249,9 @@ export const theme = {
     40: '10rem',    // 160px
     48: '12rem',    // 192px
     56: '14rem',    // 224px
-    64: '16rem'     // 256px
+    64: '16rem',    // 256px
+    // Default border radius for quick access
+    borderRadius: '0.5rem'
   },
 
   // Border Radius

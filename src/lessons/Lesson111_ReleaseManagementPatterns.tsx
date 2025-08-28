@@ -2,6 +2,20 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder, Cone } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface VersioningMetrics {
   compatibility: number;
@@ -1211,8 +1225,8 @@ private:
 
       <div className="lesson-content">
         <div className="visualization-section">
-          <h3>{state.language === 'en' ? 'Version Evolution Visualization' : 'Visualización de Evolución de Versiones'}</h3>
-          <div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
+          <SectionTitle>{state.language === 'en' ? 'Version Evolution Visualization' : 'Visualización de Evolución de Versiones'}</SectionTitle>
+<div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
             <Canvas camera={{ position: [8, 5, 8] }}>
               <ambientLight intensity={0.6} />
               <pointLight position={[10, 10, 10]} />
@@ -1225,12 +1239,12 @@ private:
           </div>
           
           <div className="version-info">
-            <h4>{state.language === 'en' ? 'Version Metrics' : 'Métricas de Versión'}</h4>
-            <div className="metrics-grid">
+            <SectionTitle>{state.language === 'en' ? 'Version Metrics' : 'Métricas de Versión'}</SectionTitle>
+<div className="metrics-grid">
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Compatibility' : 'Compatibilidad'}:</span>
                 <span className="metric-value">{(metrics.compatibility * 100).toFixed(1)}%</span>
-              </div>
+          </div>
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Stability' : 'Estabilidad'}:</span>
                 <span className="metric-value">{(metrics.stability * 100).toFixed(1)}%</span>
@@ -1248,9 +1262,8 @@ private:
         </div>
 
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Release Management Examples' : 'Ejemplos de Gestión de Versiones'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Release Management Examples' : 'Ejemplos de Gestión de Versiones'}</SectionTitle>
+<div className="example-tabs">
             {Object.keys(examples).map(key => (
               <button
                 key={key}
@@ -1264,57 +1277,56 @@ private:
 
           <div className="example-content">
             <div className="code-block">
-              <h4>{currentExample.title}</h4>
-              <pre>
+              <SectionTitle>{currentExample.title}</SectionTitle>
+<pre>
                 <code>{currentExample.code}</code>
               </pre>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="key-concepts-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          
-          <div className="concepts-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concepts-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Version Compatibility' : 'Compatibilidad de Versiones'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Version Compatibility' : 'Compatibilidad de Versiones'}</SectionTitle>
               <ul>
                 <li>{state.language === 'en' ? 'Semantic versioning (MAJOR.MINOR.PATCH)' : 'Versionado semántico (MAYOR.MENOR.PARCHE)'}</li>
                 <li>{state.language === 'en' ? 'ABI compatibility within major versions' : 'Compatibilidad ABI dentro de versiones mayores'}</li>
                 <li>{state.language === 'en' ? 'Backward compatibility guarantees' : 'Garantías de compatibilidad hacia atrás'}</li>
                 <li>{state.language === 'en' ? 'Interface evolution strategies' : 'Estrategias de evolución de interfaces'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'ABI Stability' : 'Estabilidad ABI'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'ABI Stability' : 'Estabilidad ABI'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Opaque pointer patterns' : 'Patrones de punteros opacos'}</li>
                 <li>{state.language === 'en' ? 'Type erasure for interface stability' : 'Borrado de tipos para estabilidad de interfaz'}</li>
                 <li>{state.language === 'en' ? 'Virtual function table preservation' : 'Preservación de tabla de funciones virtuales'}</li>
                 <li>{state.language === 'en' ? 'Binary layout consistency' : 'Consistencia de diseño binario'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Migration Strategies' : 'Estrategias de Migración'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Migration Strategies' : 'Estrategias de Migración'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Gradual migration with coexistence' : 'Migración gradual con coexistencia'}</li>
                 <li>{state.language === 'en' ? 'Batch processing for large codebases' : 'Procesamiento por lotes para códigos grandes'}</li>
                 <li>{state.language === 'en' ? 'Rollback capabilities' : 'Capacidades de reversión'}</li>
                 <li>{state.language === 'en' ? 'Validation and verification' : 'Validación y verificación'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Release Coordination' : 'Coordinación de Versiones'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Release Coordination' : 'Coordinación de Versiones'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Multi-phase deployment' : 'Despliegue multifase'}</li>
                 <li>{state.language === 'en' ? 'Automated migration orchestration' : 'Orquestación de migración automatizada'}</li>
                 <li>{state.language === 'en' ? 'Progress tracking and monitoring' : 'Seguimiento y monitoreo del progreso'}</li>
                 <li>{state.language === 'en' ? 'Strategy-based migration approaches' : 'Enfoques de migración basados en estrategia'}</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
       </div>

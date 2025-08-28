@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
 import { AppProvider, useApp } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { StudentProgressProvider } from './context/StudentProgressContext';
 import AccessibilityProvider from './accessibility/AccessibilityManager';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -10,6 +11,10 @@ import PerformanceMonitor from './components/PerformanceMonitor';
 import PWAManager from './components/PWAComponents';
 import ThemeToggle from './components/ThemeToggle';
 import AccessibilityPanel from './components/AccessibilityPanel';
+import { useContrastValidation } from './utils/contrastChecker';
+import AccessibilityAuditor from './components/AccessibilityAuditor';
+import AxeDevTools from './components/AxeDevTools';
+import KeyboardShortcutsGuide from './components/KeyboardShortcutsGuide';
 
 // Optimized lazy loading with better chunk splitting
 const MemoryVisualizer3D = lazy(() => 
@@ -29,6 +34,21 @@ const LessonList = lazy(() =>
 );
 const ErrorModal = lazy(() => 
   import(/* webpackChunkName: "error-modal" */ './components/ErrorModal')
+);
+const ContrastReport = lazy(() => 
+  import(/* webpackChunkName: "contrast-report" */ './components/ContrastReport')
+);
+const ProgressDashboard = lazy(() => 
+  import(/* webpackChunkName: "progress-dashboard" */ './components/ProgressDashboard')
+);
+const AchievementGallery = lazy(() => 
+  import(/* webpackChunkName: "achievement-gallery" */ './components/AchievementSystem').then(module => ({ default: module.AchievementGallery }))
+);
+const AnalyticsPage = lazy(() => 
+  import(/* webpackChunkName: "analytics-page" */ './components/AnalyticsPage')
+);
+const DataManagement = lazy(() => 
+  import(/* webpackChunkName: "data-management" */ './components/DataManagement')
 );
 
 // Estilos globales con soporte completo para temas y accesibilidad
@@ -78,15 +98,66 @@ const GlobalStyle = createGlobalStyle`
     /* Keyboard navigation enhancements */
   }
 
-  /* Focus indicators */
+  /* Focus indicators - WCAG 2.1 AA Compliant */
+  *:focus-visible {
+    outline: 3px solid #00d4ff;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
   [data-focus-size="large"] *:focus-visible {
-    outline: 3px solid ${props => props.theme.colors.primary[500]};
+    outline: 4px solid #00d4ff;
     outline-offset: 3px;
   }
 
   [data-focus-size="extra-large"] *:focus-visible {
-    outline: 4px solid ${props => props.theme.colors.primary[500]};
+    outline: 5px solid #00d4ff;
     outline-offset: 4px;
+  }
+  
+  /* High visibility focus for critical interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex="0"]:focus-visible {
+    outline: 3px solid #ffff00;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px rgba(0, 212, 255, 0.3);
+  }
+  
+  /* Ensure minimum interactive element sizes - WCAG 2.1 AA */
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [tabindex="0"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Mobile enhanced touch targets */
+  @media (max-width: 768px) {
+    button,
+    a,
+    input,
+    select,
+    textarea,
+    [role="button"],
+    [tabindex="0"] {
+      min-height: 48px;
+      min-width: 48px;
+      margin: 4px;
+    }
+    
+    *:focus-visible {
+      outline: 4px solid #ffff00;
+      outline-offset: 3px;
+    }
   }
 
   /* Color blindness filters */
@@ -156,14 +227,42 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
-  /* High contrast media query */
+  /* High contrast media query - Enhanced */
   @media (prefers-contrast: high) {
     * {
       outline: 2px solid transparent;
     }
     
-    *:focus {
-      outline: 2px solid currentColor;
+    *:focus,
+    *:focus-visible {
+      outline: 3px solid #ffffff !important;
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    
+    /* High contrast mode overrides */
+    body {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+    
+    button,
+    input,
+    select,
+    textarea {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border: 2px solid #ffffff !important;
+    }
+    
+    a {
+      color: #00ff00 !important;
+      text-decoration: underline !important;
+    }
+    
+    .primary-button {
+      background: #ffffff !important;
+      color: #000000 !important;
     }
   }
 
@@ -252,9 +351,52 @@ const ControlsContainer = styled.div`
   }
 `;
 
+// Skip Links Component for WCAG 2.1 AA Compliance
+const SkipLinks = styled.nav`
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: ${props => props.theme.zIndex.skipLink};
+  
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: ${props => props.theme.spacing[2]};
+    background: ${props => props.theme.colors.primary[500]};
+    color: ${props => props.theme.colors.text.inverse};
+    padding: ${props => props.theme.spacing[2]} ${props => props.theme.spacing[4]};
+    text-decoration: none;
+    border-radius: ${props => props.theme.borderRadius.base};
+    font-weight: ${props => props.theme.typography.fontWeight.semibold};
+    font-size: ${props => props.theme.typography.fontSize.sm};
+    white-space: nowrap;
+    transition: top ${props => props.theme.animation.duration.fast};
+    
+    &:focus,
+    &:focus-visible {
+      top: ${props => props.theme.spacing[2]};
+      outline: 3px solid ${props => props.theme.colors.text.inverse};
+      outline-offset: 2px;
+    }
+    
+    &:not(:last-child) {
+      margin-right: ${props => props.theme.spacing[2]};
+    }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .skip-link {
+      transition: none;
+    }
+  }
+`;
+
 // Componente principal de la aplicación
 function AppContent() {
   const { state, dispatch } = useApp();
+  
+  // Enable contrast validation in development
+  useContrastValidation(process.env.NODE_ENV === 'development');
 
   const toggle3DMode = () => {
     dispatch({ type: 'TOGGLE_3D_MODE' });
@@ -265,7 +407,11 @@ function AppContent() {
       <>
         <ControlsContainer>
           <ThemeToggle variant="button" />
-          <ViewToggle onClick={toggle3DMode}>
+          <ViewToggle 
+          onClick={toggle3DMode}
+          aria-label="Switch to 2D interface mode"
+          title="Toggle 2D View (Ctrl+2)"
+        >
             🎮 Vista 2D
           </ViewToggle>
         </ControlsContainer>
@@ -295,20 +441,44 @@ function AppContent() {
 
   return (
     <>
-      <ControlsContainer>
+      {/* Skip Links for WCAG 2.1 AA Compliance */}
+      <SkipLinks role="navigation" aria-label="Skip links">
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <a href="#navigation" className="skip-link">
+          Skip to navigation
+        </a>
+        <a href="#3d-controls" className="skip-link">
+          Skip to 3D controls
+        </a>
+      </SkipLinks>
+
+      <ControlsContainer id="3d-controls">
         <ThemeToggle variant="button" />
-        <ViewToggle onClick={toggle3DMode}>
+        <ViewToggle 
+          onClick={toggle3DMode}
+          aria-label="Switch to 3D visualization mode"
+          title="Toggle 3D View (Ctrl+3)"
+        >
           🕶️ Vista 3D
         </ViewToggle>
       </ControlsContainer>
 
       <ErrorBoundary>
         <Suspense fallback={<LoadingSpinner size="small" message="Loading navigation..." />}>
-          <Navbar />
+          <div id="navigation">
+            <Navbar />
+          </div>
         </Suspense>
       </ErrorBoundary>
       
-      <MainContent id="main-content" role="main" tabIndex={-1}>
+      <MainContent 
+        id="main-content" 
+        role="main" 
+        tabIndex={-1}
+        aria-label="Main application content"
+      >
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={
@@ -333,6 +503,26 @@ function AppContent() {
                 </Suspense>
               </ErrorBoundary>
             } />
+            <Route path="/progress" element={
+              <Suspense fallback={<LoadingSpinner size="medium" message="Loading progress dashboard..." />}>
+                <ProgressDashboard />
+              </Suspense>
+            } />
+            <Route path="/achievements" element={
+              <Suspense fallback={<LoadingSpinner size="medium" message="Loading achievements..." />}>
+                <AchievementGallery />
+              </Suspense>
+            } />
+            <Route path="/analytics" element={
+              <Suspense fallback={<LoadingSpinner size="medium" message="Loading analytics..." />}>
+                <AnalyticsPage />
+              </Suspense>
+            } />
+            <Route path="/data" element={
+              <Suspense fallback={<LoadingSpinner size="medium" message="Loading data management..." />}>
+                <DataManagement />
+              </Suspense>
+            } />
           </Routes>
         </ErrorBoundary>
       </MainContent>
@@ -354,6 +544,22 @@ function AppContent() {
       
       {/* Performance monitoring - only in development */}
       <PerformanceMonitor visible={process.env.NODE_ENV === 'development'} />
+      
+      {/* Contrast Report - only in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <Suspense fallback={null}>
+          <ContrastReport />
+        </Suspense>
+      )}
+      
+      {/* Accessibility Auditor - always available for testing */}
+      <AccessibilityAuditor />
+      
+      {/* Axe DevTools - development only */}
+      <AxeDevTools />
+      
+      {/* Keyboard Shortcuts Guide - WCAG 2.1 AA */}
+      <KeyboardShortcutsGuide />
     </>
   );
 }
@@ -363,14 +569,16 @@ function App() {
   return (
     <AppProvider>
       <ThemeProvider>
-        <AccessibilityProvider>
-          <GlobalStyle />
-          <AppContainer>
-            <Router>
-              <AppContent />
-            </Router>
-          </AppContainer>
-        </AccessibilityProvider>
+        <StudentProgressProvider>
+          <AccessibilityProvider>
+            <GlobalStyle />
+            <AppContainer>
+              <Router>
+                <AppContent />
+              </Router>
+            </AppContainer>
+          </AccessibilityProvider>
+        </StudentProgressProvider>
       </ThemeProvider>
     </AppProvider>
   );

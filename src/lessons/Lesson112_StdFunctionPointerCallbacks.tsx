@@ -2,6 +2,20 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface CallbackMetrics {
   performance: number;
@@ -1579,8 +1593,8 @@ public:
 
       <div className="lesson-content">
         <div className="visualization-section">
-          <h3>{state.language === 'en' ? 'Callback System Visualization' : 'Visualización de Sistema de Callbacks'}</h3>
-          <div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
+          <SectionTitle>{state.language === 'en' ? 'Callback System Visualization' : 'Visualización de Sistema de Callbacks'}</SectionTitle>
+<div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
             <Canvas camera={{ position: [6, 4, 6] }}>
               <ambientLight intensity={0.6} />
               <pointLight position={[10, 10, 10]} />
@@ -1593,12 +1607,12 @@ public:
           </div>
           
           <div className="callback-info">
-            <h4>{state.language === 'en' ? 'Callback Metrics' : 'Métricas de Callbacks'}</h4>
-            <div className="metrics-grid">
+            <SectionTitle>{state.language === 'en' ? 'Callback Metrics' : 'Métricas de Callbacks'}</SectionTitle>
+<div className="metrics-grid">
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Performance' : 'Rendimiento'}:</span>
                 <span className="metric-value">{(metrics.performance * 100).toFixed(1)}%</span>
-              </div>
+          </div>
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Memory Usage' : 'Uso de Memoria'}:</span>
                 <span className="metric-value">{(metrics.memoryUsage * 100).toFixed(1)}%</span>
@@ -1619,9 +1633,8 @@ public:
         </div>
 
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Callback Pattern Examples' : 'Ejemplos de Patrones de Callbacks'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Callback Pattern Examples' : 'Ejemplos de Patrones de Callbacks'}</SectionTitle>
+<div className="example-tabs">
             {Object.keys(examples).map(key => (
               <button
                 key={key}
@@ -1635,57 +1648,56 @@ public:
 
           <div className="example-content">
             <div className="code-block">
-              <h4>{currentExample.title}</h4>
-              <pre>
+              <SectionTitle>{currentExample.title}</SectionTitle>
+<pre>
                 <code>{currentExample.code}</code>
               </pre>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="key-concepts-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          
-          <div className="concepts-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concepts-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Function Wrappers' : 'Wrappers de Funciones'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Function Wrappers' : 'Wrappers de Funciones'}</SectionTitle>
               <ul>
                 <li>{state.language === 'en' ? 'std::function with smart pointer captures' : 'std::function con capturas de smart pointers'}</li>
                 <li>{state.language === 'en' ? 'Lifetime management of captured objects' : 'Gestión de vida útil de objetos capturados'}</li>
                 <li>{state.language === 'en' ? 'Weak pointer captures for safety' : 'Capturas con weak_ptr para seguridad'}</li>
                 <li>{state.language === 'en' ? 'Callback chaining and composition' : 'Encadenamiento y composición de callbacks'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Small function optimization' : 'Optimización de funciones pequeñas'}</li>
                 <li>{state.language === 'en' ? 'Zero-allocation callback storage' : 'Almacenamiento de callbacks sin asignaciones'}</li>
                 <li>{state.language === 'en' ? 'Performance profiling and metrics' : 'Profiling de rendimiento y métricas'}</li>
                 <li>{state.language === 'en' ? 'Lock-free callback execution' : 'Ejecución de callbacks sin bloqueos'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Memory Management' : 'Gestión de Memoria'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Memory Management' : 'Gestión de Memoria'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'RAII callback lifetime management' : 'Gestión de vida útil con RAII'}</li>
                 <li>{state.language === 'en' ? 'Custom allocators for callbacks' : 'Asignadores personalizados para callbacks'}</li>
                 <li>{state.language === 'en' ? 'Memory pool for callback objects' : 'Pool de memoria para objetos callback'}</li>
                 <li>{state.language === 'en' ? 'Automatic cleanup of expired callbacks' : 'Limpieza automática de callbacks expirados'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Type Erasure' : 'Type Erasure'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Type Erasure' : 'Type Erasure'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Universal callback interfaces' : 'Interfaces universales de callback'}</li>
                 <li>{state.language === 'en' ? 'Runtime type safety checking' : 'Verificación de seguridad de tipos en tiempo de ejecución'}</li>
                 <li>{state.language === 'en' ? 'Polymorphic callback storage' : 'Almacenamiento polimórfico de callbacks'}</li>
                 <li>{state.language === 'en' ? 'Type-safe event dispatching' : 'Dispatching de eventos con seguridad de tipos'}</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
       </div>

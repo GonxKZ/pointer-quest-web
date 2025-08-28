@@ -1,9 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup,
+  Button
+} from '../design-system';
 
 interface Node {
   id: string;
@@ -29,141 +42,78 @@ interface CycleState {
   currentStep: number;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
+const LeakWarning = ({ show, children }: { show: boolean; children: React.ReactNode }) => (
+  <div style={{
+    background: 'rgba(255, 0, 0, 0.2)',
+    border: '2px solid #ff4444',
+    borderRadius: '8px',
+    padding: '15px',
+    margin: '15px 0',
+    display: show ? 'block' : 'none',
+    animation: show ? 'warningPulse 2s ease-in-out infinite' : 'none'
+  }}>
+    <style>{`
+      @keyframes warningPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+    `}</style>
+    {children}
+  </div>
+);
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
-
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
-
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
-  background: ${props => 
-    props.variant === 'danger' ? 'linear-gradient(45deg, #ff4444, #cc0000)' :
-    props.variant === 'success' ? 'linear-gradient(45deg, #44ff44, #00cc00)' :
-    props.variant === 'warning' ? 'linear-gradient(45deg, #ff8800, #cc6600)' :
-    props.variant === 'secondary' ? 'linear-gradient(45deg, #666, #333)' :
-    'linear-gradient(45deg, #0066cc, #0099ff)'};
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.9em;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 100, 200, 0.4);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const StatusDisplay = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  border: 1px solid #333;
-`;
-
-const LeakWarning = styled.div<{ show: boolean }>`
-  background: rgba(255, 0, 0, 0.2);
-  border: 2px solid #ff4444;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
-  display: ${props => props.show ? 'block' : 'none'};
-  animation: ${props => props.show ? 'warningPulse 2s ease-in-out infinite' : 'none'};
-
-  @keyframes warningPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-`;
-
-const StepIndicator = styled.div`
-  background: rgba(0, 100, 200, 0.2);
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0;
-  border-left: 3px solid #0099ff;
-`;
+const StepIndicator = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontFamily: 'monospace',
+    fontSize: '0.9em',
+    color: '#cccccc'
+  }}>
+    {children}
+  </div>
+);
 
 const MemoryVisualization: React.FC<{
   state: CycleState;
@@ -410,7 +360,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson15_SharedPtrCycle: React.FC = () => {
+const Lesson15_SharedPtrCycle: React.FC = () => {
   const [state, setState] = useState<CycleState>({
     nodes: [],
     hasCycle: false,
@@ -580,26 +530,38 @@ export const Lesson15_SharedPtrCycle: React.FC = () => {
     });
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 15: shared_ptr Cycles</Title>
-        <Subtitle>Referencias Circulares y Solución con weak_ptr</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(15, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 15: shared_ptr Cycles"
+      subtitle="Referencias Circulares y Solución con weak_ptr"
+      lessonNumber={15}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
             <MemoryVisualization state={state} />
             <OrbitControls enableZoom={true} enablePan={true} enableRotate={true} />
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
-          <TheorySection>
-            <h3>🔄 Ciclos con shared_ptr</h3>
-            <p>Referencias circulares impiden la destrucción automática:</p>
-            <CodeBlock>{`struct Node {
+        <TheoryPanel>
+          <Section>
+            <SectionTitle>🔄 Ciclos con shared_ptr</SectionTitle>
+<p>Referencias circulares impiden la destrucción automática:</p>
+            <CodeBlock language="cpp">{`struct Node {
     std::shared_ptr<Node> child;
     std::shared_ptr<Node> parent;  // ❌ Cycle!
     int value;
@@ -613,7 +575,7 @@ child->parent = parent;   // parent use_count = 2
 
 // Al salir del scope: parent y child siguen
 // referenciándose mutuamente = MEMORY LEAK`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
           <StepIndicator>
             <strong>Paso {state.currentStep}/5:</strong> {
@@ -626,9 +588,10 @@ child->parent = parent;   // parent use_count = 2
             }
           </StepIndicator>
 
-          <div>
-            <h4>🎮 Demostración del Problema</h4>
+          <InteractiveSection>
+          <SectionTitle>🎮 Demostración del Problema</SectionTitle>
             
+            <ButtonGroup>
             <Button onClick={createNodes} variant="primary">
               1. Crear Parent & Child
             </Button>
@@ -648,11 +611,12 @@ child->parent = parent;   // parent use_count = 2
             >
               3. 💥 child-&gt;parent = parent
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>✅ Solución con weak_ptr</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>✅ Solución con weak_ptr</SectionTitle>
+<ButtonGroup>
             <Button 
               onClick={breakCycleWithWeakPtr}
               disabled={state.currentStep < 3}
@@ -668,24 +632,24 @@ child->parent = parent;   // parent use_count = 2
             >
               5. Simular destrucción
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔍 Utilidades</h4>
-            
-            <Button onClick={demonstrateWeakPtrAccess}>
+          <InteractiveSection>
+          <SectionTitle>🔍 Utilidades</SectionTitle>
+<Button onClick={demonstrateWeakPtrAccess}>
               weak_ptr.lock() demo
             </Button>
-          </div>
+          </InteractiveSection>
 
           <LeakWarning show={state.hasLeak}>
-            <h4>⚠️ MEMORY LEAK DETECTADO</h4>
-            <p>Los objetos se referencian mutuamente con shared_ptr. Sus use_count nunca llegará a 0, por lo que nunca serán destruidos automáticamente.</p>
+            <SectionTitle>⚠️ MEMORY LEAK DETECTADO</SectionTitle>
+<p>Los objetos se referencian mutuamente con shared_ptr. Sus use_count nunca llegará a 0, por lo que nunca serán destruidos automáticamente.</p>
             <p><strong>Solución:</strong> Usar weak_ptr para romper una de las referencias.</p>
           </LeakWarning>
 
           <StatusDisplay>
-            <h4>📊 Estado del Sistema</h4>
+            <SectionTitle>📊 Estado del Sistema</SectionTitle>
             <div>Nodos activos: {state.nodes.filter(n => n.isAlive).length}</div>
             <div>Cycle detectado: {state.hasCycle ? 'Sí' : 'No'}</div>
             <div>Memory leak: {state.hasLeak ? '⚠️ SÍ' : '✅ No'}</div>
@@ -693,9 +657,9 @@ child->parent = parent;   // parent use_count = 2
             <div>Operación actual: {state.operation}</div>
           </StatusDisplay>
 
-          <TheorySection>
-            <h4>🛠️ Solución: weak_ptr</h4>
-            <CodeBlock>{`struct Node {
+          <Section>
+            <SectionTitle>🛠️ Solución: weak_ptr</SectionTitle>
+            <CodeBlock language="cpp">{`struct Node {
     std::shared_ptr<Node> child;
     std::weak_ptr<Node> parent;    // ✅ No cycle!
     int value;
@@ -711,10 +675,10 @@ void useParent() {
         std::cout << "Parent is gone\n";
     }
 }`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>🎯 Estrategias Anti-Cycle</h4>
+          <Section>
+            <SectionTitle>🎯 Estrategias Anti-Cycle</SectionTitle>
             <ul>
               <li><strong>Parent-Child:</strong> Parent tiene shared_ptr, Child tiene weak_ptr</li>
               <li><strong>Observer pattern:</strong> Observers con weak_ptr a Subject</li>
@@ -723,11 +687,11 @@ void useParent() {
               <li><strong>Tree structures:</strong> Solo parent-&gt;child con shared_ptr</li>
               <li><strong>Graph algorithms:</strong> Romper cycles con weak_ptr edges</li>
             </ul>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>🔍 Detección de Cycles</h4>
-            <CodeBlock>{`// Runtime leak detection (debugging)
+          <Section>
+            <SectionTitle>🔍 Detección de Cycles</SectionTitle>
+            <CodeBlock language="cpp">{`// Runtime leak detection (debugging)
 class LeakDetector {
 public:
     ~LeakDetector() {
@@ -745,13 +709,14 @@ template<typename T>
 concept NotSelfReferencing = requires {
     // Enforce design constraints
 };`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
           <Button onClick={resetScene} variant="secondary">
             🔄 Reiniciar Demostración
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson15_SharedPtrCycle;

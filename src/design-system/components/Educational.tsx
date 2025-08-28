@@ -5,10 +5,10 @@
  * navigation, learning objectives, and assessment feedback.
  */
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { theme, LessonTopic, LessonDifficulty, mediaQuery, getLessonTopic, getTopicName, getDifficultyColor } from '../theme';
-import { Button, ButtonGroup } from './Button';
+import { Button } from './Button';
 
 // Progress animations
 const progressFill = keyframes`

@@ -2,6 +2,20 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder, Cone } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface EmbeddedMetrics {
   memoryUsage: number;
@@ -2086,8 +2100,8 @@ public:
 
       <div className="lesson-content">
         <div className="visualization-section">
-          <h3>{state.language === 'en' ? 'Embedded Systems Visualization' : 'Visualización de Sistemas Embebidos'}</h3>
-          <div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
+          <SectionTitle>{state.language === 'en' ? 'Embedded Systems Visualization' : 'Visualización de Sistemas Embebidos'}</SectionTitle>
+<div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
             <Canvas camera={{ position: [8, 5, 8] }}>
               <ambientLight intensity={0.6} />
               <pointLight position={[10, 10, 10]} />
@@ -2100,12 +2114,12 @@ public:
           </div>
           
           <div className="pattern-info">
-            <h4>{state.language === 'en' ? 'Embedded Metrics' : 'Métricas de Sistemas Embebidos'}</h4>
-            <div className="metrics-grid">
+            <SectionTitle>{state.language === 'en' ? 'Embedded Metrics' : 'Métricas de Sistemas Embebidos'}</SectionTitle>
+<div className="metrics-grid">
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Memory Usage' : 'Uso de Memoria'}:</span>
                 <span className="metric-value">{(metrics.memoryUsage * 100).toFixed(1)}%</span>
-              </div>
+          </div>
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Realtime Performance' : 'Rendimiento Tiempo Real'}:</span>
                 <span className="metric-value">{(metrics.realtimePerformance * 100).toFixed(1)}%</span>
@@ -2126,9 +2140,8 @@ public:
         </div>
 
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Embedded Systems Examples' : 'Ejemplos de Sistemas Embebidos'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Embedded Systems Examples' : 'Ejemplos de Sistemas Embebidos'}</SectionTitle>
+<div className="example-tabs">
             {Object.keys(examples).map(key => (
               <button
                 key={key}
@@ -2142,57 +2155,56 @@ public:
 
           <div className="example-content">
             <div className="code-block">
-              <h4>{currentExample.title}</h4>
-              <pre>
+              <SectionTitle>{currentExample.title}</SectionTitle>
+<pre>
                 <code>{currentExample.code}</code>
               </pre>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="key-concepts-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          
-          <div className="concepts-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concepts-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Memory-Constrained Environments' : 'Entornos con Memoria Limitada'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Memory-Constrained Environments' : 'Entornos con Memoria Limitada'}</SectionTitle>
               <ul>
                 <li>{state.language === 'en' ? 'Stack-based allocators for deterministic allocation' : 'Asignadores basados en stack para asignación determinística'}</li>
                 <li>{state.language === 'en' ? 'Fixed-size object pools for embedded systems' : 'Pools de objetos de tamaño fijo para sistemas embebidos'}</li>
                 <li>{state.language === 'en' ? 'Memory-mapped register safe pointers' : 'Punteros seguros para registros mapeados en memoria'}</li>
                 <li>{state.language === 'en' ? 'Circular buffers with optimized pointer management' : 'Buffers circulares con gestión optimizada de punteros'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Real-time Pointer Management' : 'Gestión de Punteros en Tiempo Real'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Real-time Pointer Management' : 'Gestión de Punteros en Tiempo Real'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Deterministic memory allocators with fixed-time operations' : 'Asignadores de memoria determinísticos con operaciones de tiempo fijo'}</li>
                 <li>{state.language === 'en' ? 'Interrupt-safe pointers using atomic operations' : 'Punteros seguros para interrupciones usando operaciones atómicas'}</li>
                 <li>{state.language === 'en' ? 'Priority-based allocation for real-time tasks' : 'Asignación basada en prioridades para tareas tiempo real'}</li>
                 <li>{state.language === 'en' ? 'Real-time performance profiling and measurement' : 'Perfilado y medición de rendimiento tiempo real'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Stack vs Heap Optimization' : 'Optimización Stack vs Heap'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Stack vs Heap Optimization' : 'Optimización Stack vs Heap'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Compile-time decision between stack and heap allocation' : 'Decisión en tiempo de compilación entre asignación stack y heap'}</li>
                 <li>{state.language === 'en' ? 'Stack-based arrays with overflow protection' : 'Arrays basados en stack con protección contra desbordamiento'}</li>
                 <li>{state.language === 'en' ? 'Hybrid containers that migrate from stack to heap' : 'Contenedores híbridos que migran de stack a heap'}</li>
                 <li>{state.language === 'en' ? 'Stack usage monitoring and optimization' : 'Monitoreo y optimización del uso del stack'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Embedded-Specific Patterns' : 'Patrones Específicos para Embebidos'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Embedded-Specific Patterns' : 'Patrones Específicos para Embebidos'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Power-aware pointer management with callbacks' : 'Gestión de punteros consciente del consumo con callbacks'}</li>
                 <li>{state.language === 'en' ? 'DMA-safe memory allocators with alignment requirements' : 'Asignadores de memoria DMA-safe con requisitos de alineación'}</li>
                 <li>{state.language === 'en' ? 'Watchdog-protected pointers with timeout monitoring' : 'Punteros protegidos por watchdog con monitoreo de timeout'}</li>
                 <li>{state.language === 'en' ? 'Resource tracking for embedded resource management' : 'Seguimiento de recursos para gestión de recursos embebidos'}</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
       </div>

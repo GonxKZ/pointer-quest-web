@@ -2,6 +2,20 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder, Cone } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface ConcurrencyMetrics {
   throughput: number;
@@ -1801,8 +1815,8 @@ public:
 
       <div className="lesson-content">
         <div className="visualization-section">
-          <h3>{state.language === 'en' ? 'Concurrency Patterns Visualization' : 'Visualización de Patrones de Concurrencia'}</h3>
-          <div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
+          <SectionTitle>{state.language === 'en' ? 'Concurrency Patterns Visualization' : 'Visualización de Patrones de Concurrencia'}</SectionTitle>
+<div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
             <Canvas camera={{ position: [6, 4, 6] }}>
               <ambientLight intensity={0.6} />
               <pointLight position={[10, 10, 10]} />
@@ -1815,12 +1829,12 @@ public:
           </div>
           
           <div className="pattern-info">
-            <h4>{state.language === 'en' ? 'Concurrency Metrics' : 'Métricas de Concurrencia'}</h4>
-            <div className="metrics-grid">
+            <SectionTitle>{state.language === 'en' ? 'Concurrency Metrics' : 'Métricas de Concurrencia'}</SectionTitle>
+<div className="metrics-grid">
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Throughput' : 'Rendimiento'}:</span>
                 <span className="metric-value">{(metrics.throughput * 100).toFixed(1)}%</span>
-              </div>
+          </div>
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Scalability' : 'Escalabilidad'}:</span>
                 <span className="metric-value">{(metrics.scalability * 100).toFixed(1)}%</span>
@@ -1841,9 +1855,8 @@ public:
         </div>
 
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Advanced Concurrency Examples' : 'Ejemplos de Concurrencia Avanzada'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Advanced Concurrency Examples' : 'Ejemplos de Concurrencia Avanzada'}</SectionTitle>
+<div className="example-tabs">
             {Object.keys(examples).map(key => (
               <button
                 key={key}
@@ -1857,57 +1870,56 @@ public:
 
           <div className="example-content">
             <div className="code-block">
-              <h4>{currentExample.title}</h4>
-              <pre>
+              <SectionTitle>{currentExample.title}</SectionTitle>
+<pre>
                 <code>{currentExample.code}</code>
               </pre>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="key-concepts-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          
-          <div className="concepts-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concepts-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Advanced Synchronization' : 'Sincronización Avanzada'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Advanced Synchronization' : 'Sincronización Avanzada'}</SectionTitle>
               <ul>
                 <li>{state.language === 'en' ? 'Hazard pointer implementation' : 'Implementación de hazard pointers'}</li>
                 <li>{state.language === 'en' ? 'Lock-free shared_ptr operations' : 'Operaciones lock-free con shared_ptr'}</li>
                 <li>{state.language === 'en' ? 'RCU (Read-Copy-Update) patterns' : 'Patrones RCU (Read-Copy-Update)'}</li>
                 <li>{state.language === 'en' ? 'Safe memory reclamation' : 'Recuperación segura de memoria'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Wait-Free Algorithms' : 'Algoritmos Wait-Free'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Wait-Free Algorithms' : 'Algoritmos Wait-Free'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Wait-free stack with hazard pointers' : 'Stack wait-free con hazard pointers'}</li>
                 <li>{state.language === 'en' ? 'Wait-free hash map implementation' : 'Implementación de hash map wait-free'}</li>
                 <li>{state.language === 'en' ? 'Wait-free reference counting' : 'Conteo de referencias wait-free'}</li>
                 <li>{state.language === 'en' ? 'Performance benchmarking' : 'Benchmarking de rendimiento'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Memory Ordering' : 'Orden de Memoria'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Memory Ordering' : 'Orden de Memoria'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Relaxed ordering for performance' : 'Orden relajado para rendimiento'}</li>
                 <li>{state.language === 'en' ? 'Acquire-release synchronization' : 'Sincronización acquire-release'}</li>
                 <li>{state.language === 'en' ? 'Sequential consistency guarantees' : 'Garantías de consistencia secuencial'}</li>
                 <li>{state.language === 'en' ? 'Memory fence patterns' : 'Patrones de fence de memoria'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Concurrent Data Structures' : 'Estructuras de Datos Concurrentes'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Concurrent Data Structures' : 'Estructuras de Datos Concurrentes'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Lock-free concurrent hash table' : 'Tabla hash concurrente lock-free'}</li>
                 <li>{state.language === 'en' ? 'RWLock-based concurrent map' : 'Mapa concurrente basado en RWLock'}</li>
                 <li>{state.language === 'en' ? 'Lock-free queue implementation' : 'Implementación de cola lock-free'}</li>
                 <li>{state.language === 'en' ? 'Thread-safe object pool' : 'Pool de objetos thread-safe'}</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
       </div>

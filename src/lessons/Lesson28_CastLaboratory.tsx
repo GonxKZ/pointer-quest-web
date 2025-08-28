@@ -566,7 +566,7 @@ ${targetType} target = dynamic_cast<${targetType}>(source);`
           <h4>🎯 Cast Types</h4>
           <Grid>
             <InfoCard>
-              <h4>static_cast&lt;T&gt;</h4>
+              <h4>static_cast{'<T>'}</h4>
               <CodeBlock>{[
                 '// Well-defined conversions',
                 'int i = 42;',
@@ -586,7 +586,7 @@ ${targetType} target = dynamic_cast<${targetType}>(source);`
             </InfoCard>
 
             <InfoCard>
-              <h4>dynamic_cast&lt;T&gt;</h4>
+              <h4>dynamic_cast{'<T>'}</h4>
               <CodeBlock>{[
                 '// Runtime polymorphic checking',
                 'class Base { virtual ~Base() {} };',
@@ -609,7 +609,7 @@ ${targetType} target = dynamic_cast<${targetType}>(source);`
             </InfoCard>
 
             <InfoCard>
-              <h4>const_cast&lt;T&gt;</h4>
+              <h4>const_cast{'<T>'}</h4>
               <CodeBlock>{[
                 '// Remove/add const/volatile ONLY',
                 'const int ci = 42;',
@@ -636,7 +636,7 @@ ${targetType} target = dynamic_cast<${targetType}>(source);`
             </InfoCard>
 
             <InfoCard>
-              <h4>reinterpret_cast&lt;T&gt;</h4>
+              <h4>reinterpret_cast{'<T>'}</h4>
               <CodeBlock>{[
                 '// Low-level bit reinterpretation - DANGEROUS!',
                 'int i = 42;',
@@ -686,7 +686,7 @@ ${targetType} target = dynamic_cast<${targetType}>(source);`
           <TheorySection>
             <h4>🔍 Current Cast Analysis</h4>
             <StatusDisplay $type={state.isValidCast ? (state.isSafeCast ? 'success' : 'warning') : 'error'}>
-              <strong>Cast:</strong> {state.castType}&lt;{state.targetType}&gt;({state.sourceType})<br/>
+              <strong>Cast:</strong> {state.castType}{'<'}{state.targetType}{'>'} ({state.sourceType})<br/>
               <strong>Validity:</strong> {state.isValidCast ? 'Compiles' : 'Compilation Error'}<br/>
               <strong>Safety:</strong> {state.isSafeCast ? 'Safe' : 'Potentially Dangerous'}<br/>
               {state.runtimeError && (<>

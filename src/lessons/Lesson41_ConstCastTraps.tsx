@@ -3,73 +3,37 @@ import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface Lesson41Props {
   onComplete: (score: number) => void;
   isCompleted: boolean;
 }
 
-const Container = styled.div`
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
 
-const Title = styled.h1`
-  color: #4a9eff;
-  margin-bottom: 30px;
-  text-align: center;
-  font-size: 2.5rem;
-  text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
-`;
 
-const Description = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-`;
 
-const CodeBlock = styled.pre`
-  background: #1a1a1a;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-x: auto;
-  border-left: 4px solid #4a9eff;
-  margin: 20px 0;
-  font-family: 'Courier New', monospace;
-  
-  code {
-    color: #e0e0e0;
-    
-    .keyword { color: #569cd6; }
-    .string { color: #ce9178; }
-    .comment { color: #6a9955; }
-    .type { color: #4ec9b0; }
-    .number { color: #b5cea8; }
-    .danger { color: #ff3333; background: rgba(255, 51, 51, 0.1); padding: 2px; }
-    .safe { color: #4caf50; background: rgba(76, 175, 80, 0.1); padding: 2px; }
-    .ub { color: #ff9800; background: rgba(255, 152, 0, 0.2); padding: 2px; }
-  }
-`;
 
-const CanvasContainer = styled.div`
-  height: 500px;
-  margin: 20px 0;
-  border: 2px solid #4a9eff;
-  border-radius: 10px;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f23 100%);
-`;
 
-const QuizContainer = styled.div`
-  background: rgba(74, 158, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin: 20px 0;
-`;
+
+
+
+
+
+
 
 const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; incorrect?: boolean }>`
   display: block;
@@ -96,33 +60,11 @@ const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; inc
   }
 `;
 
-const ScoreDisplay = styled.div`
-  text-align: center;
-  font-size: 1.2rem;
-  color: #4a9eff;
-  margin: 20px 0;
-`;
 
-const WarningBox = styled.div`
-  background: rgba(255, 51, 51, 0.1);
-  border: 2px solid #ff3333;
-  border-radius: 8px;
-  padding: 20px;
-  margin: 20px 0;
-  color: #ff6666;
-  
-  h4 {
-    color: #ff3333;
-    margin-bottom: 10px;
-  }
-`;
 
-const ScenarioSelector = styled.div`
-  display: flex;
-  gap: 10px;
-  margin: 20px 0;
-  flex-wrap: wrap;
-`;
+
+
+
 
 const ScenarioButton = styled.button<{ active: boolean; danger?: boolean }>`
   padding: 10px 20px;
@@ -322,7 +264,7 @@ function ConstCastScenario({ scenario }: ConstCastVisualizationProps) {
       {currentScenario.objects.map((obj, index) => (
         <ObjectVisualization
           key={index}
-          position={obj.pos}
+          position={obj.pos as [number, number, number]}
           isConst={obj.isConst}
           beingModified={obj.beingModified}
           isUndefinedBehavior={obj.isUB}
@@ -448,15 +390,15 @@ export default function Lesson41_ConstCastTraps({ onComplete, isCompleted }: Les
       <Title>⚠️ Lección 41: Trampas de const_cast</Title>
       
       <Description>
-        <h3>🎯 Objetivo</h3>
-        <p>
+        <SectionTitle>🎯 Objetivo</SectionTitle>
+<p>
           const_cast es uno de los casts más peligrosos en C++. Esta lección explora 
           cuándo su uso conduce a undefined behavior, cuándo es legal pero peligroso, 
           y los pocos casos donde es apropiado usarlo.
         </p>
 
         <WarningBox>
-          <h4>💣 PELIGRO: const_cast Puede Causar UB</h4>
+          <SectionTitle>💣 PELIGRO: const_cast Puede Causar UB</SectionTitle>
           <p>
             Usar const_cast para modificar un objeto que fue originalmente declarado 
             const resulta en <strong>undefined behavior</strong>. El compilador 
@@ -464,7 +406,7 @@ export default function Lesson41_ConstCastTraps({ onComplete, isCompleted }: Les
           </p>
         </WarningBox>
 
-        <h4>❌ Casos de Undefined Behavior</h4>
+        <SectionTitle>❌ Casos de Undefined Behavior</SectionTitle>
         <CodeBlock>
           {`// ❌ UB CASO 1: Objeto originalmente const
 const int x = 42;          // Objeto const original
@@ -491,7 +433,7 @@ mutable_str[0] = 'h';           // ⚠️ UNDEFINED BEHAVIOR!
 // - Modificación de otros string literals idénticos`}
         </CodeBlock>
 
-        <h4>✅ Casos Legales (Pero Peligrosos)</h4>
+        <SectionTitle>✅ Casos Legales (Pero Peligrosos)</SectionTitle>
         <CodeBlock>
           {`// ✅ LEGAL: Objeto no-const referenciado por const pointer
 int y = 42;                    // Objeto NO es const
@@ -502,7 +444,7 @@ int* mutable_py = const_cast<int*>(py);
 std::cout << y;           // Garantizado: 100`}
         </CodeBlock>
 
-        <h4>🎯 Uso Legítimo: APIs C Legacy</h4>
+        <SectionTitle>🎯 Uso Legítimo: APIs C Legacy</SectionTitle>
         <CodeBlock>
           {`// ✅ USO APROPIADO: C API que no modifica pero falta const
 extern "C" {
@@ -539,7 +481,7 @@ void safe_usage(const std::string& text) {
       </ScenarioSelector>
 
       <Description>
-        <h4>🔍 Análisis Profundo: Por Qué el UB</h4>
+        <SectionTitle>🔍 Análisis Profundo: Por Qué el UB</SectionTitle>
         
         <h5>Optimizaciones del Compilador:</h5>
         <CodeBlock>
@@ -568,7 +510,7 @@ for (int i = 0; i < 1000000; ++i) {
 // SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior`}
         </CodeBlock>
 
-        <h4>✅ Alternativas Más Seguras</h4>
+        <SectionTitle>✅ Alternativas Más Seguras</SectionTitle>
         
         <h5>1. Mutable para Casos Específicos:</h5>
         <CodeBlock>
@@ -601,7 +543,7 @@ int len = safe_c_call(legacy_strlen, text.c_str());`}
         </CodeBlock>
 
         <WarningBox>
-          <h4>📋 Reglas de Oro para const_cast</h4>
+          <SectionTitle>📋 Reglas de Oro para const_cast</SectionTitle>
           <ul>
             <li><strong>NUNCA</strong> modifiques un objeto que fue declarado const</li>
             <li><strong>NUNCA</strong> modifiques string literals</li>
@@ -613,10 +555,10 @@ int len = safe_c_call(legacy_strlen, text.c_str());`}
       </Description>
 
       <QuizContainer>
-        <h3>🧠 Evaluación de Conocimientos</h3>
+        <SectionTitle>🧠 Evaluación de Conocimientos</SectionTitle>
         {questions.map((q, qIndex) => (
           <div key={qIndex} style={{ marginBottom: '20px' }}>
-            <h4>{q.question}</h4>
+            <SectionTitle>{q.question}</SectionTitle>
             {q.options.map((option, oIndex) => (
               <QuestionButton
                 key={oIndex}
@@ -651,7 +593,7 @@ int len = safe_c_call(legacy_strlen, text.c_str());`}
         
         {showResults && (
           <ScoreDisplay>
-            <h3>📊 Resultado Final</h3>
+            <SectionTitle>📊 Resultado Final</SectionTitle>
             <p>Has obtenido {score.toFixed(1)}% de aciertos</p>
             <p>
               {score >= 80 ? '🎉 ¡Excelente! Entiendes los peligros de const_cast' :

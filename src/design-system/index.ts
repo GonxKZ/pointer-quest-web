@@ -17,13 +17,31 @@ export {
   keyframes
 } from './theme';
 
+// Multi-theme system
+export {
+  themes,
+  defaultTheme,
+  getTheme,
+  getSemanticColor,
+  generateCSSCustomProperties,
+  mediaQueries,
+  getThemeAwareStyles,
+  getAnimationPreferences,
+  getAccessibilityColors
+} from './themes';
+
 // Theme types
 export type { 
-  Theme,
+  Theme as BaseTheme,
   ThemeColors,
   LessonTopic,
   LessonDifficulty 
 } from './theme';
+
+export type {
+  ThemeName,
+  Theme
+} from './themes';
 
 // Layout Components
 export {
@@ -52,7 +70,10 @@ export {
 export {
   InteractiveSection,
   CodePlayground,
-  LearningObjectives
+  LearningObjectives,
+  StepExercise,
+  MemoryVisualizerControls,
+  StepIndicator
 } from './components/Interactive';
 
 // Educational Components
@@ -72,12 +93,24 @@ export {
   AccessibleHeading
 } from './components/AccessibleComponents';
 
+// Data Display Components
+export {
+  Card,
+  Badge,
+  Metric,
+  Progress
+} from './components/DataDisplay';
+
 // Component prop types
 export type {
   ButtonProps,
   CodeBlockProps,
   LessonProgress,
-  MemoryState
+  MemoryState,
+  CardProps,
+  BadgeProps,
+  MetricProps,
+  ProgressProps
 } from './types/designSystem';
 
 // Utilities

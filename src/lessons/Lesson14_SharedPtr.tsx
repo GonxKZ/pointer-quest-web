@@ -1,9 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  Button,
+  theme
+} from '../design-system';
+
+
 
 interface SharedPtrState {
   hasObject: boolean;
@@ -51,126 +66,54 @@ interface SharedObject {
   ownerCount: number;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
 
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
 
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
 
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
 
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
-  background: ${props => 
-    props.variant === 'danger' ? 'linear-gradient(45deg, #ff4444, #cc0000)' :
-    props.variant === 'success' ? 'linear-gradient(45deg, #44ff44, #00cc00)' :
-    props.variant === 'warning' ? 'linear-gradient(45deg, #ff8800, #cc6600)' :
-    props.variant === 'secondary' ? 'linear-gradient(45deg, #666, #333)' :
-    'linear-gradient(45deg, #0066cc, #0099ff)'};
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.9em;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 100, 200, 0.4);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
 
-const StatusDisplay = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  border: 1px solid #333;
-`;
 
-const RefCountDisplay = styled.div`
-  background: rgba(0, 150, 0, 0.2);
-  border: 1px solid #00aa00;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
-`;
 
 const MemoryVisualization: React.FC<{
   state: SharedPtrState;
@@ -470,7 +413,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson14_SharedPtr: React.FC = () => {
+const Lesson14_SharedPtr: React.FC = () => {
   const [state, setState] = useState<SharedPtrState>({
     hasObject: false,
     value: 42,
@@ -702,15 +645,27 @@ export const Lesson14_SharedPtr: React.FC = () => {
     setNextCopyNumber(1);
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 14: std::shared_ptr&lt;int&gt;</Title>
-        <Subtitle>Ownership Compartido con Control Block y Reference Counting</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(14, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 14: std::shared_ptr&lt;int&gt;"
+      subtitle="Ownership Compartido con Control Block y Reference Counting"
+      lessonNumber={14}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 12], fov: 60 }}>
             <MemoryVisualization 
               state={state} 
@@ -722,11 +677,11 @@ export const Lesson14_SharedPtr: React.FC = () => {
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
-          <TheorySection>
-            <h3>🤝 std::shared_ptr&lt;T&gt;</h3>
-            <p>Smart pointer con ownership compartido mediante reference counting:</p>
-            <CodeBlock>{`// Creación con control block
+        <TheoryPanel>
+          <Section>
+            <SectionTitle>🤝 std::shared_ptr&lt;T&gt;</SectionTitle>
+<p>Smart pointer con ownership compartido mediante reference counting:</p>
+            <CodeBlock language="cpp">{`// Creación con control block
 auto ptr1 = std::make_shared<int>(42);
 
 // Copy constructor - incrementa use_count
@@ -739,11 +694,12 @@ ptr3 = ptr1;  // use_count = 3
 // Consultar reference count
 std::cout << ptr1.use_count();  // 3
 std::cout << ptr1.unique();     // false`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <div>
-            <h4>🎮 Gestión de Lifetime</h4>
+          <InteractiveSection>
+          <SectionTitle>🎮 Gestión de Lifetime</SectionTitle>
             
+            <ButtonGroup>
             <Button onClick={createFirstSharedPtr} variant="primary">
               Crear primer shared_ptr
             </Button>
@@ -759,11 +715,12 @@ std::cout << ptr1.unique();     // false`}</CodeBlock>
             <Button onClick={assignSharedPtr} variant="secondary">
               Assignment operator
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔍 Consultas de Estado</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🔍 Consultas de Estado</SectionTitle>
+<ButtonGroup>
             <Button 
               onClick={showUseCount}
               disabled={!state.hasObject}
@@ -777,11 +734,11 @@ std::cout << ptr1.unique();     // false`}</CodeBlock>
             >
               unique()
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🗑️ Destrucción</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🗑️ Destrucción</SectionTitle>
             <Button 
               onClick={resetOnePtr}
               disabled={state.useCount === 0}
@@ -789,28 +746,29 @@ std::cout << ptr1.unique();     // false`}</CodeBlock>
             >
               reset() uno
             </Button>
-          </div>
+          </InteractiveSection>
 
-          <RefCountDisplay>
-            <h4>📊 Reference Counting</h4>
+          <StatusDisplay>
+            <SectionTitle>📊 Reference Counting</SectionTitle>
             <div>Strong references: {state.controlBlockInfo.strongRefs}</div>
             <div>Weak references: {state.controlBlockInfo.weakRefs}</div>
             <div>Objeto vivo: {state.controlBlockInfo.objectAlive ? 'Sí' : 'No'}</div>
             <div>Control block vivo: {state.controlBlockInfo.blockAlive ? 'Sí' : 'No'}</div>
-          </RefCountDisplay>
+          </StatusDisplay>
 
           <StatusDisplay>
-            <h4>📋 Estado Actual</h4>
-            <div>Número de shared_ptrs: {state.useCount}</div>
+            <SectionTitle>📋 Estado Actual</SectionTitle>
+<div>Número de shared_ptrs: {state.useCount}
+          </div>
             <div>Valor del objeto: {state.hasObject ? state.value : 'N/A'}</div>
             <div>Operación: {state.operation}</div>
             <div>shared_ptrs activos: {state.sharedPtrs.map(p => p.name).join(', ') || 'ninguno'}</div>
           </StatusDisplay>
 
-          <TheorySection>
-            <h4>🏗️ Control Block</h4>
+          <Section>
+            <SectionTitle>🏗️ Control Block</SectionTitle>
             <p>Estructura interna que gestiona el reference counting:</p>
-            <CodeBlock>{`struct ControlBlock {
+            <CodeBlock language="cpp">{`struct ControlBlock {
     std::atomic<size_t> strong_refs;  // shared_ptr count
     std::atomic<size_t> weak_refs;    // weak_ptr count
     T* object_ptr;                    // Pointer to managed object
@@ -820,10 +778,10 @@ std::cout << ptr1.unique();     // false`}</CodeBlock>
 
 // El objeto se destruye cuando strong_refs == 0
 // El control block se destruye cuando strong_refs == 0 && weak_refs == 0`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>🎯 Puntos Clave</h4>
+          <Section>
+            <SectionTitle>🎯 Puntos Clave</SectionTitle>
             <ul>
               <li><strong>Reference counting:</strong> Automático y thread-safe</li>
               <li><strong>Control block:</strong> Metadatos separados del objeto</li>
@@ -833,11 +791,11 @@ std::cout << ptr1.unique();     // false`}</CodeBlock>
               <li><strong>Overhead:</strong> 16-24 bytes por control block</li>
               <li><strong>Ciclos:</strong> Pueden crear memory leaks</li>
             </ul>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>⚡ Consideraciones de Performance</h4>
-            <CodeBlock>{`// ✅ Eficiente: make_shared
+          <Section>
+            <SectionTitle>⚡ Consideraciones de Performance</SectionTitle>
+            <CodeBlock language="cpp">{`// ✅ Eficiente: make_shared
 auto ptr = std::make_shared<int>(42);  // 1 allocation
 
 // ❌ Menos eficiente: constructor directo  
@@ -846,13 +804,14 @@ auto ptr = std::shared_ptr<int>(new int(42));  // 2 allocations
 // Reference counting overhead
 // - Atomic increment/decrement en copy/destructor
 // - No usar en hot paths si performance es crítica`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
           <Button onClick={resetScene} variant="secondary">
             🔄 Reiniciar Demostración
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson14_SharedPtr;

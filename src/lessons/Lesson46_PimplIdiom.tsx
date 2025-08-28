@@ -3,73 +3,37 @@ import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface Lesson46Props {
   onComplete: (score: number) => void;
   isCompleted: boolean;
 }
 
-const Container = styled.div`
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
 
-const Title = styled.h1`
-  color: #4a9eff;
-  margin-bottom: 30px;
-  text-align: center;
-  font-size: 2.5rem;
-  text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
-`;
 
-const Description = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-`;
 
-const CodeBlock = styled.pre`
-  background: #1a1a1a;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-x: auto;
-  border-left: 4px solid #4a9eff;
-  margin: 20px 0;
-  font-family: 'Courier New', monospace;
-  
-  code {
-    color: #e0e0e0;
-    
-    .keyword { color: #569cd6; }
-    .string { color: #ce9178; }
-    .comment { color: #6a9955; }
-    .type { color: #4ec9b0; }
-    .number { color: #b5cea8; }
-    .header { color: #4fc3f7; background: rgba(79, 195, 247, 0.1); padding: 2px; }
-    .impl { color: #81c784; background: rgba(129, 199, 132, 0.1); padding: 2px; }
-    .interface { color: #ffb74d; background: rgba(255, 183, 77, 0.1); padding: 2px; }
-  }
-`;
 
-const CanvasContainer = styled.div`
-  height: 500px;
-  margin: 20px 0;
-  border: 2px solid #4a9eff;
-  border-radius: 10px;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f23 100%);
-`;
 
-const QuizContainer = styled.div`
-  background: rgba(74, 158, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin: 20px 0;
-`;
+
+
+
+
+
+
 
 const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; incorrect?: boolean }>`
   display: block;
@@ -96,42 +60,9 @@ const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; inc
   }
 `;
 
-const ScoreDisplay = styled.div`
-  text-align: center;
-  font-size: 1.2rem;
-  color: #4a9eff;
-  margin: 20px 0;
-`;
 
-const BenefitsList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
-  margin: 20px 0;
-  
-  .benefit {
-    background: rgba(74, 158, 255, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #4a9eff;
-    
-    .icon {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
-    }
-    
-    .title {
-      font-weight: bold;
-      color: #4a9eff;
-      margin-bottom: 5px;
-    }
-    
-    .description {
-      color: #ccc;
-      font-size: 0.9rem;
-    }
-  }
-`;
+
+
 
 interface PimplVisualizationProps {
   showImplementation: boolean;
@@ -287,7 +218,7 @@ function PimplVisualization({ showImplementation }: PimplVisualizationProps) {
       {current.map((block, index) => (
         <ModuleBlock
           key={index}
-          position={block.pos}
+          position={block.pos as [number, number, number]}
           size={block.size}
           label={block.label}
           color={block.color}
@@ -410,14 +341,14 @@ export default function Lesson46_PimplIdiom({ onComplete, isCompleted }: Lesson4
       <Title>🔒 Lección 46: PIMPL Idiom con unique_ptr</Title>
       
       <Description>
-        <h3>🎯 Objetivo</h3>
-        <p>
+        <SectionTitle>🎯 Objetivo</SectionTitle>
+<p>
           El PIMPL (Pointer to Implementation) idiom es una técnica fundamental para 
           reducir dependencias de compilación y mejorar la encapsulación. Con unique_ptr, 
           se vuelve seguro y eficiente de implementar.
         </p>
 
-        <h4>🔧 PIMPL Básico con unique_ptr</h4>
+        <SectionTitle>🔧 PIMPL Básico con unique_ptr</SectionTitle>
         <CodeBlock>
           {`// MyClass.h - Header file limpio
 #pragma once
@@ -508,13 +439,14 @@ int MyClass::getValue() const {
         >
           {showImplementation ? 'Con PIMPL ✅' : 'Sin PIMPL ❌'}
         </button>
-      </div>
+          </div>
 
       <Description>
-        <h4>🎁 Beneficios del PIMPL</h4>
-        <BenefitsList>
+        <SectionTitle>🎁 Beneficios del PIMPL</SectionTitle>
+<BenefitsList>
           <div className="benefit">
-            <div className="icon">🚀</div>
+            <div className="icon">🚀
+          </div>
             <div className="title">Compilación Más Rápida</div>
             <div className="description">
               Headers limpios = menos recompilaciones cuando cambia la implementación
@@ -543,9 +475,8 @@ int MyClass::getValue() const {
           </div>
         </BenefitsList>
 
-        <h4>⚠️ Consideraciones Importantes</h4>
-        
-        <h5>1. El Destructor Debe Estar en .cpp:</h5>
+        <SectionTitle>⚠️ Consideraciones Importantes</SectionTitle>
+<h5>1. El Destructor Debe Estar en .cpp:</h5>
         <CodeBlock>
           {`// ❌ INCORRECTO: En el header
 class MyClass {
@@ -592,7 +523,7 @@ MyClass& MyClass::operator=(const MyClass& other) {
 }`}
         </CodeBlock>
 
-        <h4>🔬 PIMPL Avanzado</h4>
+        <SectionTitle>🔬 PIMPL Avanzado</SectionTitle>
         
         <h5>Fast PIMPL (para hot paths):</h5>
         <CodeBlock>
@@ -628,10 +559,10 @@ std::unique_ptr<MyClass> createMyClass(const Config& config) {
       </Description>
 
       <QuizContainer>
-        <h3>🧠 Evaluación de Conocimientos</h3>
+        <SectionTitle>🧠 Evaluación de Conocimientos</SectionTitle>
         {questions.map((q, qIndex) => (
           <div key={qIndex} style={{ marginBottom: '20px' }}>
-            <h4>{q.question}</h4>
+            <SectionTitle>{q.question}</SectionTitle>
             {q.options.map((option, oIndex) => (
               <QuestionButton
                 key={oIndex}
@@ -666,7 +597,7 @@ std::unique_ptr<MyClass> createMyClass(const Config& config) {
         
         {showResults && (
           <ScoreDisplay>
-            <h3>📊 Resultado Final</h3>
+            <SectionTitle>📊 Resultado Final</SectionTitle>
             <p>Has obtenido {score.toFixed(1)}% de aciertos</p>
             <p>
               {score >= 80 ? '🎉 ¡Excelente! Dominas el PIMPL idiom' :

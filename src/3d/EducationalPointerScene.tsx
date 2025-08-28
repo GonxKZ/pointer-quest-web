@@ -1,10 +1,9 @@
-import React, { useState, memo, useMemo, useCallback } from 'react';
+import React, { useState, memo, useMemo, useCallback, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
 import { useOptimizedAnimation } from '../hooks/useOptimizedAnimation';
 import { useMemoryManagement } from '../hooks/useMemoryManagement';
-import { get3DTranslation } from '../translations/3d-visualization.es';
 import { THREE } from '../utils/three';
 
 interface SceneProps {

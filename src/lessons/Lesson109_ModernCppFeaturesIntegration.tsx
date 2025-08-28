@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Cylinder, Cone } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function ModernCppFeaturesVisualization() {
   const [featureStatus, setFeatureStatus] = useState({
@@ -53,7 +67,7 @@ function ModernCppFeaturesVisualization() {
         return (
           <group key={feature.name}>
             <Box
-              position={feature.pos}
+              position={feature.pos as [number, number, number]}
               args={[1.2, 0.8, 0.4]}
               scale={[scale, scale, scale]}
               onClick={() => setActiveFeature(feature.name)}
@@ -2527,9 +2541,8 @@ void metaprogramming_demo() {
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Modern C++ Integration Techniques' : 'Técnicas de Integración de C++ Moderno'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Modern C++ Integration Techniques' : 'Técnicas de Integración de C++ Moderno'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -2543,75 +2556,75 @@ void metaprogramming_demo() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Concepts & Constraints' : 'Concepts y Restricciones'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Concepts & Constraints' : 'Concepts y Restricciones'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'C++20 concepts provide compile-time constraints for smart pointers, enabling more expressive and safe template interfaces with pointer types.'
                   : 'Los concepts de C++20 proporcionan restricciones en tiempo de compilación para smart pointers, habilitando interfaces de template más expresivas y seguras con tipos de puntero.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Ranges & Views' : 'Ranges y Views'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Ranges & Views' : 'Ranges y Views'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Modern range algorithms with pointer-like iterators enable functional-style programming over smart pointer collections with lazy evaluation.'
                   : 'Los algoritmos de ranges modernos con iteradores tipo puntero permiten programación estilo funcional sobre colecciones de smart pointers con evaluación perezosa.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Coroutines & Lifetime' : 'Coroutines y Tiempo de Vida'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Coroutines & Lifetime' : 'Coroutines y Tiempo de Vida'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'C++20 coroutines integrated with smart pointers provide automatic lifetime management across suspension points and async operations.'
                   : 'Las coroutines de C++20 integradas con smart pointers proporcionan gestión automática de tiempo de vida a través de puntos de suspensión y operaciones async.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Modules & Interfaces' : 'Módulos e Interfaces'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Modules & Interfaces' : 'Módulos e Interfaces'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'C++20 modules enable clean separation of pointer interface declarations from implementation details with improved compile times.'
                   : 'Los módulos de C++20 permiten separación limpia de declaraciones de interfaces de puntero de detalles de implementación con tiempos de compilación mejorados.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'span & string_view' : 'span y string_view'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'span & string_view' : 'span y string_view'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Modern view types with smart pointer integration provide memory-safe, zero-overhead access to contiguous data with automatic lifetime tracking.'
                   : 'Los tipos de view modernos con integración de smart pointers proporcionan acceso seguro en memoria y sin overhead a datos contiguos con seguimiento automático de tiempo de vida.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Template Metaprogramming' : 'Metaprogramación de Templates'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Template Metaprogramming' : 'Metaprogramación de Templates'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Advanced C++20/23 template metaprogramming with concepts, requires clauses, and constexpr evaluation for sophisticated pointer type manipulation.'
                   : 'Metaprogramación avanzada de templates C++20/23 con concepts, cláusulas requires y evaluación constexpr para manipulación sofisticada de tipos de puntero.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="advanced-topics">
-          <h3>{state.language === 'en' ? 'Integration Patterns' : 'Patrones de Integración'}</h3>
-          <div className="pattern-grid">
+          <SectionTitle>{state.language === 'en' ? 'Integration Patterns' : 'Patrones de Integración'}</SectionTitle>
+<div className="pattern-grid">
             <div className="pattern-card">
-              <h4>{state.language === 'en' ? 'Concept-Driven Design' : 'Diseño Guiado por Concepts'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Concept-Driven Design' : 'Diseño Guiado por Concepts'}</SectionTitle>
               <ul>
                 <li>
                   {state.language === 'en'
@@ -2629,11 +2642,11 @@ void metaprogramming_demo() {
                     : 'Mejora mensajes de error y seguridad de instanciación de templates'}
                 </li>
               </ul>
-            </div>
+          </div>
             
             <div className="pattern-card">
-              <h4>{state.language === 'en' ? 'Coroutine Integration' : 'Integración de Coroutines'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Coroutine Integration' : 'Integración de Coroutines'}</SectionTitle>
+<ul>
                 <li>
                   {state.language === 'en'
                     ? 'Automatic smart pointer lifetime management across co_await points'
@@ -2650,11 +2663,11 @@ void metaprogramming_demo() {
                     : 'Adquisición async de recursos con preservación de garantías RAII'}
                 </li>
               </ul>
-            </div>
+          </div>
             
             <div className="pattern-card">
-              <h4>{state.language === 'en' ? 'Module Architecture' : 'Arquitectura de Módulos'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Module Architecture' : 'Arquitectura de Módulos'}</SectionTitle>
+<ul>
                 <li>
                   {state.language === 'en'
                     ? 'Clean pointer interface separation with modules'
@@ -2671,11 +2684,11 @@ void metaprogramming_demo() {
                     : 'Interfaces ABI-estables con características modernas de C++'}
                 </li>
               </ul>
-            </div>
+          </div>
             
             <div className="pattern-card">
-              <h4>{state.language === 'en' ? 'Metaprogramming Evolution' : 'Evolución de Metaprogramación'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Metaprogramming Evolution' : 'Evolución de Metaprogramación'}</SectionTitle>
+<ul>
                 <li>
                   {state.language === 'en'
                     ? 'Recursive pointer type analysis and transformation'
@@ -2692,13 +2705,13 @@ void metaprogramming_demo() {
                     : 'Manipulación de template parameter packs con semántica de punteros'}
                 </li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Use concepts to express pointer requirements clearly and enforce them at compile-time'
@@ -2730,11 +2743,11 @@ void metaprogramming_demo() {
                 : 'Aplica técnicas avanzadas de metaprogramación para algoritmos genéricos de puntero y estructuras de datos'}
             </li>
           </ul>
-        </div>
+          </div>
 
         <div className="expert-insights">
-          <h3>{state.language === 'en' ? 'Expert Insights' : 'Perspectivas de Experto'}</h3>
-          <div className="insight-box">
+          <SectionTitle>{state.language === 'en' ? 'Expert Insights' : 'Perspectivas de Experto'}</SectionTitle>
+<div className="insight-box">
             <p>
               {state.language === 'en'
                 ? 'The integration of modern C++ features with pointer techniques represents the evolution of systems programming. Concepts provide compile-time safety, ranges enable functional programming paradigms, coroutines offer structured async programming, modules improve build scalability, and advanced metaprogramming allows for zero-overhead abstractions. Master these integrations to write code that is both highly performant and remarkably expressive.'

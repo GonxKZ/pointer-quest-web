@@ -24,6 +24,7 @@ export interface LessonLayoutProps extends BaseLayoutProps {
   title: string;
   subtitle?: string;
   lessonNumber: number;
+  lessonId?: string;
   topic?: LessonTopic;
   difficulty?: LessonDifficulty;
   progress?: number;
@@ -45,80 +46,6 @@ const BaseContainer = css`
   color: ${theme.colors.text.primary};
   font-family: ${theme.typography.fontFamily.primary};
   position: relative;
-`;
-
-// Layout variants
-const TwoPanelContainer = styled.div`
-  ${BaseContainer}
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${theme.spacing[4]};
-  padding: ${theme.spacing[4]};
-  
-  ${mediaQuery.down('lg')} {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-  }
-  
-  ${mediaQuery.down('md')} {
-    gap: ${theme.spacing[2]};
-    padding: ${theme.spacing[2]};
-  }
-`;
-
-const ThreePanelContainer = styled.div`
-  ${BaseContainer}
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto 1fr;
-  gap: ${theme.spacing[3]};
-  padding: ${theme.spacing[4]};
-  
-  ${mediaQuery.down('xl')} {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr 1fr;
-    
-    > *:first-child {
-      grid-column: 1 / -1;
-    }
-  }
-  
-  ${mediaQuery.down('lg')} {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, auto);
-    gap: ${theme.spacing[2]};
-    padding: ${theme.spacing[2]};
-    
-    > * {
-      grid-column: 1;
-    }
-  }
-`;
-
-const FullScreenContainer = styled.div`
-  ${BaseContainer}
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  overflow: hidden;
-`;
-
-const MobileStackContainer = styled.div`
-  ${BaseContainer}
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing[3]};
-  padding: ${theme.spacing[3]};
-  
-  ${mediaQuery.up('md')} {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
-    
-    > *:first-child {
-      grid-column: 1 / -1;
-    }
-  }
 `;
 
 // Dynamic container selector
@@ -530,6 +457,7 @@ export const LessonLayout: React.FC<LessonLayoutProps> = ({
   title,
   subtitle,
   lessonNumber,
+  lessonId,
   topic,
   difficulty = 'Beginner',
   progress = 0,

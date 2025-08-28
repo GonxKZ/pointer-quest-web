@@ -436,8 +436,8 @@ export const benchmarkCode = async (
   }
   
   const average = results.reduce((sum, time) => sum + time, 0) / results.length;
-  const min = Math.min(...results);
-  const max = Math.max(...results);
+  const _min = Math.min(...results);
+  const _max = Math.max(...results);
   
   return {
     name: 'Code Benchmark',

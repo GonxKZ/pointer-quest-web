@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Line, Cylinder, Cone } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function CompilerOptimizationVisualization() {
   const [optimizationMetrics, setOptimizationMetrics] = useState({
@@ -29,10 +43,10 @@ function CompilerOptimizationVisualization() {
   }, []);
 
   const optimizationPasses = [
-    { name: 'aliasAnalysis', pos: [-4, 3, 0], color: '#00ff88', label: 'Alias Analysis', size: [1.4, 0.7, 0.4] },
-    { name: 'vectorization', pos: [-1.5, 3, 0], color: '#00d4ff', label: 'Vectorization', size: [1.6, 0.8, 0.5] },
-    { name: 'inlining', pos: [1.5, 3, 0], color: '#ff6b6b', label: 'Inlining', size: [1.8, 0.6, 0.6] },
-    { name: 'lto', pos: [4, 3, 0], color: '#ffa500', label: 'LTO', size: [1.2, 0.9, 0.4] },
+    { name: 'aliasAnalysis' as keyof typeof optimizationMetrics, pos: [-4, 3, 0] as const, color: '#00ff88', label: 'Alias Analysis', size: [1.4, 0.7, 0.4] as const },
+    { name: 'vectorization' as keyof typeof optimizationMetrics, pos: [-1.5, 3, 0] as const, color: '#00d4ff', label: 'Vectorization', size: [1.6, 0.8, 0.5] as const },
+    { name: 'inlining' as keyof typeof optimizationMetrics, pos: [1.5, 3, 0] as const, color: '#ff6b6b', label: 'Inlining', size: [1.8, 0.6, 0.6] as const },
+    { name: 'lto' as keyof typeof optimizationMetrics, pos: [4, 3, 0] as const, color: '#ffa500', label: 'LTO', size: [1.2, 0.9, 0.4] as const },
   ];
 
   return (
@@ -41,12 +55,12 @@ function CompilerOptimizationVisualization() {
       {optimizationPasses.map((pass) => (
         <group key={pass.name}>
           <Box
-            position={pass.pos}
-            args={pass.size}
+            position={pass.pos as [number, number, number]}
+            args={pass.size as [number, number, number]}
           >
             <meshStandardMaterial
               color={pass.color}
-              opacity={0.6 + (optimizationMetrics[pass.name] % 10) / 100}
+              opacity={0.6 + ((optimizationMetrics[pass.name] ?? 0) % 10) / 100}
               transparent
             />
           </Box>
@@ -64,7 +78,7 @@ function CompilerOptimizationVisualization() {
             color={pass.color}
             anchorX="center"
           >
-            {optimizationMetrics[pass.name]}
+            {optimizationMetrics[pass.name] ?? 0}
           </Text>
         </group>
       ))}
@@ -1858,9 +1872,8 @@ void demonstrate_compiler_assumptions_and_semantics() {
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Advanced Compiler Optimization Techniques' : 'Técnicas Avanzadas de Optimización del Compilador'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Advanced Compiler Optimization Techniques' : 'Técnicas Avanzadas de Optimización del Compilador'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -1874,76 +1887,76 @@ void demonstrate_compiler_assumptions_and_semantics() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
             <div className="explanation">
-              <p>{examples[currentExample].explanation}</p>
+              <p>{examples[currentExample]?.explanation ?? ''}</p>
             </div>
           </div>
         </div>
 
         <div className="concept-section">
-          <h3>{state.language === 'en' ? 'Core Optimization Concepts' : 'Conceptos Clave de Optimización'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Core Optimization Concepts' : 'Conceptos Clave de Optimización'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Optimization Passes' : 'Pases de Optimización'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Optimization Passes' : 'Pases de Optimización'}</SectionTitle>
               <p>
                 {state.language === 'en'
                   ? 'Multi-stage compiler optimization process including alias analysis, vectorization, inlining, and dead code elimination. Each pass transforms code for better performance.'
                   : 'Proceso de optimización del compilador multi-etapa incluyendo análisis de alias, vectorización, inlining y eliminación de código muerto. Cada pase transforma código para mejor rendimiento.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Alias Analysis' : 'Análisis de Alias'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Alias Analysis' : 'Análisis de Alias'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Compiler analysis to determine which pointers may reference the same memory location. Critical for enabling aggressive optimizations while maintaining correctness.'
                   : 'Análisis del compilador para determinar qué punteros pueden referenciar la misma ubicación de memoria. Crítico para habilitar optimizaciones agresivas manteniendo corrección.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Link-Time Optimization' : 'Optimización en Tiempo de Enlace'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Link-Time Optimization' : 'Optimización en Tiempo de Enlace'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Cross-module optimization that enables aggressive inlining, devirtualization, and global constant propagation across compilation unit boundaries.'
                   : 'Optimización inter-módulo que habilita inlining agresivo, devirtualización y propagación de constantes global a través de límites de unidad de compilación.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Profile-Guided Optimization' : 'Optimización Guiada por Perfiles'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Profile-Guided Optimization' : 'Optimización Guiada por Perfiles'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Using runtime profiling data to optimize hot paths, improve branch prediction, and enable better code layout based on actual usage patterns.'
                   : 'Usar datos de profiling en tiempo de ejecución para optimizar hot paths, mejorar predicción de branches y habilitar mejor layout de código basado en patrones de uso reales.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Compiler Intrinsics' : 'Intrínsecos del Compilador'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Compiler Intrinsics' : 'Intrínsecos del Compilador'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Low-level functions providing direct access to processor instructions and optimization hints like prefetching, SIMD operations, and memory barriers.'
                   : 'Funciones de bajo nivel proporcionando acceso directo a instrucciones del procesador y hints de optimización como prefetching, operaciones SIMD y barreras de memoria.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Compiler Assumptions' : 'Asunciones del Compilador'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Compiler Assumptions' : 'Asunciones del Compilador'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Fundamental assumptions about pointer semantics, object lifetimes, and undefined behavior that enable aggressive optimizations but require careful programming.'
                   : 'Asunciones fundamentales sobre semánticas de punteros, lifetimes de objetos y comportamiento indefinido que habilitan optimizaciones agresivas pero requieren programación cuidadosa.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Expert Optimization Strategies' : 'Estrategias Expertas de Optimización'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Expert Optimization Strategies' : 'Estrategias Expertas de Optimización'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Profile before optimizing - use tools like perf, vtune, or compiler profiling to identify actual bottlenecks rather than guessing'
@@ -1970,46 +1983,46 @@ void demonstrate_compiler_assumptions_and_semantics() {
                 : 'Aplicar intrínsecos de optimización manual juiciosamente solo después que la auto-optimización del compilador resulte insuficiente para rutas críticas'}
             </li>
           </ul>
-        </div>
+          </div>
 
         <div className="advanced-techniques">
-          <h3>{state.language === 'en' ? 'Advanced Optimization Mastery' : 'Dominio Avanzado de Optimización'}</h3>
-          <div className="techniques-grid">
+          <SectionTitle>{state.language === 'en' ? 'Advanced Optimization Mastery' : 'Dominio Avanzado de Optimización'}</SectionTitle>
+<div className="techniques-grid">
             <div className="technique-item">
               <span className="technique-icon">🔍</span>
-              <h4>{state.language === 'en' ? 'Optimization Pass Analysis' : 'Análisis de Pases de Optimización'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Optimization Pass Analysis' : 'Análisis de Pases de Optimización'}</SectionTitle>
               <p>{state.language === 'en' ? 'Deep understanding of compiler optimization pipeline and pointer impact' : 'Entendimiento profundo del pipeline de optimización del compilador e impacto en punteros'}</p>
-            </div>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">🧩</span>
-              <h4>{state.language === 'en' ? 'Aliasing Control' : 'Control de Aliasing'}</h4>
-              <p>{state.language === 'en' ? 'Strategic use of restrict, TBAA, and aliasing barriers for maximum optimization' : 'Uso estratégico de restrict, TBAA y barreras de aliasing para optimización máxima'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'Aliasing Control' : 'Control de Aliasing'}</SectionTitle>
+<p>{state.language === 'en' ? 'Strategic use of restrict, TBAA, and aliasing barriers for maximum optimization' : 'Uso estratégico de restrict, TBAA y barreras de aliasing para optimización máxima'}</p>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">🚀</span>
-              <h4>{state.language === 'en' ? 'Whole-Program Optimization' : 'Optimización de Programa Completo'}</h4>
-              <p>{state.language === 'en' ? 'LTO and cross-module optimization for global performance improvements' : 'LTO y optimización inter-módulo para mejoras globales de rendimiento'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'Whole-Program Optimization' : 'Optimización de Programa Completo'}</SectionTitle>
+<p>{state.language === 'en' ? 'LTO and cross-module optimization for global performance improvements' : 'LTO y optimización inter-módulo para mejoras globales de rendimiento'}</p>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">📊</span>
-              <h4>{state.language === 'en' ? 'Profile-Driven Optimization' : 'Optimización Dirigida por Perfiles'}</h4>
-              <p>{state.language === 'en' ? 'PGO implementation for data-driven performance optimization strategies' : 'Implementación de PGO para estrategias de optimización de rendimiento dirigidas por datos'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'Profile-Driven Optimization' : 'Optimización Dirigida por Perfiles'}</SectionTitle>
+<p>{state.language === 'en' ? 'PGO implementation for data-driven performance optimization strategies' : 'Implementación de PGO para estrategias de optimización de rendimiento dirigidas por datos'}</p>
+          </div>
           </div>
         </div>
 
         <div className="warning-section">
-          <h3>{state.language === 'en' ? '⚠️ Critical Optimization Pitfalls' : '⚠️ Trampas Críticas de Optimización'}</h3>
-          <div className="warning-content">
+          <SectionTitle>{state.language === 'en' ? '⚠️ Critical Optimization Pitfalls' : '⚠️ Trampas Críticas de Optimización'}</SectionTitle>
+<div className="warning-content">
             <div className="warning-item">
               <strong>{state.language === 'en' ? 'Undefined Behavior Exploitation:' : 'Explotación de Comportamiento Indefinido:'}</strong>
               <span>{state.language === 'en' 
                 ? 'Compilers aggressively exploit UB for optimization - strict aliasing violations, signed overflow, and dangling pointers can cause unpredictable behavior'
                 : 'Los compiladores explotan agresivamente UB para optimización - violaciones de strict aliasing, overflow signed y punteros colgantes pueden causar comportamiento impredecible'}</span>
-            </div>
+          </div>
             
             <div className="warning-item">
               <strong>{state.language === 'en' ? 'Over-optimization Risks:' : 'Riesgos de Over-optimización:'}</strong>
@@ -2037,5 +2050,3 @@ void demonstrate_compiler_assumptions_and_semantics() {
     </div>
   );
 }
-
-export default Lesson105_CompilerOptimizationInsights;

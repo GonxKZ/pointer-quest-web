@@ -1,9 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  Button,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
 interface ArrayPtrState {
   hasArray: boolean;
@@ -25,134 +38,46 @@ interface ArrayElement {
   position: [number, number, number];
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}
+  </div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
-
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
-
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
-
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
-
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'warning' }>`
-  background: ${props => 
-    props.variant === 'danger' ? 'linear-gradient(45deg, #ff4444, #cc0000)' :
-    props.variant === 'warning' ? 'linear-gradient(45deg, #ff8800, #cc6600)' :
-    props.variant === 'secondary' ? 'linear-gradient(45deg, #666, #333)' :
-    'linear-gradient(45deg, #0066cc, #0099ff)'};
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.9em;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 100, 200, 0.4);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const StatusDisplay = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  border: 1px solid #333;
-`;
-
-const InputGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-`;
-
-const Input = styled.input`
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid #0066cc;
-  border-radius: 4px;
-  padding: 8px 12px;
-  color: white;
-  font-family: inherit;
-  width: 80px;
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: '80px'
+    }}
+    {...props}
+  />
+);
 
 const MemoryVisualization: React.FC<{
   state: ArrayPtrState;
@@ -371,7 +296,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson11_UniquePtrArray: React.FC = () => {
+const Lesson11_UniquePtrArray: React.FC = () => {
   const [state, setState] = useState<ArrayPtrState>({
     hasArray: false,
     arraySize: 5,
@@ -550,26 +475,38 @@ export const Lesson11_UniquePtrArray: React.FC = () => {
     }, 2000);
   };
 
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(11, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
+
+  const lessonColors = theme.colors.intermediate; // Lección intermedia
+
   return (
-    <Container>
-      <Header>
-        <Title>Lección 11: std::unique_ptr&lt;int[]&gt;</Title>
-        <Subtitle>Gestión Automática de Arrays Dinámicos</Subtitle>
-      </Header>
+    <LessonLayout
+      title="Lección 11: std::unique_ptr<int[]>"
+      subtitle="Gestión Automática de Arrays Dinámicos"
+      lessonNumber={11}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
+        <Canvas camera={{ position: [0, 5, 12], fov: 60 }}>
+          <MemoryVisualization state={state} elements={elements} />
+          <OrbitControls enableZoom={true} enablePan={true} enableRotate={true} />
+        </Canvas>
+      </VisualizationPanel>
 
-      <MainContent>
-        <VisualizationPanel>
-          <Canvas camera={{ position: [0, 5, 12], fov: 60 }}>
-            <MemoryVisualization state={state} elements={elements} />
-            <OrbitControls enableZoom={true} enablePan={true} enableRotate={true} />
-          </Canvas>
-        </VisualizationPanel>
-
-        <ControlPanel>
-          <TheorySection>
-            <h3>🔢 std::unique_ptr&lt;T[]&gt;</h3>
-            <p>Especialización para arrays con destrucción automática:</p>
-            <CodeBlock>{`// C++14: Inicialización a cero
+      <TheoryPanel>
+        <Section>
+          <SectionTitle>🔢 std::unique_ptr&lt;T[]&gt;</SectionTitle>
+<p>Especialización para arrays con destrucción automática:</p>
+          <CodeBlock language="cpp">{`// C++14: Inicialización a cero
 auto arr = std::make_unique<int[]>(size);  
 
 // C++20: Sin inicializar (más rápido)
@@ -581,131 +518,128 @@ int value = arr[3];
 
 // Destrucción automática
 arr.reset();  // delete[] llamado automáticamente`}</CodeBlock>
-          </TheorySection>
+        </Section>
 
-          <div>
-            <h4>⚙️ Configuración de Array</h4>
-            
-            <InputGroup>
-              <label>Tamaño:</label>
-              <Input
-                type="number"
-                min="1"
-                max="10"
-                value={state.arraySize}
-                onChange={(e) => changeArraySize(parseInt(e.target.value) || 1)}
-              />
-            </InputGroup>
-          </div>
+        <InteractiveSection>
+          <SectionTitle>⚙️ Configuración de Array</SectionTitle>
+          <InputGroup>
+            <label>Tamaño:</label>
+            <Input
+              type="number"
+              min="1"
+              max="10"
+              value={state.arraySize}
+              onChange={(e) => changeArraySize(parseInt(e.target.value) || 1)}
+            />
+          </InputGroup>
+        </InteractiveSection>
 
-          <div>
-            <h4>🎮 Creación de Arrays</h4>
-            
+        <InteractiveSection>
+          <SectionTitle>🎮 Creación de Arrays</SectionTitle>
+          <ButtonGroup>
             <Button onClick={demonstrateMakeUnique} variant="primary">
               make_unique&lt;int[]&gt;({state.arraySize})
             </Button>
-            
             <Button onClick={demonstrateMakeUniqueForOverwrite} variant="warning">
               make_unique_for_overwrite&lt;int[]&gt;({state.arraySize})
             </Button>
-            
             <Button onClick={demonstrateValueInit} variant="secondary">
               Con valores personalizados
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔍 Acceso a Elementos</h4>
-            
-            <InputGroup>
-              <label>Índice:</label>
-              <Input
-                type="number"
-                min="0"
-                max={state.arraySize - 1}
-                value={accessIndex}
-                onChange={(e) => setAccessIndex(parseInt(e.target.value) || 0)}
-              />
-              <Button 
-                onClick={accessElement}
-                disabled={!state.hasArray}
-                variant="secondary"
-              >
-                arr[{accessIndex}]
-              </Button>
-            </InputGroup>
+        <InteractiveSection>
+          <SectionTitle>🔍 Acceso a Elementos</SectionTitle>
+          <InputGroup>
+            <label>Índice:</label>
+            <Input
+              type="number"
+              min="0"
+              max={state.arraySize - 1}
+              value={accessIndex}
+              onChange={(e) => setAccessIndex(parseInt(e.target.value) || 0)}
+            />
+            <Button 
+              onClick={accessElement}
+              disabled={!state.hasArray}
+              variant="secondary"
+            >
+              arr[{accessIndex}]
+            </Button>
+          </InputGroup>
 
-            <InputGroup>
-              <label>Nuevo valor:</label>
-              <Input
-                type="number"
-                value={newValue}
-                onChange={(e) => setNewValue(parseInt(e.target.value) || 0)}
-              />
-              <Button 
-                onClick={modifyElement}
-                disabled={!state.hasArray}
-                variant="primary"
-              >
-                Modificar
-              </Button>
-            </InputGroup>
-          </div>
+          <InputGroup>
+            <label>Nuevo valor:</label>
+            <Input
+              type="number"
+              value={newValue}
+              onChange={(e) => setNewValue(parseInt(e.target.value) || 0)}
+            />
+            <Button 
+              onClick={modifyElement}
+              disabled={!state.hasArray}
+              variant="primary"
+            >
+              Modificar
+            </Button>
+          </InputGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔧 Utilidades</h4>
-            
+        <InteractiveSection>
+          <SectionTitle>🔧 Utilidades</SectionTitle>
+          <ButtonGroup>
             <Button onClick={showMemoryLayout} disabled={!state.hasArray}>
               Mostrar layout
             </Button>
-            
             <Button onClick={demonstrateOutOfBounds} variant="danger">
               Acceso fuera de rango
             </Button>
-            
             <Button onClick={resetArray} disabled={!state.hasArray} variant="danger">
               reset()
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <StatusDisplay>
-            <h4>📊 Estado del Array</h4>
-            <div>Estado: {state.hasArray ? `${state.arraySize} elementos` : 'vacío'}</div>
-            <div>Inicialización: {state.initializationMethod}</div>
-            <div>Patrón: {state.memoryPattern}</div>
-            <div>Operación: {state.operation}</div>
-            {state.hasArray && (
-              <div>
-                Elementos modificados: {elements.filter(e => e.isModified).length}
-              </div>
-            )}
-          </StatusDisplay>
+        <StatusDisplay>
+          <SectionTitle>📊 Estado del Array</SectionTitle>
+          <div>Estado: {state.hasArray ? `${state.arraySize} elementos` : 'vacío'}</div>
+          <div>Inicialización: {state.initializationMethod}</div>
+          <div>Patrón: {state.memoryPattern}</div>
+          <div>Operación: {state.operation}</div>
+          {state.hasArray && (
+            <div>
+              Elementos modificados: {elements.filter(e => e.isModified).length}
+            </div>
+          )}
+        </StatusDisplay>
 
-          <TheorySection>
-            <h4>🎯 Diferencias Clave</h4>
-            <ul>
-              <li><strong>make_unique&lt;T[]&gt;:</strong> Inicializa a valor por defecto (0)</li>
-              <li><strong>make_unique_for_overwrite:</strong> Sin inicializar (C++20)</li>
-              <li><strong>Destructor:</strong> Llama delete[] automáticamente</li>
-              <li><strong>operator[]:</strong> Acceso directo sin bounds checking</li>
-              <li><strong>No get():</strong> Acceso directo mediante arr[i]</li>
-              <li><strong>Exception-safe:</strong> Cleanup automático en excepciones</li>
-              <li><strong>Move-only:</strong> No copiable, solo movible</li>
-            </ul>
-          </TheorySection>
+        <Section>
+          <SectionTitle>🎯 Diferencias Clave</SectionTitle>
+          <ul>
+            <li><strong>make_unique&lt;T[]&gt;:</strong> Inicializa a valor por defecto (0)</li>
+            <li><strong>make_unique_for_overwrite:</strong> Sin inicializar (C++20)</li>
+            <li><strong>Destructor:</strong> Llama delete[] automáticamente</li>
+            <li><strong>operator[]:</strong> Acceso directo sin bounds checking</li>
+            <li><strong>No get():</strong> Acceso directo mediante arr[i]</li>
+            <li><strong>Exception-safe:</strong> Cleanup automático en excepciones</li>
+            <li><strong>Move-only:</strong> No copiable, solo movible</li>
+          </ul>
+        </Section>
 
-          <TheorySection>
-            <h4>⚠️ Consideraciones de Rendimiento</h4>
-            <CodeBlock>{`// Inicialización cero (más lenta)
+        <Section>
+          <SectionTitle>⚠️ Consideraciones de Rendimiento</SectionTitle>
+          <CodeBlock language="cpp">{`// Inicialización cero (más lenta)
 auto safe = std::make_unique<int[]>(1000000);
 
 // Sin inicializar (más rápida para casos específicos)
 auto fast = std::make_unique_for_overwrite<int[]>(1000000);
 // ¡Debe inicializar manualmente antes de usar!
 std::fill_n(fast.get(), 1000000, 0);`}</CodeBlock>
-          </TheorySection>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+        </Section>
+      </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson11_UniquePtrArray;

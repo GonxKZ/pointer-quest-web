@@ -3,73 +3,37 @@ import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface Lesson42Props {
   onComplete: (score: number) => void;
   isCompleted: boolean;
 }
 
-const Container = styled.div`
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
 
-const Title = styled.h1`
-  color: #4a9eff;
-  margin-bottom: 30px;
-  text-align: center;
-  font-size: 2.5rem;
-  text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
-`;
 
-const Description = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-`;
 
-const CodeBlock = styled.pre`
-  background: #1a1a1a;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-x: auto;
-  border-left: 4px solid #4a9eff;
-  margin: 20px 0;
-  font-family: 'Courier New', monospace;
-  
-  code {
-    color: #e0e0e0;
-    
-    .keyword { color: #569cd6; }
-    .string { color: #ce9178; }
-    .comment { color: #6a9955; }
-    .type { color: #4ec9b0; }
-    .number { color: #b5cea8; }
-    .good { color: #4caf50; background: rgba(76, 175, 80, 0.1); padding: 2px; }
-    .bad { color: #f44336; background: rgba(244, 67, 54, 0.1); padding: 2px; }
-    .highlight { background: rgba(255, 235, 59, 0.2); padding: 2px; }
-  }
-`;
 
-const CanvasContainer = styled.div`
-  height: 500px;
-  margin: 20px 0;
-  border: 2px solid #4a9eff;
-  border-radius: 10px;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f23 100%);
-`;
 
-const QuizContainer = styled.div`
-  background: rgba(74, 158, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin: 20px 0;
-`;
+
+
+
+
+
+
 
 const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; incorrect?: boolean }>`
   display: block;
@@ -96,19 +60,9 @@ const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; inc
   }
 `;
 
-const ScoreDisplay = styled.div`
-  text-align: center;
-  font-size: 1.2rem;
-  color: #4a9eff;
-  margin: 20px 0;
-`;
 
-const PatternSelector = styled.div`
-  display: flex;
-  gap: 10px;
-  margin: 20px 0;
-  flex-wrap: wrap;
-`;
+
+
 
 const PatternButton = styled.button<{ active: boolean; advanced?: boolean }>`
   padding: 10px 20px;
@@ -328,7 +282,7 @@ function FactoryPatternVisualization({ pattern }: FactoryVisualizationProps) {
       {currentPattern.nodes.map((node, index) => (
         <ObjectNode
           key={index}
-          position={node.pos}
+          position={node.pos as [number, number, number]}
           label={node.label}
           type={node.type}
           isBase={node.isBase}
@@ -452,16 +406,16 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
       <Title>🏭 Lección 42: Factory Patterns con unique_ptr</Title>
       
       <Description>
-        <h3>🎯 Objetivo</h3>
-        <p>
+        <SectionTitle>🎯 Objetivo</SectionTitle>
+<p>
           Los Factory Patterns son fundamentales en C++ moderno, y unique_ptr&lt;Base&gt; 
           es la herramienta perfecta para expresar transferencia de ownership en estos patrones. 
           Esta lección explora diferentes factory patterns y cómo implementarlos de forma 
           segura y eficiente con smart pointers.
         </p>
 
-        <h4>🏗️ Simple Factory Pattern</h4>
-        <CodeBlock>
+        <SectionTitle>🏗️ Simple Factory Pattern</SectionTitle>
+        <CodeBlock>{`
 {[
 "// Base class para productos",
 "class Shape {",
@@ -500,10 +454,10 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
 "    std::cout << \"Area: \" << shape->area() << \"\\n\";",
 "}",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
 
-        <h4>🏭 Abstract Factory Pattern</h4>
-        <CodeBlock>
+        <SectionTitle>🏭 Abstract Factory Pattern</SectionTitle>
+        <CodeBlock>{`
 {[
 "// Abstract Factory para crear familias de objetos relacionados",
 "class GUIFactory {",
@@ -534,7 +488,7 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
 "    throw std::invalid_argument(\"Unknown platform: \" + platform);",
 "}",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
       </Description>
 
       <CanvasContainer>
@@ -557,8 +511,8 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
       </PatternSelector>
 
       <Description>
-        <h4>⚙️ Factory Method Pattern</h4>
-        <CodeBlock>
+        <SectionTitle>⚙️ Factory Method Pattern</SectionTitle>
+        <CodeBlock>{`
 {[
 "// Factory Method: cada subclase decide qué crear",
 "class Document {",
@@ -589,10 +543,10 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
 "    }",
 "};",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
 
-        <h4>🔧 Builder Pattern con unique_ptr</h4>
-        <CodeBlock>
+        <SectionTitle>🔧 Builder Pattern con unique_ptr</SectionTitle>
+        <CodeBlock>{`
 {[
 "// Builder Pattern para construcción compleja",
 "class Car {",
@@ -637,12 +591,12 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
 "    .withWheels(4)",
 "    .build();",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
 
-        <h4>🚀 Patrones Avanzados</h4>
+        <SectionTitle>🚀 Patrones Avanzados</SectionTitle>
         
         <h5>Factory con enable_shared_from_this:</h5>
-        <CodeBlock>
+        <CodeBlock>{`
 {[
 "// Para objetos que necesitan devolver shared_ptr de sí mismos",
 "class NetworkConnection : public std::enable_shared_from_this<NetworkConnection> {",
@@ -663,10 +617,10 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
 "    std::string hostname;",
 "};",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
 
         <h5>Registry-based Factory:</h5>
-        <CodeBlock>
+        <CodeBlock>{`
 {[
 "// Factory registry para extensibilidad",
 "class ShapeFactory {",
@@ -697,14 +651,14 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
 "};",
 "static CircleRegistrar circle_registrar; // Auto-registro global",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
       </Description>
 
       <QuizContainer>
-        <h3>🧠 Evaluación de Conocimientos</h3>
+        <SectionTitle>🧠 Evaluación de Conocimientos</SectionTitle>
         {questions.map((q, qIndex) => (
           <div key={qIndex} style={{ marginBottom: '20px' }}>
-            <h4>{q.question}</h4>
+            <SectionTitle>{q.question}</SectionTitle>
             {q.options.map((option, oIndex) => (
               <QuestionButton
                 key={oIndex}
@@ -739,7 +693,7 @@ export default function Lesson42_FactoryPatterns({ onComplete, isCompleted }: Le
         
         {showResults && (
           <ScoreDisplay>
-            <h3>📊 Resultado Final</h3>
+            <SectionTitle>📊 Resultado Final</SectionTitle>
             <p>Has obtenido {score.toFixed(1)}% de aciertos</p>
             <p>
               {score >= 80 ? '🎉 ¡Excelente! Dominas los Factory Patterns con unique_ptr' :

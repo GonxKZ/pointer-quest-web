@@ -5,7 +5,7 @@
  * Provides consistent UX patterns for coding exercises, visualizations, and learning activities.
  */
 
-import React, { ReactNode, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { theme, LessonTopic, mediaQuery } from '../theme';
 import { Button, ButtonGroup, LessonActionButton, CodeActionButton } from './Button';
@@ -389,7 +389,7 @@ const VisualizerControls = styled.div`
   }
 `;
 
-const StepIndicator = styled.div`
+export const StepIndicator = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing[2]};

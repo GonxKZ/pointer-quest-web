@@ -1,7 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder } from '@react-three/drei';
-import { useApp } from '../hooks/useApp';
+import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface EnterpriseMetrics {
   throughput: number;
@@ -1691,8 +1705,8 @@ std::atomic<size_t> MemoryLeakDetector::total_freed_{0};
 
       <div className="lesson-content">
         <div className="visualization-section">
-          <h3>{state.language === 'en' ? 'Enterprise Architecture Visualization' : 'Visualización de Arquitectura Empresarial'}</h3>
-          <div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
+          <SectionTitle>{state.language === 'en' ? 'Enterprise Architecture Visualization' : 'Visualización de Arquitectura Empresarial'}</SectionTitle>
+<div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
             <Canvas camera={{ position: [8, 8, 8] }}>
               <ambientLight intensity={0.6} />
               <pointLight position={[10, 10, 10]} />
@@ -1704,8 +1718,8 @@ std::atomic<size_t> MemoryLeakDetector::total_freed_{0};
           </div>
           
           <div className="system-controls">
-            <h4>{state.language === 'en' ? 'Enterprise Systems' : 'Sistemas Empresariales'}</h4>
-            <div className="system-buttons">
+            <SectionTitle>{state.language === 'en' ? 'Enterprise Systems' : 'Sistemas Empresariales'}</SectionTitle>
+<div className="system-buttons">
               {['Memory Manager', 'Resource Pool', 'Error Handler', 'Monitor System', 'Core Engine'].map(system => (
                 <button
                   key={system}
@@ -1715,16 +1729,16 @@ std::atomic<size_t> MemoryLeakDetector::total_freed_{0};
                   {system}
                 </button>
               ))}
-            </div>
+          </div>
           </div>
           
           <div className="metrics-display">
-            <h4>{state.language === 'en' ? 'System Metrics' : 'Métricas del Sistema'}</h4>
-            <div className="metrics-grid">
+            <SectionTitle>{state.language === 'en' ? 'System Metrics' : 'Métricas del Sistema'}</SectionTitle>
+<div className="metrics-grid">
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Throughput' : 'Rendimiento'}:</span>
                 <span className="metric-value">{(metrics.throughput * 100).toFixed(1)}%</span>
-              </div>
+          </div>
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Memory Efficiency' : 'Eficiencia de Memoria'}:</span>
                 <span className="metric-value">{(metrics.memoryEfficiency * 100).toFixed(1)}%</span>
@@ -1746,9 +1760,8 @@ std::atomic<size_t> MemoryLeakDetector::total_freed_{0};
         </div>
 
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Enterprise Pattern Examples' : 'Ejemplos de Patrones Empresariales'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Enterprise Pattern Examples' : 'Ejemplos de Patrones Empresariales'}</SectionTitle>
+<div className="example-tabs">
             {Object.keys(examples).map(key => (
               <button
                 key={key}
@@ -1762,119 +1775,117 @@ std::atomic<size_t> MemoryLeakDetector::total_freed_{0};
 
           <div className="example-content">
             <div className="code-block">
-              <h4>{currentExample.title}</h4>
-              <pre>
+              <SectionTitle>{currentExample.title}</SectionTitle>
+<pre>
                 <code>{currentExample.code}</code>
               </pre>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices-section">
-          <h3>{state.language === 'en' ? 'Enterprise Best Practices' : 'Mejores Prácticas Empresariales'}</h3>
-          
-          <div className="practices-grid">
+          <SectionTitle>{state.language === 'en' ? 'Enterprise Best Practices' : 'Mejores Prácticas Empresariales'}</SectionTitle>
+<div className="practices-grid">
             <div className="practice-card">
-              <h4>{state.language === 'en' ? 'Memory Management' : 'Gestión de Memoria'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Memory Management' : 'Gestión de Memoria'}</SectionTitle>
               <ul>
                 <li>{state.language === 'en' ? 'Thread-safe memory pools' : 'Pools de memoria thread-safe'}</li>
                 <li>{state.language === 'en' ? 'Automatic coalescing' : 'Coalescencia automática'}</li>
                 <li>{state.language === 'en' ? 'Peak usage tracking' : 'Seguimiento de uso pico'}</li>
                 <li>{state.language === 'en' ? 'Alignment optimization' : 'Optimización de alineación'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="practice-card">
-              <h4>{state.language === 'en' ? 'RAII Patterns' : 'Patrones RAII'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'RAII Patterns' : 'Patrones RAII'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Automatic resource cleanup' : 'Limpieza automática de recursos'}</li>
                 <li>{state.language === 'en' ? 'Exception safety guarantees' : 'Garantías de seguridad ante excepciones'}</li>
                 <li>{state.language === 'en' ? 'Transaction-based operations' : 'Operaciones basadas en transacciones'}</li>
                 <li>{state.language === 'en' ? 'Lock-free resource leasing' : 'Arrendamiento de recursos sin bloqueos'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="practice-card">
-              <h4>{state.language === 'en' ? 'Performance' : 'Rendimiento'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Performance' : 'Rendimiento'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Intrusive smart pointers' : 'Smart pointers intrusivos'}</li>
                 <li>{state.language === 'en' ? 'Lock-free object pools' : 'Pools de objetos sin bloqueos'}</li>
                 <li>{state.language === 'en' ? 'Performance monitoring' : 'Monitoreo de rendimiento'}</li>
                 <li>{state.language === 'en' ? 'Cache-friendly algorithms' : 'Algoritmos amigables con caché'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="practice-card">
-              <h4>{state.language === 'en' ? 'Error Handling' : 'Manejo de Errores'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Error Handling' : 'Manejo de Errores'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Structured error contexts' : 'Contextos de error estructurados'}</li>
                 <li>{state.language === 'en' ? 'Thread-safe error logging' : 'Logging de errores thread-safe'}</li>
                 <li>{state.language === 'en' ? 'Exception hierarchies' : 'Jerarquías de excepciones'}</li>
                 <li>{state.language === 'en' ? 'Critical error handling' : 'Manejo de errores críticos'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="practice-card">
-              <h4>{state.language === 'en' ? 'Scalability' : 'Escalabilidad'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Scalability' : 'Escalabilidad'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Multi-tenant isolation' : 'Aislamiento multi-tenante'}</li>
                 <li>{state.language === 'en' ? 'Automatic resource eviction' : 'Desalojo automático de recursos'}</li>
                 <li>{state.language === 'en' ? 'Load balancing patterns' : 'Patrones de balanceeo de carga'}</li>
                 <li>{state.language === 'en' ? 'Horizontal scaling support' : 'Soporte para escalado horizontal'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="practice-card">
-              <h4>{state.language === 'en' ? 'Monitoring' : 'Monitoreo'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Monitoring' : 'Monitoreo'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Real-time metrics collection' : 'Recolección de métricas en tiempo real'}</li>
                 <li>{state.language === 'en' ? 'Memory leak detection' : 'Detección de fugas de memoria'}</li>
                 <li>{state.language === 'en' ? 'Performance profiling tools' : 'Herramientas de profiling de rendimiento'}</li>
                 <li>{state.language === 'en' ? 'Automated reporting systems' : 'Sistemas de reporte automatizados'}</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="expert-insights-section">
-          <h3>{state.language === 'en' ? 'Expert Insights' : 'Conocimientos Expertos'}</h3>
-          
-          <div className="insights-content">
+          <SectionTitle>{state.language === 'en' ? 'Expert Insights' : 'Conocimientos Expertos'}</SectionTitle>
+<div className="insights-content">
             <div className="insight-item">
-              <h4>{state.language === 'en' ? 'Production Considerations' : 'Consideraciones de Producción'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Production Considerations' : 'Consideraciones de Producción'}</SectionTitle>
               <p>
                 {state.language === 'en'
                   ? 'Enterprise systems require careful balance between performance, reliability, and maintainability. Memory management must be predictable, error handling comprehensive, and monitoring continuous.'
                   : 'Los sistemas empresariales requieren un equilibrio cuidadoso entre rendimiento, confiabilidad y mantenibilidad. La gestión de memoria debe ser predecible, el manejo de errores integral y el monitoreo continuo.'}
               </p>
-            </div>
+          </div>
             
             <div className="insight-item">
-              <h4>{state.language === 'en' ? 'Scalability Architecture' : 'Arquitectura de Escalabilidad'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Scalability Architecture' : 'Arquitectura de Escalabilidad'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Design for horizontal scaling from day one. Use resource pools, multi-tenant isolation, and stateless patterns. Avoid global state and ensure thread safety throughout.'
                   : 'Diseña para escalado horizontal desde el primer día. Usa pools de recursos, aislamiento multi-tenante y patrones sin estado. Evita el estado global y asegura thread safety en todo el sistema.'}
               </p>
-            </div>
+          </div>
             
             <div className="insight-item">
-              <h4>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Profile first, optimize second. Focus on cache efficiency, reduce memory allocations, and use lock-free algorithms where possible. Monitor continuously and respond to metrics.'
                   : 'Primero perfila, después optimiza. Enfócate en eficiencia de caché, reduce asignaciones de memoria y usa algoritmos sin bloqueos donde sea posible. Monitorea continuamente y responde a las métricas.'}
               </p>
-            </div>
+          </div>
             
             <div className="insight-item">
-              <h4>{state.language === 'en' ? 'Error Resilience' : 'Resistencia a Errores'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Error Resilience' : 'Resistencia a Errores'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Build systems that gracefully handle failures. Use RAII for automatic cleanup, implement circuit breakers, and provide detailed error contexts for debugging.'
                   : 'Construye sistemas que manejen fallos con elegancia. Usa RAII para limpieza automática, implementa circuit breakers y proporciona contextos de error detallados para debugging.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
       </div>

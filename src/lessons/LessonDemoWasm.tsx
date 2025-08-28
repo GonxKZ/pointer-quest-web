@@ -1,29 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useWebAssembly, useAnimationLoop } from '../hooks/useWebAssembly';
 
-const Container = styled.div`
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 8px;
-  margin: 1rem 0;
-`;
 
-const Canvas = styled.canvas`
-  border: 2px solid #00d4ff;
-  border-radius: 8px;
-  background: #000;
-  display: block;
-  margin: 1rem auto;
-`;
 
-const Controls = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin: 1rem 0;
-  flex-wrap: wrap;
-`;
+
+
+
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   padding: 0.75rem 1.5rem;
@@ -63,28 +46,13 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   }}
 `;
 
-const Stats = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin: 1rem 0;
-  color: #00d4ff;
-  font-family: 'Fira Code', monospace;
-`;
 
-const Stat = styled.div`
-  text-align: center;
-`;
 
-const StatLabel = styled.div`
-  font-size: 0.8rem;
-  color: #b8c5d6;
-`;
 
-const StatValue = styled.div`
-  font-size: 1.2rem;
-  font-weight: bold;
-`;
+
+
+
+
 
 export default function LessonDemoWasm() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

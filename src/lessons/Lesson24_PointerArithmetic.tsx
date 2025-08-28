@@ -3,6 +3,19 @@ import styled from 'styled-components';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box } from '@react-three/drei';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface PointerArithmeticState {
   array: number[];
@@ -16,89 +29,27 @@ interface PointerArithmeticState {
   visualization: 'linear' | 'memory_layout' | 'bounds_check';
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  color: #e0e6ed;
-  font-family: 'Cascadia Code', 'Fira Code', monospace;
-`;
 
-const Header = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1rem;
-  border-bottom: 2px solid #00d4ff;
-`;
 
-const Title = styled.h1`
-  margin: 0;
-  color: #00d4ff;
-  font-size: 1.8rem;
-  text-align: center;
-`;
 
-const Subtitle = styled.p`
-  margin: 0.5rem 0 0 0;
-  text-align: center;
-  opacity: 0.8;
-  font-size: 1.1rem;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 1rem;
-  padding: 1rem;
-`;
 
-const LeftPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  padding: 1rem;
-  border: 1px solid rgba(0, 212, 255, 0.3);
-`;
 
-const RightPanel = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
 
-const VisualizationArea = styled.div`
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  height: 400px;
-`;
 
-const ControlsArea = styled.div`
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  padding: 1rem;
-  border: 1px solid rgba(0, 212, 255, 0.3);
-`;
 
-const TheorySection = styled.div`
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  padding: 1rem;
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  margin-top: 1rem;
-`;
 
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #00d4ff;
-  overflow-x: auto;
-  font-family: 'Cascadia Code', 'Fira Code', monospace;
-  font-size: 0.9rem;
-  line-height: 1.4;
-`;
+
+
+
+
+
+
+
+
+
+
+
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
   padding: 0.7rem 1.2rem;
@@ -170,35 +121,16 @@ const StatusDisplay = styled.div<{ $type: 'info' | 'warning' | 'success' | 'erro
   }}
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 1rem 0;
-`;
 
-const InfoCard = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 212, 255, 0.2);
-`;
+
+
 
 const Highlight = styled.span<{ $color?: string }>`
   color: ${props => props.$color || '#00d4ff'};
   font-weight: bold;
 `;
 
-const Input = styled.input`
-  padding: 0.5rem;
-  margin: 0.5rem;
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.3);
-  color: #e0e6ed;
-  font-family: 'Cascadia Code', monospace;
-  width: 80px;
-`;
+
 
 function ArrayVisualization({ state }: { state: PointerArithmeticState }) {
   const { array, currentIndex, pointerOffset, showUB, visualization } = state;
@@ -543,19 +475,18 @@ const Lesson24_PointerArithmetic: React.FC = () => {
 
       <MainContent>
         <LeftPanel>
-          <h3>📚 Pointer Arithmetic Theory</h3>
-          
-          <StatusDisplay $type="info">
+          <SectionTitle>📚 Pointer Arithmetic Theory</SectionTitle>
+<StatusDisplay $type="info">
             <strong>Pointer Arithmetic</strong><br/>
             Allows navigation through arrays using pointer increments, decrements, and offsets.
             Operations are scaled by sizeof(T).
           </StatusDisplay>
 
-          <h4>🎯 Valid Operations</h4>
+          <SectionTitle>🎯 Valid Operations</SectionTitle>
           <Grid>
             <InfoCard>
-              <h4>Basic Operations</h4>
-              <CodeBlock>{`int arr[5] = {10, 20, 30, 40, 50};
+              <SectionTitle>Basic Operations</SectionTitle>
+              <CodeBlock language="cpp">{`int arr[5] = {10, 20, 30, 40, 50};
 int* ptr = &arr[2];  // Points to 30
 
 ptr++;        // Points to 40 
@@ -569,8 +500,8 @@ ptr[1];       // Same as *(ptr + 1)`}</CodeBlock>
             </InfoCard>
 
             <InfoCard>
-              <h4>Address Calculation</h4>
-              <CodeBlock>{`// ptr + n means:
+              <SectionTitle>Address Calculation</SectionTitle>
+              <CodeBlock language="cpp">{`// ptr + n means:
 // ptr + (n * sizeof(T))
 
 int* ptr = arr;
@@ -581,8 +512,8 @@ ptr + 2;  // arr + 2*sizeof(int) = arr + 8 bytes
             </InfoCard>
 
             <InfoCard>
-              <h4>Pointer Comparison</h4>
-              <CodeBlock>{`int arr[5];
+              <SectionTitle>Pointer Comparison</SectionTitle>
+              <CodeBlock language="cpp">{`int arr[5];
 int* p1 = &arr[1];
 int* p2 = &arr[3];
 
@@ -594,8 +525,8 @@ ptrdiff_t diff = p2 - p1; // 2 elements
             </InfoCard>
 
             <InfoCard>
-              <h4>One-Past-End</h4>
-              <CodeBlock>{`int arr[5];
+              <SectionTitle>One-Past-End</SectionTitle>
+              <CodeBlock language="cpp">{`int arr[5];
 int* begin = arr;
 int* end = arr + 5;  // One past end - LEGAL
 
@@ -609,8 +540,8 @@ for (int* p = begin; p != end; ++p) {
             </InfoCard>
           </Grid>
 
-          <h4>⚠️ Undefined Behavior Cases</h4>
-          <CodeBlock>{`int arr[5] = {1, 2, 3, 4, 5};
+          <SectionTitle>⚠️ Undefined Behavior Cases</SectionTitle>
+          <CodeBlock language="cpp">{`int arr[5] = {1, 2, 3, 4, 5};
 int* ptr = arr + 2;
 
 // UB: Before array start
@@ -628,15 +559,15 @@ ptrdiff_t diff = (arr + 2) - (arr2 + 1);  // UB
 int* null_ptr = nullptr;
 int* invalid = null_ptr + 1;  // UB`}</CodeBlock>
 
-          <TheorySection>
-            <h4>🔍 Current State</h4>
+          <Section>
+            <SectionTitle>🔍 Current State</SectionTitle>
             <StatusDisplay $type={isValidAccess ? 'success' : 'error'}>
               <strong>Pointer Position:</strong> arr + {state.currentIndex} + {state.pointerOffset} = arr[{currentPointerIndex}]<br/>
               <strong>Status:</strong> {isValidAccess ? 'Valid Access' : 'UNDEFINED BEHAVIOR'}<br/>
               <strong>Value:</strong> {isValidAccess ? state.array[currentPointerIndex] : 'INVALID'}
             </StatusDisplay>
             
-            <h4>💻 Generated Expression</h4>
+            <SectionTitle>💻 Generated Expression</SectionTitle>
             <CodeBlock>{`int arr[${state.array.length}] = {${state.array.join(', ')}};
 int* ptr = &arr[${state.currentIndex}];  // Base pointer
 
@@ -645,7 +576,7 @@ ptr${state.pointerOffset >= 0 ? '+' : ''}${state.pointerOffset};  // Points to a
 
 ${!isValidAccess ? '// ⚠️ WARNING: This access is UNDEFINED BEHAVIOR!' : ''}
 ${isValidAccess ? `*ptr = ${state.array[currentPointerIndex]};  // Safe access` : '*ptr;  // UB - undefined behavior!'}`}</CodeBlock>
-          </TheorySection>
+          </Section>
         </LeftPanel>
 
         <RightPanel>
@@ -654,11 +585,12 @@ ${isValidAccess ? `*ptr = ${state.array[currentPointerIndex]};  // Safe access` 
           </VisualizationArea>
 
           <ControlsArea>
-            <h4>🎮 Pointer Operations</h4>
+            <SectionTitle>🎮 Pointer Operations</SectionTitle>
             
             <div>
               <strong>Visualization Mode:</strong><br/>
-              <Button 
+              <ButtonGroup>
+            <Button 
                 $variant={state.visualization === 'linear' ? 'primary' : 'secondary'}
                 onClick={() => setState(prev => ({ ...prev, visualization: 'linear' }))}
               >
@@ -676,11 +608,12 @@ ${isValidAccess ? `*ptr = ${state.array[currentPointerIndex]};  // Safe access` 
               >
                 Bounds Check
               </Button>
-            </div>
+          </ButtonGroup></div>
 
             <div style={{ marginTop: '1rem' }}>
               <strong>Basic Operations:</strong><br/>
-              <Button 
+              <ButtonGroup>
+            <Button 
                 onClick={() => setState(prev => ({ ...prev, operation: 'increment' }))}
                 disabled={!isValidAccess}
               >
@@ -695,7 +628,7 @@ ${isValidAccess ? `*ptr = ${state.array[currentPointerIndex]};  // Safe access` 
               <Button onClick={performOperation}>
                 Perform Operation
               </Button>
-            </div>
+          </ButtonGroup></div>
 
             <div style={{ marginTop: '1rem' }}>
               <strong>Arithmetic Operations:</strong><br/>
@@ -724,7 +657,8 @@ ${isValidAccess ? `*ptr = ${state.array[currentPointerIndex]};  // Safe access` 
 
             <div style={{ marginTop: '1rem' }}>
               <strong>UB Demonstrations:</strong><br/>
-              <Button 
+              <ButtonGroup>
+            <Button 
                 $variant="danger"
                 onClick={() => demonstrateUB('out_of_bounds')}
               >
@@ -742,7 +676,7 @@ ${isValidAccess ? `*ptr = ${state.array[currentPointerIndex]};  // Safe access` 
               >
                 Far Beyond
               </Button>
-            </div>
+          </ButtonGroup></div>
 
             <div style={{ marginTop: '1rem' }}>
               <Button onClick={resetArray}>

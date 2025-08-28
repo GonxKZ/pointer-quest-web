@@ -135,7 +135,7 @@ const ActionButton = styled.button<{ variant: 'primary' | 'secondary' }>`
 
   ${props => props.variant === 'primary' ? css`
     background: ${props.theme.colors.primary[500]};
-    color: ${props.theme.colors.text.inverse};
+    color: ${props.theme.colors.text.primary};
     
     &:hover {
       background: ${props.theme.colors.primary[600]};
@@ -404,7 +404,7 @@ export function PWAInstallPrompt({ onInstall, onDismiss }: PWAInstallPromptProps
 /**
  * PWA Status Indicator Component
  */
-export function PWAStatus({ showWhenOnline = false, position = 'bottom-left' }: PWAStatusProps) {
+export function PWAStatus({ showWhenOnline = false, position: _position = 'bottom-left' }: PWAStatusProps) {
   const { status } = usePWA();
   const [isVisible, setIsVisible] = useState(false);
 
@@ -452,7 +452,7 @@ export function PWAStatus({ showWhenOnline = false, position = 'bottom-left' }: 
  * Main PWA Manager Component
  * Orchestrates all PWA-related UI components
  */
-export function PWAManager() {
+export function PWAManager(): JSX.Element {
   const { updateInfo, status, installInfo } = usePWA();
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);

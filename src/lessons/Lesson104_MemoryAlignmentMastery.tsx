@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Line, Cylinder } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function MemoryAlignmentVisualization() {
   const [alignmentMetrics, setAlignmentMetrics] = useState({
@@ -27,10 +41,10 @@ function MemoryAlignmentVisualization() {
   }, []);
 
   const alignmentTypes = [
-    { name: 'naturalAlignment', pos: [-4, 2, 0], color: '#00ff88', label: 'Natural', size: [1.2, 0.6, 0.3] },
-    { name: 'overAlignment', pos: [-1.5, 2, 0], color: '#00d4ff', label: 'Over-aligned', size: [1.4, 0.8, 0.4] },
-    { name: 'cacheLineHits', pos: [1.5, 2, 0], color: '#ff6b6b', label: 'Cache Line', size: [1.8, 0.5, 0.6] },
-    { name: 'simdOptimization', pos: [4, 2, 0], color: '#ffa500', label: 'SIMD Opt', size: [1.6, 0.7, 0.5] },
+    { name: 'naturalAlignment' as keyof typeof alignmentMetrics, pos: [-4, 2, 0] as const, color: '#00ff88', label: 'Natural', size: [1.2, 0.6, 0.3] as const },
+    { name: 'overAlignment' as keyof typeof alignmentMetrics, pos: [-1.5, 2, 0] as const, color: '#00d4ff', label: 'Over-aligned', size: [1.4, 0.8, 0.4] as const },
+    { name: 'cacheLineHits' as keyof typeof alignmentMetrics, pos: [1.5, 2, 0] as const, color: '#ff6b6b', label: 'Cache Line', size: [1.8, 0.5, 0.6] as const },
+    { name: 'simdOptimization' as keyof typeof alignmentMetrics, pos: [4, 2, 0] as const, color: '#ffa500', label: 'SIMD Opt', size: [1.6, 0.7, 0.5] as const },
   ];
 
   return (
@@ -39,12 +53,12 @@ function MemoryAlignmentVisualization() {
       {alignmentTypes.map((type) => (
         <group key={type.name}>
           <Box
-            position={type.pos}
-            args={type.size}
+            position={type.pos as [number, number, number]}
+            args={type.size as [number, number, number]}
           >
             <meshStandardMaterial
               color={type.color}
-              opacity={0.7 + (alignmentMetrics[type.name] % 8) / 80}
+              opacity={0.7 + ((alignmentMetrics[type.name] ?? 0) % 8) / 80}
               transparent
             />
           </Box>
@@ -62,7 +76,7 @@ function MemoryAlignmentVisualization() {
             color={type.color}
             anchorX="center"
           >
-            {alignmentMetrics[type.name]}
+            {alignmentMetrics[type.name] ?? 0}
           </Text>
         </group>
       ))}
@@ -1040,9 +1054,8 @@ void test_portable_allocation() {
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Advanced Memory Alignment Techniques' : 'Técnicas Avanzadas de Alineación de Memoria'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Advanced Memory Alignment Techniques' : 'Técnicas Avanzadas de Alineación de Memoria'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -1056,76 +1069,76 @@ void test_portable_allocation() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
             <div className="explanation">
-              <p>{examples[currentExample].explanation}</p>
+              <p>{examples[currentExample]?.explanation ?? ''}</p>
             </div>
           </div>
         </div>
 
         <div className="concept-section">
-          <h3>{state.language === 'en' ? 'Core Alignment Concepts' : 'Conceptos Clave de Alineación'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Core Alignment Concepts' : 'Conceptos Clave de Alineación'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Natural Alignment' : 'Alineación Natural'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Natural Alignment' : 'Alineación Natural'}</SectionTitle>
               <p>
                 {state.language === 'en'
                   ? 'The hardware-preferred alignment for each data type, typically equal to the size of the type. Essential for optimal CPU performance and avoiding alignment faults.'
                   : 'La alineación preferida por hardware para cada tipo de dato, típicamente igual al tamaño del tipo. Esencial para rendimiento óptimo de CPU y evitar fallas de alineación.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Over-alignment' : 'Over-alignment'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Over-alignment' : 'Over-alignment'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Aligning data to boundaries larger than natural alignment. Used for SIMD optimization, cache line alignment, and avoiding false sharing in concurrent code.'
                   : 'Alinear datos a límites más grandes que la alineación natural. Usado para optimización SIMD, alineación de línea de cache y evitar false sharing en código concurrente.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Cache Line Awareness' : 'Conciencia de Línea de Cache'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Cache Line Awareness' : 'Conciencia de Línea de Cache'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Understanding cache line boundaries (typically 64 bytes) to optimize memory access patterns and minimize cache misses in performance-critical code.'
                   : 'Entender los límites de línea de cache (típicamente 64 bytes) para optimizar patrones de acceso a memoria y minimizar cache misses en código crítico de rendimiento.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'SIMD Alignment' : 'Alineación SIMD'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'SIMD Alignment' : 'Alineación SIMD'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Specialized alignment requirements for SIMD instructions (16, 32, or 64-byte boundaries) to enable vectorized operations and maximize computational throughput.'
                   : 'Requisitos de alineación especializados para instrucciones SIMD (límites de 16, 32 o 64 bytes) para habilitar operaciones vectorizadas y maximizar throughput computacional.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Platform Portability' : 'Portabilidad de Plataforma'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Platform Portability' : 'Portabilidad de Plataforma'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Handling alignment differences across architectures (x86, ARM, mobile) and platforms (Windows, Linux, macOS) for consistent performance everywhere.'
                   : 'Manejar diferencias de alineación entre arquitecturas (x86, ARM, mobile) y plataformas (Windows, Linux, macOS) para rendimiento consistente en todas partes.'}
               </p>
-            </div>
+          </div>
 
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'False Sharing Prevention' : 'Prevención de False Sharing'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'False Sharing Prevention' : 'Prevención de False Sharing'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Strategic padding and alignment to prevent multiple threads from contending over the same cache line, critical for scalable multithreaded performance.'
                   : 'Padding y alineación estratégicos para prevenir que múltiples threads compitan por la misma línea de cache, crítico para rendimiento multihilo escalable.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Expert Best Practices' : 'Mejores Prácticas de Experto'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Expert Best Practices' : 'Mejores Prácticas de Experto'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Always measure alignment impact with profiling tools - theoretical benefits must be validated with real-world performance data'
@@ -1152,46 +1165,46 @@ void test_portable_allocation() {
                 : 'Aplica padding de línea de cache para datos compartidos accedidos frecuentemente en escenarios multihilo para eliminar cuellos de botella de false sharing'}
             </li>
           </ul>
-        </div>
+          </div>
 
         <div className="advanced-techniques">
-          <h3>{state.language === 'en' ? 'Advanced Techniques Mastered' : 'Técnicas Avanzadas Dominadas'}</h3>
-          <div className="techniques-grid">
+          <SectionTitle>{state.language === 'en' ? 'Advanced Techniques Mastered' : 'Técnicas Avanzadas Dominadas'}</SectionTitle>
+<div className="techniques-grid">
             <div className="technique-item">
               <span className="technique-icon">🎯</span>
-              <h4>{state.language === 'en' ? 'Hardware-Aware Alignment' : 'Alineación Consciente de Hardware'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Hardware-Aware Alignment' : 'Alineación Consciente de Hardware'}</SectionTitle>
               <p>{state.language === 'en' ? 'Architecture-specific optimization for x86, ARM, and specialized processors' : 'Optimización específica de arquitectura para x86, ARM y procesadores especializados'}</p>
-            </div>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">⚡</span>
-              <h4>{state.language === 'en' ? 'SIMD Vectorization' : 'Vectorización SIMD'}</h4>
-              <p>{state.language === 'en' ? 'AVX/NEON alignment for maximum vectorized computation performance' : 'Alineación AVX/NEON para máximo rendimiento de computación vectorizada'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'SIMD Vectorization' : 'Vectorización SIMD'}</SectionTitle>
+<p>{state.language === 'en' ? 'AVX/NEON alignment for maximum vectorized computation performance' : 'Alineación AVX/NEON para máximo rendimiento de computación vectorizada'}</p>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">🔒</span>
-              <h4>{state.language === 'en' ? 'Cache Line Optimization' : 'Optimización de Línea de Cache'}</h4>
-              <p>{state.language === 'en' ? 'Strategic data layout for L1/L2/L3 cache efficiency' : 'Layout estratégico de datos para eficiencia de cache L1/L2/L3'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'Cache Line Optimization' : 'Optimización de Línea de Cache'}</SectionTitle>
+<p>{state.language === 'en' ? 'Strategic data layout for L1/L2/L3 cache efficiency' : 'Layout estratégico de datos para eficiencia de cache L1/L2/L3'}</p>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">🌐</span>
-              <h4>{state.language === 'en' ? 'Cross-Platform Portability' : 'Portabilidad Multi-Plataforma'}</h4>
-              <p>{state.language === 'en' ? 'Unified alignment abstraction across Windows, Linux, and macOS' : 'Abstracción unificada de alineación entre Windows, Linux y macOS'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'Cross-Platform Portability' : 'Portabilidad Multi-Plataforma'}</SectionTitle>
+<p>{state.language === 'en' ? 'Unified alignment abstraction across Windows, Linux, and macOS' : 'Abstracción unificada de alineación entre Windows, Linux y macOS'}</p>
+          </div>
           </div>
         </div>
 
         <div className="warning-section">
-          <h3>{state.language === 'en' ? '⚠️ Critical Performance Considerations' : '⚠️ Consideraciones Críticas de Rendimiento'}</h3>
-          <div className="warning-content">
+          <SectionTitle>{state.language === 'en' ? '⚠️ Critical Performance Considerations' : '⚠️ Consideraciones Críticas de Rendimiento'}</SectionTitle>
+<div className="warning-content">
             <div className="warning-item">
               <strong>{state.language === 'en' ? 'Over-alignment Costs:' : 'Costos de Over-alignment:'}</strong>
               <span>{state.language === 'en' 
                 ? 'Excessive alignment increases memory usage and can reduce cache effectiveness - balance alignment benefits against memory overhead'
                 : 'El over-alignment excesivo aumenta el uso de memoria y puede reducir la efectividad del cache - balancea beneficios de alineación contra overhead de memoria'}</span>
-            </div>
+          </div>
             
             <div className="warning-item">
               <strong>{state.language === 'en' ? 'Platform Dependencies:' : 'Dependencias de Plataforma:'}</strong>

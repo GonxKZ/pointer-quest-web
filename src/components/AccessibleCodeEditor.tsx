@@ -15,8 +15,7 @@ import { theme } from '../design-system/theme';
 import { 
   focusVisible, 
   generateAriaLabel,
-  AccessibilityAnnouncer,
-  isContrastCompliant
+  AccessibilityAnnouncer
 } from '../design-system/utils/accessibility';
 
 interface AccessibleCodeEditorProps {

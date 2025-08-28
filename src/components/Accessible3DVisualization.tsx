@@ -9,7 +9,7 @@
  * - Alternative interaction methods
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 import styled from 'styled-components';
 import { theme } from '../design-system/theme';
@@ -241,49 +241,57 @@ export default function Accessible3DVisualization({
     );
   };
 
-  // Handle keyboard navigation
+  // Handle keyboard navigation - move outside useEffect for reusability
+  const handleKeyDown = useCallback((event: KeyboardEvent | React.KeyboardEvent) => {
+    // Handle both native KeyboardEvent and React.KeyboardEvent
+    const key = event.key;
+    const preventDefault = () => event.preventDefault();
+    
+    switch (key) {
+      case 'h':
+      case 'H':
+        preventDefault();
+        setShowKeyboardInstructions(!showKeyboardInstructions);
+        announcer.announce(
+          showKeyboardInstructions 
+            ? 'Keyboard instructions hidden' 
+            : 'Keyboard instructions shown'
+        );
+        break;
+        
+      case 't':
+      case 'T':
+        preventDefault();
+        toggleTextAlternative();
+        break;
+        
+      case keyboardNavigation.keys.ESCAPE:
+        preventDefault();
+        setShowKeyboardInstructions(false);
+        setShowTextAlternative(false);
+        break;
+        
+      default:
+        // Handle custom keyboard shortcuts
+        const shortcut = keyboardShortcuts.find(s => s.key === key);
+        if (shortcut) {
+          preventDefault();
+          announcer.announce(`${shortcut.action} activated`);
+        }
+        break;
+    }
+  }, [showKeyboardInstructions, showTextAlternative, keyboardShortcuts, announcer, toggleTextAlternative]);
+
+  // Set up document keyboard listener
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleDocumentKeyDown = (event: KeyboardEvent) => {
       if (!canvasRef.current?.contains(event.target as Node)) return;
-      
-      switch (event.key) {
-        case 'h':
-        case 'H':
-          event.preventDefault();
-          setShowKeyboardInstructions(!showKeyboardInstructions);
-          announcer.announce(
-            showKeyboardInstructions 
-              ? 'Keyboard instructions hidden' 
-              : 'Keyboard instructions shown'
-          );
-          break;
-          
-        case 't':
-        case 'T':
-          event.preventDefault();
-          toggleTextAlternative();
-          break;
-          
-        case keyboardNavigation.keys.ESCAPE:
-          event.preventDefault();
-          setShowKeyboardInstructions(false);
-          setShowTextAlternative(false);
-          break;
-          
-        default:
-          // Handle custom keyboard shortcuts
-          const shortcut = keyboardShortcuts.find(s => s.key === event.key);
-          if (shortcut) {
-            event.preventDefault();
-            announcer.announce(`${shortcut.action} activated`);
-          }
-          break;
-      }
+      handleKeyDown(event);
     };
     
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showKeyboardInstructions, showTextAlternative, keyboardShortcuts, announcer, toggleTextAlternative]);
+    document.addEventListener('keydown', handleDocumentKeyDown);
+    return () => document.removeEventListener('keydown', handleDocumentKeyDown);
+  }, [handleKeyDown]);
 
   const toggleReducedMotion = () => {
     setReducedMotion(!reducedMotion);
@@ -309,6 +317,7 @@ export default function Accessible3DVisualization({
         role="application"
         aria-label="3D interactive visualization"
         aria-describedby="keyboard-instructions"
+        onKeyDown={(e) => handleKeyDown(e as any)}
       >
         <Canvas
           camera={{ position: [0, 0, 10], fov: 60 }}

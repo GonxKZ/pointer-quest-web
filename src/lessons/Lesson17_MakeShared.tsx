@@ -4,6 +4,21 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+import { useApp } from '../context/AppContext';
+
+
 
 interface AllocationState {
   method: 'none' | 'make_shared' | 'shared_ptr_new';
@@ -31,81 +46,49 @@ interface AllocationState {
   currentStep: number;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
 
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
 
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
   background: ${props => 
@@ -136,13 +119,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
   }
 `;
 
-const PerformancePanel = styled.div`
-  background: rgba(0, 150, 0, 0.1);
-  border: 1px solid #00aa00;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
-`;
+
 
 const ExceptionPanel = styled.div<{ safe: boolean }>`
   background: ${props => props.safe ? 'rgba(0, 255, 0, 0.1)' : 'rgba(255, 0, 0, 0.1)'};
@@ -152,13 +129,7 @@ const ExceptionPanel = styled.div<{ safe: boolean }>`
   margin: 15px 0;
 `;
 
-const TimingComparison = styled.div`
-  background: rgba(100, 0, 100, 0.1);
-  border: 1px solid #aa00aa;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
-`;
+
 
 const MemoryVisualization: React.FC<{
   state: AllocationState;
@@ -320,7 +291,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson17_MakeShared: React.FC = () => {
+const Lesson17_MakeShared: React.FC = () => {
   const [state, setState] = useState<AllocationState>({
     method: 'none',
     allocations: [],
@@ -503,26 +474,38 @@ export const Lesson17_MakeShared: React.FC = () => {
     });
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 17: std::make_shared</Title>
-        <Subtitle>Optimización vs shared_ptr(new T) - Exception Safety y Performance</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(17, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 17: std::make_shared"
+      subtitle="Optimización vs shared_ptr(new T) - Exception Safety y Performance"
+      lessonNumber={17}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
             <MemoryVisualization state={state} />
             <OrbitControls enableZoom={true} enablePan={true} enableRotate={true} />
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
-          <TheorySection>
-            <h3>🏗️ make_shared vs shared_ptr(new T)</h3>
-            <p>Diferencias fundamentales en allocación y seguridad:</p>
-            <CodeBlock>{`// ✅ Recomendado: make_shared
+        <TheoryPanel>
+          <Section>
+            <SectionTitle>🏗️ make_shared vs shared_ptr(new T)</SectionTitle>
+<p>Diferencias fundamentales en allocación y seguridad:</p>
+            <CodeBlock language="cpp">{`// ✅ Recomendado: make_shared
 auto ptr1 = std::make_shared<Widget>(args...);
 // - 1 allocation (object + control block juntos)
 // - Exception safe
@@ -535,11 +518,12 @@ auto ptr2 = std::shared_ptr<Widget>(new Widget(args...));
 // - Riesgo de leak si excepción entre new y constructor
 // - Peor cache locality
 // - Más lento, más fragmentación`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <div>
-            <h4>🎮 Comparación de Métodos</h4>
+          <InteractiveSection>
+          <SectionTitle>🎮 Comparación de Métodos</SectionTitle>
             
+            <ButtonGroup>
             <Button onClick={demonstrateMakeShared} variant="success">
               ✅ make_shared
             </Button>
@@ -547,19 +531,19 @@ auto ptr2 = std::shared_ptr<Widget>(new Widget(args...));
             <Button onClick={demonstrateSharedPtrNew} variant="warning">
               ⚠️ shared_ptr(new T)
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🧪 Análisis de Seguridad</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🧪 Análisis de Seguridad</SectionTitle>
             <Button onClick={simulateExceptionBetweenAllocations} variant="danger">
               💥 Simular Exception
             </Button>
-          </div>
+          </InteractiveSection>
 
-          <div>
-            <h4>⚡ Performance Testing</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>⚡ Performance Testing</SectionTitle>
+<ButtonGroup>
             <Button onClick={measurePerformance}>
               📊 Medir Timing
             </Button>
@@ -567,11 +551,12 @@ auto ptr2 = std::shared_ptr<Widget>(new Widget(args...));
             <Button onClick={demonstrateCacheLocality}>
               🧠 Cache Locality
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔬 Consideraciones Avanzadas</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🔬 Consideraciones Avanzadas</SectionTitle>
+<ButtonGroup>
             <Button onClick={showWeakPtrConsequence}>
               weak_ptr Lifetime
             </Button>
@@ -579,11 +564,13 @@ auto ptr2 = std::shared_ptr<Widget>(new Widget(args...));
             <Button onClick={compareAllocatorSupport}>
               Custom Allocators
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
           <PerformancePanel>
-            <h4>📈 Métricas de Performance</h4>
-            <div>Allocaciones: {state.performance.allocCount}</div>
+            <SectionTitle>📈 Métricas de Performance</SectionTitle>
+<div>Allocaciones: {state.performance.allocCount}
+          </div>
             <div>Tamaño total: {state.performance.totalSize} bytes</div>
             <div>Fragmentación: {(state.performance.fragmentation * 100).toFixed(1)}%</div>
             <div>Cache locality: {state.performance.cacheLocality}</div>
@@ -591,8 +578,9 @@ auto ptr2 = std::shared_ptr<Widget>(new Widget(args...));
 
           {state.timingResults.showComparison && (
             <TimingComparison>
-              <h4>⏱️ Comparación de Timing</h4>
-              <div>make_shared: {state.timingResults.makeSharedTime.toFixed(1)}ns</div>
+              <SectionTitle>⏱️ Comparación de Timing</SectionTitle>
+<div>make_shared: {state.timingResults.makeSharedTime.toFixed(1)}ns
+          </div>
               <div>shared_ptr(new): {state.timingResults.sharedPtrNewTime.toFixed(1)}ns</div>
               <div style={{ color: '#00ff88' }}>
                 Mejora: {((state.timingResults.sharedPtrNewTime - state.timingResults.makeSharedTime) / state.timingResults.sharedPtrNewTime * 100).toFixed(1)}%
@@ -601,11 +589,11 @@ auto ptr2 = std::shared_ptr<Widget>(new Widget(args...));
           )}
 
           <ExceptionPanel safe={state.exceptionSafety === 'safe'}>
-            <h4>🛡️ Exception Safety</h4>
-            {state.exceptionSafety === 'safe' ? (
+            <SectionTitle>🛡️ Exception Safety</SectionTitle>
+{state.exceptionSafety === 'safe' ? (
               <div style={{ color: '#00ff88' }}>
                 ✅ Exception safe - no memory leaks posibles
-              </div>
+          </div>
             ) : state.exceptionSafety === 'unsafe' ? (
               <div style={{ color: '#ff6666' }}>
                 ❌ Vulnerable a memory leaks en excepciones
@@ -617,9 +605,9 @@ auto ptr2 = std::shared_ptr<Widget>(new Widget(args...));
             )}
           </ExceptionPanel>
 
-          <TheorySection>
-            <h4>🎯 Cuándo Usar Cada Uno</h4>
-            <CodeBlock>{`// ✅ Usar make_shared cuando:
+          <Section>
+            <SectionTitle>🎯 Cuándo Usar Cada Uno</SectionTitle>
+            <CodeBlock language="cpp">{`// ✅ Usar make_shared cuando:
 - Performance es importante
 - No necesitas custom allocator  
 - No hay problema con weak_ptr lifetime extension
@@ -630,11 +618,11 @@ auto ptr2 = std::shared_ptr<Widget>(new Widget(args...));
 - Quieres control granular de object vs control block lifetime
 - Integrando con C APIs que retornan raw pointers
 - Usando array delete o custom deleters`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>⚠️ Desventaja de make_shared</h4>
-            <CodeBlock>{`class BigObject { char data[1000000]; };
+          <Section>
+            <SectionTitle>⚠️ Desventaja de make_shared</SectionTitle>
+            <CodeBlock language="cpp">{`class BigObject { char data[1000000]; };
 
 auto shared = std::make_shared<BigObject>();
 std::weak_ptr<BigObject> weak = shared;
@@ -646,11 +634,11 @@ shared.reset();  // BigObject destruido...
 
 // Con shared_ptr(new), object se libera inmediatamente,
 // solo control block queda hasta que weak expire`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>📊 Benchmark Real</h4>
-            <CodeBlock>{`// Típicos resultados de performance:
+          <Section>
+            <SectionTitle>📊 Benchmark Real</SectionTitle>
+            <CodeBlock language="cpp">{`// Típicos resultados de performance:
 make_shared<int>():        ~45ns  (1 allocation)
 shared_ptr(new int()):     ~78ns  (2 allocations)
                           
@@ -659,13 +647,14 @@ shared_ptr(new Widget()):  ~165ns (2 allocs + construct)
 
 // Cache locality mejora dramáticamente con objetos grandes
 // que acceden frecuentemente a use_count`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
           <Button onClick={resetDemo} variant="secondary">
             🔄 Reiniciar Comparación
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson17_MakeShared;

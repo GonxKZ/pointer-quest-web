@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function UndefinedBehaviorVisualization() {
   const [ubMetrics, setUbMetrics] = useState({
@@ -31,12 +45,12 @@ function UndefinedBehaviorVisualization() {
   }, []);
 
   const ubTypes = [
-    { name: 'nullDereference', pos: [-4, 3, 0], color: '#ff0000', label: 'Null Deref' },
-    { name: 'useAfterFree', pos: [-2, 3, 0], color: '#ff4500', label: 'Use After Free' },
-    { name: 'doubleFree', pos: [0, 3, 0], color: '#ff8c00', label: 'Double Free' },
-    { name: 'bufferOverflow', pos: [2, 3, 0], color: '#ffd700', label: 'Buffer Overflow' },
-    { name: 'dataRaces', pos: [-1, 1, 0], color: '#dc143c', label: 'Data Races' },
-    { name: 'strictAliasing', pos: [1, 1, 0], color: '#b22222', label: 'Aliasing UB' },
+    { name: 'nullDereference' as keyof typeof ubMetrics, pos: [-4, 3, 0] as const, color: '#ff0000', label: 'Null Deref' },
+    { name: 'useAfterFree' as keyof typeof ubMetrics, pos: [-2, 3, 0] as const, color: '#ff4500', label: 'Use After Free' },
+    { name: 'doubleFree' as keyof typeof ubMetrics, pos: [0, 3, 0] as const, color: '#ff8c00', label: 'Double Free' },
+    { name: 'bufferOverflow' as keyof typeof ubMetrics, pos: [2, 3, 0] as const, color: '#ffd700', label: 'Buffer Overflow' },
+    { name: 'dataRaces' as keyof typeof ubMetrics, pos: [-1, 1, 0] as const, color: '#dc143c', label: 'Data Races' },
+    { name: 'strictAliasing' as keyof typeof ubMetrics, pos: [1, 1, 0] as const, color: '#b22222', label: 'Aliasing UB' },
   ];
 
   return (
@@ -44,12 +58,12 @@ function UndefinedBehaviorVisualization() {
       {ubTypes.map((type) => (
         <group key={type.name}>
           <Box
-            position={type.pos}
+            position={type.pos as [number, number, number]}
             args={[1.5, 0.8, 0.4]}
           >
             <meshStandardMaterial
               color={type.color}
-              opacity={0.3 + (ubMetrics[type.name] % 15) / 50}
+              opacity={0.3 + ((ubMetrics[type.name] ?? 0) % 15) / 50}
               transparent
             />
           </Box>
@@ -67,7 +81,7 @@ function UndefinedBehaviorVisualization() {
             color={type.color}
             anchorX="center"
           >
-            {ubMetrics[type.name]}
+            {ubMetrics[type.name] ?? 0}
           </Text>
         </group>
       ))}
@@ -2326,9 +2340,9 @@ void demonstrate_modern_implementation_ub() {
 
       <div className="content-container">
         <div className="museum-introduction">
-          <h3>{state.language === 'en' ? '🏛️ Welcome to the Undefined Behavior Museum' : '🏛️ Bienvenido al Museo del Comportamiento Indefinido'}</h3>
-          <div className="warning-banner">
-            <h4>⚠️ {state.language === 'en' ? 'CRITICAL WARNING' : 'ADVERTENCIA CRÍTICA'} ⚠️</h4>
+          <SectionTitle>{state.language === 'en' ? '🏛️ Welcome to the Undefined Behavior Museum' : '🏛️ Bienvenido al Museo del Comportamiento Indefinido'}</SectionTitle>
+<div className="warning-banner">
+            <SectionTitle>⚠️ {state.language === 'en' ? 'CRITICAL WARNING' : 'ADVERTENCIA CRÍTICA'} ⚠️</SectionTitle>
             <p>
               {state.language === 'en' 
                 ? 'This museum contains DANGEROUS code patterns that demonstrate undefined behavior in C++. These examples are for EDUCATIONAL PURPOSES ONLY and should NEVER be used in production code. Many examples are commented out to prevent crashes during demonstration.'
@@ -2338,9 +2352,8 @@ void demonstrate_modern_implementation_ub() {
         </div>
 
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Museum Exhibits' : 'Exhibiciones del Museo'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Museum Exhibits' : 'Exhibiciones del Museo'}</SectionTitle>
+<div className="example-tabs">
             {exhibits.map((exhibit, index) => (
               <button
                 key={index}
@@ -2354,75 +2367,75 @@ void demonstrate_modern_implementation_ub() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{exhibits[currentExhibit].code}</code>
+              <code>{exhibits[currentExhibit]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Undefined Behavior Categories' : 'Categorías de Comportamiento Indefinido'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Undefined Behavior Categories' : 'Categorías de Comportamiento Indefinido'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card danger">
-              <h4>{state.language === 'en' ? '💀 Classic Pointer UB' : '💀 UB Clásico de Punteros'}</h4>
+              <SectionTitle>{state.language === 'en' ? '💀 Classic Pointer UB' : '💀 UB Clásico de Punteros'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'Null dereference, use-after-free, double delete, buffer overflows - the foundational UB patterns that every C++ developer must avoid.'
                   : 'Desreferencia nula, use-after-free, doble delete, desbordamientos de buffer - los patrones UB fundamentales que todo desarrollador de C++ debe evitar.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card warning">
-              <h4>{state.language === 'en' ? '⚡ Alignment & Memory Layout' : '⚡ Alineación y Layout de Memoria'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? '⚡ Alignment & Memory Layout' : '⚡ Alineación y Layout de Memoria'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Misaligned access, padding assumptions, type punning violations - subtle UB that varies by architecture and compiler.'
                   : 'Acceso mal alineado, asunciones de padding, violaciones de type punning - UB sutil que varía por arquitectura y compilador.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card error">
-              <h4>{state.language === 'en' ? '🔄 Iterator & Pointer Arithmetic' : '🔄 Iteradores y Aritmética de Punteros'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? '🔄 Iterator & Pointer Arithmetic' : '🔄 Iteradores y Aritmética de Punteros'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Container modification during iteration, pointer arithmetic beyond bounds, iterator invalidation - common sources of UB in modern C++.'
                   : 'Modificación de contenedores durante iteración, aritmética de punteros fuera de límites, invalidación de iteradores - fuentes comunes de UB en C++ moderno.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card critical">
-              <h4>{state.language === 'en' ? '⚛️ Concurrent & Memory Ordering' : '⚛️ Concurrencia y Ordenamiento de Memoria'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? '⚛️ Concurrent & Memory Ordering' : '⚛️ Concurrencia y Ordenamiento de Memoria'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Data races, memory ordering violations, ABA problems, shared_ptr thread safety - UB in multithreaded environments.'
                   : 'Data races, violaciones de ordenamiento de memoria, problemas ABA, thread safety de shared_ptr - UB en entornos multihilo.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card modern">
-              <h4>{state.language === 'en' ? '🆕 Modern C++ UB Traps' : '🆕 Trampas UB de C++ Moderno'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? '🆕 Modern C++ UB Traps' : '🆕 Trampas UB de C++ Moderno'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Structured bindings lifetime, span/string_view dangling, ranges temporaries, coroutine frame lifetime - new UB patterns in C++17/20.'
                   : 'Ciclo de vida de structured bindings, span/string_view colgantes, temporales de ranges, ciclo de vida de frames de corrutinas - nuevos patrones UB en C++17/20.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card implementation">
-              <h4>{state.language === 'en' ? '🔧 Implementation-Defined Traps' : '🔧 Trampas Definidas por Implementación'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? '🔧 Implementation-Defined Traps' : '🔧 Trampas Definidas por Implementación'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Signed overflow, bit shifts, enum values, floating point representation - implementation-defined behavior that can become UB.'
                   : 'Overflow de enteros con signo, bit shifts, valores de enum, representación de punto flotante - comportamiento definido por implementación que puede volverse UB.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="ub-prevention-toolkit">
-          <h3>{state.language === 'en' ? '🛠️ UB Prevention & Detection Toolkit' : '🛠️ Herramientas de Prevención y Detección de UB'}</h3>
-          <div className="toolkit-grid">
+          <SectionTitle>{state.language === 'en' ? '🛠️ UB Prevention & Detection Toolkit' : '🛠️ Herramientas de Prevención y Detección de UB'}</SectionTitle>
+<div className="toolkit-grid">
             <div className="tool-category">
-              <h4>{state.language === 'en' ? 'Static Analysis' : 'Análisis Estático'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Static Analysis' : 'Análisis Estático'}</SectionTitle>
               <ul>
                 <li>clang-static-analyzer</li>
                 <li>PVS-Studio</li>
@@ -2430,46 +2443,46 @@ void demonstrate_modern_implementation_ub() {
                 <li>Coverity</li>
                 <li>SonarQube C++</li>
               </ul>
-            </div>
+          </div>
             
             <div className="tool-category">
-              <h4>{state.language === 'en' ? 'Runtime Sanitizers' : 'Sanitizadores en Tiempo de Ejecución'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Runtime Sanitizers' : 'Sanitizadores en Tiempo de Ejecución'}</SectionTitle>
+<ul>
                 <li>AddressSanitizer (ASan)</li>
                 <li>MemorySanitizer (MSan)</li>
                 <li>ThreadSanitizer (TSan)</li>
                 <li>UndefinedBehaviorSanitizer (UBSan)</li>
                 <li>LeakSanitizer (LSan)</li>
               </ul>
-            </div>
+          </div>
             
             <div className="tool-category">
-              <h4>{state.language === 'en' ? 'Memory Analysis' : 'Análisis de Memoria'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Memory Analysis' : 'Análisis de Memoria'}</SectionTitle>
+<ul>
                 <li>Valgrind (memcheck)</li>
                 <li>Dr. Memory</li>
                 <li>Intel Inspector</li>
                 <li>Heap analysis tools</li>
                 <li>Memory profilers</li>
               </ul>
-            </div>
+          </div>
             
             <div className="tool-category">
-              <h4>{state.language === 'en' ? 'Compiler Features' : 'Características del Compilador'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Compiler Features' : 'Características del Compilador'}</SectionTitle>
+<ul>
                 <li>-Wall -Wextra -Wpedantic</li>
                 <li>-Werror (warnings as errors)</li>
                 <li>-fsanitize=undefined</li>
                 <li>-fstack-protector</li>
                 <li>Debug vs Release testing</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? '🎯 Expert UB Prevention Strategies' : '🎯 Estrategias Expertas de Prevención de UB'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? '🎯 Expert UB Prevention Strategies' : '🎯 Estrategias Expertas de Prevención de UB'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Never assume implementation-defined behavior - use standard library abstractions and checks'
@@ -2501,55 +2514,55 @@ void demonstrate_modern_implementation_ub() {
                 : 'Prueba en múltiples compiladores, arquitecturas y niveles de optimización para detectar UB específico de plataforma'}
             </li>
           </ul>
-        </div>
+          </div>
 
         <div className="danger-levels">
-          <h3>{state.language === 'en' ? '☠️ UB Danger Classification' : '☠️ Clasificación de Peligro UB'}</h3>
-          <div className="danger-classification">
+          <SectionTitle>{state.language === 'en' ? '☠️ UB Danger Classification' : '☠️ Clasificación de Peligro UB'}</SectionTitle>
+<div className="danger-classification">
             <div className="danger-level critical">
               <span className="danger-icon">💀</span>
-              <div>
-                <h4>{state.language === 'en' ? 'CRITICAL UB' : 'UB CRÍTICO'}</h4>
+              <InteractiveSection>
+          <SectionTitle>{state.language === 'en' ? 'CRITICAL UB' : 'UB CRÍTICO'}</SectionTitle>
                 <p>{state.language === 'en' ? 'Memory corruption, crashes, security vulnerabilities' : 'Corrupción de memoria, crashes, vulnerabilidades de seguridad'}</p>
                 <ul>
                   <li>{state.language === 'en' ? 'Buffer overflows, use-after-free' : 'Desbordamientos de buffer, use-after-free'}</li>
                   <li>{state.language === 'en' ? 'Null pointer dereference' : 'Desreferencia de puntero nulo'}</li>
                   <li>{state.language === 'en' ? 'Data races in multithreaded code' : 'Data races en código multihilo'}</li>
                 </ul>
-              </div>
+          </InteractiveSection>
             </div>
             
             <div className="danger-level high">
               <span className="danger-icon">⚡</span>
-              <div>
-                <h4>{state.language === 'en' ? 'HIGH UB' : 'UB ALTO'}</h4>
-                <p>{state.language === 'en' ? 'Unpredictable results, optimization issues' : 'Resultados impredecibles, problemas de optimización'}</p>
+              <InteractiveSection>
+          <SectionTitle>{state.language === 'en' ? 'HIGH UB' : 'UB ALTO'}</SectionTitle>
+<p>{state.language === 'en' ? 'Unpredictable results, optimization issues' : 'Resultados impredecibles, problemas de optimización'}</p>
                 <ul>
                   <li>{state.language === 'en' ? 'Signed integer overflow' : 'Overflow de enteros con signo'}</li>
                   <li>{state.language === 'en' ? 'Iterator invalidation' : 'Invalidación de iteradores'}</li>
                   <li>{state.language === 'en' ? 'Strict aliasing violations' : 'Violaciones de strict aliasing'}</li>
                 </ul>
-              </div>
+          </InteractiveSection>
             </div>
             
             <div className="danger-level medium">
               <span className="danger-icon">⚠️</span>
-              <div>
-                <h4>{state.language === 'en' ? 'MEDIUM UB' : 'UB MEDIO'}</h4>
-                <p>{state.language === 'en' ? 'Platform-dependent behavior, subtle bugs' : 'Comportamiento dependiente de plataforma, bugs sutiles'}</p>
+              <InteractiveSection>
+          <SectionTitle>{state.language === 'en' ? 'MEDIUM UB' : 'UB MEDIO'}</SectionTitle>
+<p>{state.language === 'en' ? 'Platform-dependent behavior, subtle bugs' : 'Comportamiento dependiente de plataforma, bugs sutiles'}</p>
                 <ul>
                   <li>{state.language === 'en' ? 'Alignment issues on some architectures' : 'Problemas de alineación en algunas arquitecturas'}</li>
                   <li>{state.language === 'en' ? 'Enum value out of range' : 'Valor de enum fuera de rango'}</li>
                   <li>{state.language === 'en' ? 'Implementation-defined integer conversions' : 'Conversiones de enteros definidas por implementación'}</li>
                 </ul>
-              </div>
+          </InteractiveSection>
             </div>
           </div>
         </div>
 
         <div className="museum-conclusion">
-          <h3>{state.language === 'en' ? '🎓 Museum Graduation' : '🎓 Graduación del Museo'}</h3>
-          <div className="conclusion-content">
+          <SectionTitle>{state.language === 'en' ? '🎓 Museum Graduation' : '🎓 Graduación del Museo'}</SectionTitle>
+<div className="conclusion-content">
             <p>
               {state.language === 'en'
                 ? 'Congratulations! You have completed your journey through the Undefined Behavior Museum. You now possess comprehensive knowledge of C++ UB patterns, from classic pointer mistakes to modern C++20 pitfalls. This knowledge makes you a safer, more reliable C++ developer.'
@@ -2557,7 +2570,7 @@ void demonstrate_modern_implementation_ub() {
             </p>
             
             <div className="key-takeaways">
-              <h4>{state.language === 'en' ? 'Key Takeaways:' : 'Puntos Clave:'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Key Takeaways:' : 'Puntos Clave:'}</SectionTitle>
               <ul>
                 <li>{state.language === 'en' ? 'UB is not just about crashes - it can cause silent data corruption' : 'UB no es solo sobre crashes - puede causar corrupción silenciosa de datos'}</li>
                 <li>{state.language === 'en' ? 'Modern C++ features introduce new UB patterns alongside solutions' : 'Las características modernas de C++ introducen nuevos patrones UB junto con soluciones'}</li>
@@ -2565,7 +2578,7 @@ void demonstrate_modern_implementation_ub() {
                 <li>{state.language === 'en' ? 'Prevention is better than detection - design for safety from the start' : 'La prevención es mejor que la detección - diseña para seguridad desde el inicio'}</li>
                 <li>{state.language === 'en' ? 'Tools and techniques exist to catch most UB patterns' : 'Existen herramientas y técnicas para detectar la mayoría de patrones UB'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="final-wisdom">
               <p><strong>

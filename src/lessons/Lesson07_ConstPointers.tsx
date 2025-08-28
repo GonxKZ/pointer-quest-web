@@ -1,88 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
+import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
 import { THREE } from '../utils/three';
 import { 
   LessonLayout,
-  TheoryPanel,
-  VisualizationPanel,
   Section,
   SectionTitle,
-  Button,
+  Button as DSButton,
   CodeBlock,
   InteractiveSection,
-  theme,
   StatusDisplay,
   ButtonGroup
 } from '../design-system';
 
-const LessonContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  gap: 1rem;
-  padding: 1rem;
-`;
-
-const TheoryPanel = styled.div`
-  background: rgba(26, 26, 46, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
-
-const VisualizationPanel = styled.div`
-  background: rgba(22, 33, 62, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-`;
-
-const Title = styled.h1`
-  color: #00d4ff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px #00d4ff;
-`;
-
-const Section = styled.div`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-left: 3px solid #00d4ff;
-  border-radius: 5px;
-`;
-
-const SectionTitle = styled.h3`
-  color: #4ecdc4;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  color: #f8f8f2;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const Interactive = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'success' | 'const' }>`
+const ConstButton = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'success' | 'const' }>`
   padding: 0.8rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -132,6 +65,22 @@ const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'suc
   `}
 `;
 
+const ErrorAttemptBox = styled.div`
+  background: rgba(255, 107, 107, 0.1);
+  border: 2px solid #ff6b6b;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: #ff6b6b;
+  font-family: monospace;
+  font-size: 0.9rem;
+  
+  strong {
+    color: #ff5252;
+    font-weight: bold;
+  }
+`;
+
 const ConstRule = styled.div<{ active: boolean }>`
   background: ${props => props.active ? 'rgba(106, 27, 154, 0.2)' : 'rgba(106, 27, 154, 0.05)'};
   border: 2px solid ${props => props.active ? '#6a1b9a' : 'rgba(106, 27, 154, 0.3)'};
@@ -143,33 +92,9 @@ const ConstRule = styled.div<{ active: boolean }>`
   transition: all 0.3s ease;
 `;
 
-const ErrorAttempt = styled.div`
-  background: rgba(255, 107, 107, 0.1);
-  border: 2px solid #ff6b6b;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #ff6b6b;
-  font-weight: bold;
-  animation: compileError 1.5s infinite;
-  
-  @keyframes compileError {
-    0%, 100% { border-color: #ff6b6b; }
-    50% { border-color: #ff0000; }
-  }
-`;
 
-const StatusDisplay = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 1rem;
-  border-radius: 8px;
-  color: white;
-  z-index: 100;
-  font-family: monospace;
-`;
+
+
 
 type ConstType = 'none' | 'const_data' | 'const_pointer' | 'const_both';
 
@@ -390,7 +315,7 @@ function Lesson07Scene({ state }: { state: ConstState }) {
 }
 
 export default function Lesson07_ConstPointers() {
-  const { dispatch } = useApp();
+  const { state: appState } = useApp();
   
   const [state, setState] = useState<ConstState>({
     value: 42,
@@ -568,13 +493,19 @@ void modern_function(const int& value) {  // Más claro que const int*
 }`;
 
   return (
-    <LessonContainer>
-      <TheoryPanel>
-        <Title>Tarea 7: const con Punteros - Mutabilidad Selectiva</Title>
+    <LessonLayout
+      title="Tarea 7: const con Punteros - Mutabilidad Selectiva"
+      lessonNumber={7}
+      topic="pointers"
+      difficulty="Intermediate"
+      estimatedTime={25}
+      progress={Math.round((currentStep + 1) / steps.length * 100)}
+    >
+      <Section>
         
         <Section>
           <SectionTitle>🔒 const: Control Granular de Mutabilidad</SectionTitle>
-          <p>
+<p>
             <strong>const</strong> con punteros permite especificar qué puede mutar y qué no.
             La posición de const determina si se aplica al dato apuntado o al puntero mismo.
           </p>
@@ -617,47 +548,47 @@ void modern_function(const int& value) {  // Más claro que const int*
           </div>
           
           <InteractiveSection>
-            <Button onClick={() => setConstType('none')}>
+            <ConstButton onClick={() => setConstType('none')}>
               int* ptr
-            </Button>
-            <Button onClick={() => setConstType('const_data')} variant="const">
+            </ConstButton>
+            <ConstButton onClick={() => setConstType('const_data')} variant="const">
               const int* ptr
-            </Button>
-            <Button onClick={() => setConstType('const_pointer')} variant="const">
+            </ConstButton>
+            <ConstButton onClick={() => setConstType('const_pointer')} variant="const">
               int* const ptr
-            </Button>
-            <Button onClick={() => setConstType('const_both')} variant="const">
+            </ConstButton>
+            <ConstButton onClick={() => setConstType('const_both')} variant="const">
               const int* const ptr
-            </Button>
-          </InteractiveSection>
+            </ConstButton>
+        </InteractiveSection>
 
           <InteractiveSection>
-            <Button onClick={attemptModifyValue} variant="warning">
+            <DSButton onClick={attemptModifyValue} variant="warning">
               *ptr = new_value
-            </Button>
-            <Button onClick={attemptModifyPointer} variant="warning">
+            </DSButton>
+            <DSButton onClick={attemptModifyPointer} variant="warning">
               ptr = &other
-            </Button>
-            <Button onClick={nextStep} variant="success">
+            </DSButton>
+            <DSButton onClick={nextStep} variant="success">
               Siguiente Paso
-            </Button>
-            <Button onClick={reset}>
+            </DSButton>
+            <DSButton onClick={reset}>
               Reset
-            </Button>
+            </DSButton>
           </InteractiveSection>
 
           {state.status === 'error' && (
-            <ErrorAttempt>
+            <ErrorAttemptBox>
               🚫 COMPILE ERROR<br/>
               {state.lastError}<br/>
               <strong>Razón:</strong> Violación de const-correctness
-            </ErrorAttempt>
+            </ErrorAttemptBox>
           )}
         </Section>
 
         <Section>
           <SectionTitle>📚 Reglas de Lectura</SectionTitle>
-          <CodeBlock>{readingRulesCode}</CodeBlock>
+<CodeBlock>{readingRulesCode}</CodeBlock>
         </Section>
 
         <Section>
@@ -686,7 +617,7 @@ void modern_function(const int& value) {  // Más claro que const int*
 
         <Section>
           <SectionTitle>🔧 Herramientas y Verificación</SectionTitle>
-          <ul style={{ lineHeight: '1.6' }}>
+<ul style={{ lineHeight: '1.6' }}>
             <li><strong>Compilador:</strong> Errores de const-correctness en compile-time</li>
             <li><strong>clang-tidy:</strong> readability-const-return-type</li>
             <li><strong>const_cast:</strong> Romper const (usar con extrema precaución)</li>
@@ -705,11 +636,12 @@ void modern_function(const int& value) {  // Más claro que const int*
             <li><strong>const member functions:</strong> Métodos que no modifican objeto</li>
           </ul>
         </Section>
-      </TheoryPanel>
+      </Section>
 
-      <VisualizationPanel>
+      <Section>
         <StatusDisplay>
-          <div>🎯 Tarea 7: const Pointers</div>
+          <div>🎯 Tarea 7: const Pointers
+          </div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
           <div>🔗 Tipo: {state.constType}</div>
           <div>📊 Acción: {state.attemptedAction}</div>
@@ -726,7 +658,7 @@ void modern_function(const int& value) {  // Más claro que const int*
             maxDistance={15}
           />
         </Canvas>
-      </VisualizationPanel>
-    </LessonContainer>
+      </Section>
+    </LessonLayout>
   );
 }

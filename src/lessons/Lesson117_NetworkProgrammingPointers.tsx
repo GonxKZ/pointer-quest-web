@@ -2,6 +2,20 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder, Cone, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface NetworkMetrics {
   bufferEfficiency: number;
@@ -1814,10 +1828,10 @@ public:
       </div>
 
       <div className="key-concepts-section">
-        <h3>{state.language === 'en' ? 'Key Network Programming Concepts' : 'Conceptos Clave de Programación de Red'}</h3>
-        <div className="concepts-grid">
+        <SectionTitle>{state.language === 'en' ? 'Key Network Programming Concepts' : 'Conceptos Clave de Programación de Red'}</SectionTitle>
+<div className="concepts-grid">
           <div className="concept-card">
-            <h4>{state.language === 'en' ? 'Buffer Management Strategies' : 'Estrategias de Gestión de Buffers'}</h4>
+            <SectionTitle>{state.language === 'en' ? 'Buffer Management Strategies' : 'Estrategias de Gestión de Buffers'}</SectionTitle>
             <ul>
               <li>{state.language === 'en' ? 'Lock-free buffer pools for high concurrency' : 'Pools de buffers sin bloqueos para alta concurrencia'}</li>
               <li>{state.language === 'en' ? 'Cache-line aligned memory allocation' : 'Asignación de memoria alineada a línea de caché'}</li>
@@ -1828,8 +1842,8 @@ public:
           </div>
           
           <div className="concept-card">
-            <h4>{state.language === 'en' ? 'Zero-Copy Networking' : 'Redes Zero-Copy'}</h4>
-            <ul>
+            <SectionTitle>{state.language === 'en' ? 'Zero-Copy Networking' : 'Redes Zero-Copy'}</SectionTitle>
+<ul>
               <li>{state.language === 'en' ? 'Scatter-gather I/O operations' : 'Operaciones de E/S scatter-gather'}</li>
               <li>{state.language === 'en' ? 'Memory-mapped file operations' : 'Operaciones de archivos mapeados en memoria'}</li>
               <li>{state.language === 'en' ? 'Direct kernel operations (sendfile)' : 'Operaciones directas del kernel (sendfile)'}</li>
@@ -1839,8 +1853,8 @@ public:
           </div>
           
           <div className="concept-card">
-            <h4>{state.language === 'en' ? 'Protocol Buffer Optimization' : 'Optimización de Protocol Buffer'}</h4>
-            <ul>
+            <SectionTitle>{state.language === 'en' ? 'Protocol Buffer Optimization' : 'Optimización de Protocol Buffer'}</SectionTitle>
+<ul>
               <li>{state.language === 'en' ? 'Efficient varint encoding/decoding' : 'Codificación/decodificación eficiente de varint'}</li>
               <li>{state.language === 'en' ? 'Zero-copy protocol parsing' : 'Análisis de protocolo zero-copy'}</li>
               <li>{state.language === 'en' ? 'Binary serialization techniques' : 'Técnicas de serialización binaria'}</li>
@@ -1850,8 +1864,8 @@ public:
           </div>
           
           <div className="concept-card">
-            <h4>{state.language === 'en' ? 'Network Resource Management' : 'Gestión de Recursos de Red'}</h4>
-            <ul>
+            <SectionTitle>{state.language === 'en' ? 'Network Resource Management' : 'Gestión de Recursos de Red'}</SectionTitle>
+<ul>
               <li>{state.language === 'en' ? 'RAII socket wrappers' : 'Wrappers RAII para sockets'}</li>
               <li>{state.language === 'en' ? 'Connection pooling with lifecycle management' : 'Pooling de conexiones con gestión de ciclo de vida'}</li>
               <li>{state.language === 'en' ? 'Automatic resource cleanup and monitoring' : 'Limpieza automática y monitoreo de recursos'}</li>

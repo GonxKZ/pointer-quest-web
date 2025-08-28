@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 interface LoadingSpinnerProps {
@@ -6,6 +6,7 @@ interface LoadingSpinnerProps {
   message?: string;
   progress?: number;
   overlay?: boolean;
+  category?: 'básica' | 'intermedia' | 'avanzada' | 'experta';
 }
 
 const spin = keyframes`
@@ -127,7 +128,8 @@ export default function LoadingSpinner({
   size = 'medium', 
   message = 'Cargando Pointer Quest...', 
   progress,
-  overlay = false
+  overlay = false,
+  category
 }: LoadingSpinnerProps) {
   const [currentStep, setCurrentStep] = React.useState(0);
 
@@ -146,7 +148,9 @@ export default function LoadingSpinner({
       <Container size={size}>
         <Spinner size={size} />
         <LoadingText size={size}>{message}</LoadingText>
-        <LoadingSubtext>Preparando visualizaciones 3D</LoadingSubtext>
+        <LoadingSubtext>
+          {category ? `Lección ${category} - Preparando visualizaciones 3D` : 'Preparando visualizaciones 3D'}
+        </LoadingSubtext>
         
         {progress !== undefined && (
           <ProgressContainer>

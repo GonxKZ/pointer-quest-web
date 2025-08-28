@@ -30,7 +30,7 @@ const warningFlash = keyframes`
 
 // Undefined Behavior Warning Component
 interface UndefinedBehaviorWarningProps {
-  severity: 'low' | 'medium' | 'high' | 'extreme';
+  severity?: 'low' | 'medium' | 'high' | 'extreme';
   title: string;
   description: string;
   codeExample?: string;
@@ -143,7 +143,7 @@ const ConsequencesList = styled.ul`
 `;
 
 export const UndefinedBehaviorWarning: React.FC<UndefinedBehaviorWarningProps> = ({
-  severity,
+  severity = 'medium',
   title,
   description,
   codeExample,
@@ -196,7 +196,19 @@ export const UndefinedBehaviorWarning: React.FC<UndefinedBehaviorWarningProps> =
 // Performance Comparison Component
 interface PerformanceComparisonProps {
   title: string;
-  approaches: Array<{
+  approaches?: Array<{
+    name: string;
+    code: string;
+    performance: 'slow' | 'medium' | 'fast' | 'optimal';
+    description: string;
+    metrics?: {
+      time?: string;
+      memory?: string;
+      cacheMisses?: number;
+    };
+  }>;
+  // Alternative prop name for backward compatibility
+  scenarios?: Array<{
     name: string;
     code: string;
     performance: 'slow' | 'medium' | 'fast' | 'optimal';
@@ -315,15 +327,18 @@ const MetricItem = styled.div`
 export const PerformanceComparison: React.FC<PerformanceComparisonProps> = ({
   title,
   approaches,
+  scenarios,
   onRunBenchmark,
   benchmarkResults = []
 }) => {
+  // Use approaches if provided, otherwise fallback to scenarios
+  const comparisonData = approaches || scenarios || [];
   return (
     <ComparisonContainer>
       <ComparisonTitle>{title}</ComparisonTitle>
       
       <ApproachesGrid>
-        {approaches.map((approach, index) => (
+        {comparisonData.map((approach, index) => (
           <ApproachCard key={index} performance={approach.performance}>
             <PerformanceBadge performance={approach.performance}>
               {approach.performance}

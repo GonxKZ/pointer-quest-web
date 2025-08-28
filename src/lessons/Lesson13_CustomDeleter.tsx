@@ -1,9 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  theme,
+  StatusDisplay,
+  ButtonGroup
+} from '../design-system';
 
 interface DeleterState {
   hasFile: boolean;
@@ -37,143 +49,91 @@ interface FileResource {
   deleterType: string;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
-
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
-
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
-
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
-  background: ${props => 
-    props.variant === 'danger' ? 'linear-gradient(45deg, #ff4444, #cc0000)' :
-    props.variant === 'success' ? 'linear-gradient(45deg, #44ff44, #00cc00)' :
-    props.variant === 'warning' ? 'linear-gradient(45deg, #ff8800, #cc6600)' :
-    props.variant === 'secondary' ? 'linear-gradient(45deg, #666, #333)' :
-    'linear-gradient(45deg, #0066cc, #0099ff)'};
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.9em;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 100, 200, 0.4);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const StatusDisplay = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  border: 1px solid #333;
-`;
-
-const SizeComparison = styled.div`
-  background: rgba(100, 0, 100, 0.2);
-  border: 1px solid #cc00cc;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
-`;
-
-const InputGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-`;
-
-const Input = styled.input`
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid #0066cc;
-  border-radius: 4px;
-  padding: 8px 12px;
-  color: white;
-  font-family: inherit;
-  flex: 1;
-`;
+const Button = ({ onClick, disabled, variant, children, ...props }: {
+  onClick?: () => void;
+  disabled?: boolean;
+  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
+  children: React.ReactNode;
+  [key: string]: any;
+}) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    style={{
+      background: variant === 'danger' ? 'linear-gradient(45deg, #ff4444, #cc0000)' :
+        variant === 'success' ? 'linear-gradient(45deg, #44ff44, #00cc00)' :
+        variant === 'warning' ? 'linear-gradient(45deg, #ff8800, #cc6600)' :
+        variant === 'secondary' ? 'linear-gradient(45deg, #666, #333)' :
+        'linear-gradient(45deg, #0066cc, #0099ff)',
+      color: 'white',
+      border: 'none',
+      padding: '12px 20px',
+      margin: '5px',
+      borderRadius: '5px',
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      fontFamily: 'inherit',
+      fontSize: '0.9em',
+      transition: 'all 0.3s ease',
+      opacity: disabled ? 0.5 : 1,
+      transform: 'none'
+    }}
+    onMouseEnter={(e) => {
+      if (!disabled) {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 5px 15px rgba(0, 100, 200, 0.4)';
+      }
+    }}
+    onMouseLeave={(e) => {
+      if (!disabled) {
+        e.currentTarget.style.transform = 'none';
+        e.currentTarget.style.boxShadow = 'none';
+      }
+    }}
+    {...props}
+  >
+    {children}
+  </button>
+);
 
 const MemoryVisualization: React.FC<{
   state: DeleterState;
@@ -435,7 +395,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson13_CustomDeleter: React.FC = () => {
+const Lesson13_CustomDeleter: React.FC = () => {
   const [state, setState] = useState<DeleterState>({
     hasFile: false,
     filename: 'data.txt',
@@ -646,26 +606,38 @@ export const Lesson13_CustomDeleter: React.FC = () => {
     }));
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 13: Custom Deleters</Title>
-        <Subtitle>Gestión Personalizada de Recursos con Empty Base Optimization</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(13, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 13: Custom Deleters"
+      subtitle="Gestión Personalizada de Recursos con Empty Base Optimization"
+      lessonNumber={13}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
             <MemoryVisualization state={state} deleters={deleters} fileResource={fileResource} />
             <OrbitControls enableZoom={true} enablePan={true} enableRotate={true} />
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
-          <TheorySection>
-            <h3>🗂️ Custom Deleters</h3>
-            <p>unique_ptr acepta deleters personalizados para recursos no-array:</p>
-            <CodeBlock>{`// Function pointer deleter
+        <TheoryPanel>
+          <Section>
+            <SectionTitle>🗂️ Custom Deleters</SectionTitle>
+<p>unique_ptr acepta deleters personalizados para recursos no-array:</p>
+            <CodeBlock language="cpp">{`// Function pointer deleter
 std::unique_ptr<FILE, decltype(&fclose)> file(
     fopen("data.txt", "r"), &fclose);
 
@@ -680,10 +652,10 @@ struct FileCloser {
 };
 std::unique_ptr<FILE, FileCloser> file_functor(
     fopen("data.txt", "r"));`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <div>
-            <h4>⚙️ Configuración</h4>
+          <InteractiveSection>
+          <SectionTitle>⚙️ Configuración</SectionTitle>
             
             <InputGroup>
               <label>Archivo:</label>
@@ -693,11 +665,11 @@ std::unique_ptr<FILE, FileCloser> file_functor(
                 placeholder="nombre_archivo.txt"
               />
             </InputGroup>
-          </div>
+          </InteractiveSection>
 
-          <div>
-            <h4>🎮 Tipos de Deleters</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🎮 Tipos de Deleters</SectionTitle>
+<ButtonGroup>
             <Button onClick={createFileWithFunctionPointer} variant="primary">
               Function Pointer
             </Button>
@@ -713,11 +685,12 @@ std::unique_ptr<FILE, FileCloser> file_functor(
             <Button onClick={createFileWithStatefulDeleter} variant="warning">
               Stateful Deleter
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔧 Operaciones</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🔧 Operaciones</SectionTitle>
+<ButtonGroup>
             <Button 
               onClick={demonstrateCustomDestruction}
               disabled={!state.hasFile}
@@ -729,23 +702,23 @@ std::unique_ptr<FILE, FileCloser> file_functor(
             <Button onClick={resetExample} variant="secondary">
               🔄 Reiniciar
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <SizeComparison>
-            <h4>📏 Análisis de Tamaño</h4>
-            <div>unique_ptr por defecto: {state.sizeInfo.defaultSize} bytes</div>
+          <StatusDisplay>
+            <SectionTitle>📏 Análisis de Tamaño</SectionTitle>
+<div>unique_ptr por defecto: {state.sizeInfo.defaultSize} bytes</div>
             <div>Con deleter actual: {state.sizeInfo.currentSize} bytes</div>
             <div>Overhead del deleter: {state.sizeInfo.overhead} bytes</div>
             {state.sizeInfo.overhead === 0 && state.deleterType !== 'default' && (
               <div style={{ color: '#00ff88' }}>
-                ✨ Empty Base Optimization aplicada!
-              </div>
+                ✨ Empty Base Optimization aplicada!</div>
             )}
-          </SizeComparison>
+          </StatusDisplay>
 
           <StatusDisplay>
-            <h4>📊 Estado Actual</h4>
-            <div>Archivo: {state.hasFile ? `${state.filename} (abierto)` : 'ninguno'}</div>
+            <SectionTitle>📊 Estado Actual</SectionTitle>
+<div>Archivo: {state.hasFile ? `${state.filename} (abierto)` : 'ninguno'}</div>
             <div>Deleter tipo: {state.deleterType}</div>
             <div>Operación: {state.operation}</div>
             {state.customDeleterData && (
@@ -753,10 +726,10 @@ std::unique_ptr<FILE, FileCloser> file_functor(
             )}
           </StatusDisplay>
 
-          <TheorySection>
-            <h4>🎯 Empty Base Optimization (EBO)</h4>
+          <Section>
+            <SectionTitle>🎯 Empty Base Optimization (EBO)</SectionTitle>
             <p>Cuando el deleter es stateless, C++ aplica EBO:</p>
-            <CodeBlock>{`// Sin overhead de tamaño
+            <CodeBlock language="cpp">{`// Sin overhead de tamaño
 sizeof(std::unique_ptr<FILE, decltype(&fclose)>) == 8
 
 // Function object vacío también optimizado
@@ -764,10 +737,10 @@ sizeof(std::unique_ptr<FILE, EmptyDeleter>) == 8
 
 // Pero deleter con estado aumenta el tamaño
 sizeof(std::unique_ptr<FILE, StatefulDeleter>) > 8`}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>💡 Casos de Uso Comunes</h4>
+          <Section>
+            <SectionTitle>💡 Casos de Uso Comunes</SectionTitle>
             <ul>
               <li><strong>Archivos:</strong> fclose para FILE*</li>
               <li><strong>Memory mapping:</strong> munmap para void*</li>
@@ -777,11 +750,11 @@ sizeof(std::unique_ptr<FILE, StatefulDeleter>) > 8`}</CodeBlock>
               <li><strong>Logging:</strong> Deleters que registran destrucción</li>
               <li><strong>Networking:</strong> close para sockets</li>
             </ul>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>⚠️ Consideraciones</h4>
-            <CodeBlock>{`// ✅ Exception-safe
+          <Section>
+            <SectionTitle>⚠️ Consideraciones</SectionTitle>
+            <CodeBlock language="cpp">{`// ✅ Exception-safe
 auto file = std::unique_ptr<FILE, decltype(&fclose)>(
     fopen("data.txt", "r"), &fclose);
 if (!file) throw std::runtime_error("Cannot open file");
@@ -794,9 +767,10 @@ struct BadDeleter { int x; }; // No operator()
 struct GoodDeleter {
     void operator()(FILE* f) { if(f) fclose(f); }
 };`}</CodeBlock>
-          </TheorySection>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+          </Section>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson13_CustomDeleter;

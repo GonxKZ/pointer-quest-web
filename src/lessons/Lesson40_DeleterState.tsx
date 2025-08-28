@@ -3,73 +3,37 @@ import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface Lesson40Props {
   onComplete: (score: number) => void;
   isCompleted: boolean;
 }
 
-const Container = styled.div`
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
 
-const Title = styled.h1`
-  color: #4a9eff;
-  margin-bottom: 30px;
-  text-align: center;
-  font-size: 2.5rem;
-  text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
-`;
 
-const Description = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-`;
 
-const CodeBlock = styled.pre`
-  background: #1a1a1a;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-x: auto;
-  border-left: 4px solid #4a9eff;
-  margin: 20px 0;
-  font-family: 'Courier New', monospace;
-  
-  code {
-    color: #e0e0e0;
-    
-    .keyword { color: #569cd6; }
-    .string { color: #ce9178; }
-    .comment { color: #6a9955; }
-    .type { color: #4ec9b0; }
-    .number { color: #b5cea8; }
-    .highlight { background: rgba(255, 255, 0, 0.2); }
-    .good { color: #4caf50; background: rgba(76, 175, 80, 0.1); }
-    .bad { color: #f44336; background: rgba(244, 67, 54, 0.1); }
-  }
-`;
 
-const CanvasContainer = styled.div`
-  height: 500px;
-  margin: 20px 0;
-  border: 2px solid #4a9eff;
-  border-radius: 10px;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f23 100%);
-`;
 
-const QuizContainer = styled.div`
-  background: rgba(74, 158, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin: 20px 0;
-`;
+
+
+
+
+
+
 
 const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; incorrect?: boolean }>`
   display: block;
@@ -96,37 +60,9 @@ const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; inc
   }
 `;
 
-const ScoreDisplay = styled.div`
-  text-align: center;
-  font-size: 1.2rem;
-  color: #4a9eff;
-  margin: 20px 0;
-`;
 
-const ComparisonTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  overflow: hidden;
-  
-  th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  th {
-    background: rgba(74, 158, 255, 0.2);
-    font-weight: bold;
-    color: #4a9eff;
-  }
-  
-  tr:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-`;
+
+
 
 interface DeleterVisualizationProps {
   deleterType: string;
@@ -232,7 +168,7 @@ function DeleterComparison() {
           deleterType={deleter.type}
           size={deleter.size}
           color={deleter.color}
-          position={deleter.pos}
+          position={deleter.pos as [number, number, number]}
           hasState={deleter.hasState}
           stateless={deleter.stateless}
         />
@@ -354,14 +290,14 @@ export default function Lesson40_DeleterState({ onComplete, isCompleted }: Lesso
       <Title>📏 Lección 40: Impacto del Deleter en unique_ptr</Title>
       
       <Description>
-        <h3>🎯 Objetivo</h3>
-        <p>
+        <SectionTitle>🎯 Objetivo</SectionTitle>
+<p>
           El tipo de deleter que uses en unique_ptr puede impactar significativamente su tamaño 
           en memoria. Esta lección explora cómo Empty Base Optimization (EBO) y el estado del 
           deleter afectan el footprint de memory de unique_ptr.
         </p>
 
-        <h4>📐 El Tamaño Importa: unique_ptr No Siempre Ocupa 8 Bytes</h4>
+        <SectionTitle>📐 El Tamaño Importa: unique_ptr No Siempre Ocupa 8 Bytes</SectionTitle>
         <CodeBlock>
           {`// Comparación de tamaños de unique_ptr
 #include <memory>
@@ -395,7 +331,7 @@ void analyze_sizes() {
 }`}
         </CodeBlock>
 
-        <h4>🧠 Empty Base Optimization (EBO) Explicado</h4>
+        <SectionTitle>🧠 Empty Base Optimization (EBO) Explicado</SectionTitle>
         <p>
           EBO permite que unique_ptr "fusione" el deleter con el puntero cuando el deleter 
           no tiene estado (stateless), eliminando el overhead de memoria adicional.
@@ -430,7 +366,7 @@ public:
       </CanvasContainer>
 
       <Description>
-        <h4>📊 Comparación Detallada de Deleters</h4>
+        <SectionTitle>📊 Comparación Detallada de Deleters</SectionTitle>
         <ComparisonTable>
           <thead>
             <tr>
@@ -480,7 +416,7 @@ public:
           </tbody>
         </ComparisonTable>
 
-        <h4>🎯 Mejores Prácticas</h4>
+        <SectionTitle>🎯 Mejores Prácticas</SectionTitle>
         
         <h5>✅ Optimal: Stateless Deleters</h5>
         <CodeBlock>
@@ -520,7 +456,7 @@ struct LoggingDeleter {
 // sizeof(unique_ptr) = 8 bytes (EBO funciona)`}
         </CodeBlock>
 
-        <h4>🔬 Medición en Tiempo de Compilación</h4>
+        <SectionTitle>🔬 Medición en Tiempo de Compilación</SectionTitle>
         <CodeBlock>
           {`// Utilidad para verificar tamaños en compile-time
 template<typename T, size_t Expected>
@@ -537,10 +473,10 @@ static_assert(check_size<FilePtr, 8>());  // Debe pasar con EBO`}
       </Description>
 
       <QuizContainer>
-        <h3>🧠 Evaluación de Conocimientos</h3>
+        <SectionTitle>🧠 Evaluación de Conocimientos</SectionTitle>
         {questions.map((q, qIndex) => (
           <div key={qIndex} style={{ marginBottom: '20px' }}>
-            <h4>{q.question}</h4>
+            <SectionTitle>{q.question}</SectionTitle>
             {q.options.map((option, oIndex) => (
               <QuestionButton
                 key={oIndex}
@@ -575,7 +511,7 @@ static_assert(check_size<FilePtr, 8>());  // Debe pasar con EBO`}
         
         {showResults && (
           <ScoreDisplay>
-            <h3>📊 Resultado Final</h3>
+            <SectionTitle>📊 Resultado Final</SectionTitle>
             <p>Has obtenido {score.toFixed(1)}% de aciertos</p>
             <p>
               {score >= 80 ? '🎉 ¡Excelente! Dominas EBO y optimización de unique_ptr' :

@@ -3,6 +3,7 @@ import type { RootState } from '@react-three/fiber';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { MemoryBlock3D, Pointer3D } from '../types';
 import { useOptimizedAnimation, useAnimationFrame, usePerformanceAnimation } from '../hooks/useOptimizedAnimation';
 import { useMemoryManagement, useMaterialSharing } from '../hooks/useMemoryManagement';
@@ -588,9 +589,36 @@ const MemoryAnalytics = memo(({ memoryBlocks, pointers }: {
 // Componente principal de visualización 3D
 export function MemoryScene() {
   const { state } = useApp();
+  const { theme } = useTheme();
   
   // Initialize centralized animation manager
   useAnimationFrame();
+
+  // Get theme-aware colors
+  const memoryColors = useMemo(() => ({
+    stack: theme.colors.memory.stack,
+    heap: theme.colors.memory.heap,
+    global: theme.colors.memory.global,
+    pointer: theme.colors.memory.pointer,
+    text: theme.colors.text.primary,
+    secondary: theme.colors.text.secondary,
+    accent: theme.colors.text.accent
+  }), [theme.colors]);
+
+  // Theme-aware panel styles
+  const panelStyle = useMemo(() => ({
+    background: theme.mode === 'dark' 
+      ? 'linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,40,0.95))'
+      : 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95))',
+    color: theme.colors.text.primary,
+    border: `2px solid ${theme.colors.primary[500]}40`,
+    backdropFilter: 'blur(10px)',
+    boxShadow: `0 0 25px ${theme.colors.primary[500]}30`,
+    borderRadius: '12px',
+    padding: '15px',
+    fontFamily: 'monospace',
+    fontSize: '12px'
+  }), [theme]);
 
   // Optimized memory blocks with better memoization and dependency tracking
   const memoryBlocks = useMemo(() => {
@@ -619,7 +647,7 @@ export function MemoryScene() {
       state.memoryVisualization.stack,
       [-6, 2, 0],
       [1.5, 0.8, 0.8],
-      '#00ff88',
+      memoryColors.stack,
       'stack'
     ));
 
@@ -628,7 +656,7 @@ export function MemoryScene() {
       state.memoryVisualization.heap,
       [0, 2, 0],
       [2, 1, 1],
-      '#ff6b6b',
+      memoryColors.heap,
       'heap'
     ));
 
@@ -637,12 +665,12 @@ export function MemoryScene() {
       state.memoryVisualization.global,
       [6, 2, 0],
       [1.2, 0.8, 0.8],
-      '#ffa500',
+      memoryColors.global,
       'global'
     ));
 
     return blocks;
-  }, [state]);
+  }, [state, memoryColors]);
 
   // Convertir punteros a punteros 3D with optimized lookup
   const pointer3D = useMemo(() => {
@@ -788,13 +816,13 @@ export function MemoryScene() {
         <bufferGeometry>
           <bufferAttribute args={[new Float32Array([-3, -2, 0, -3, 4, 0]), 3]} attach="attributes-position" />
         </bufferGeometry>
-        <lineBasicMaterial color="#00ff88" opacity={0.5} transparent />
+        <lineBasicMaterial color={memoryColors.stack} opacity={0.5} transparent />
       </line>
       <line>
         <bufferGeometry>
           <bufferAttribute args={[new Float32Array([3, -2, 0, 3, 4, 0]), 3]} attach="attributes-position" />
         </bufferGeometry>
-        <lineBasicMaterial color="#ff6b6b" opacity={0.5} transparent />
+        <lineBasicMaterial color={memoryColors.heap} opacity={0.5} transparent />
       </line>
 
       {/* Enhanced memory layout guide */}
@@ -858,48 +886,41 @@ export function MemoryScene() {
       </Html>
       
       {/* Información de debug mejorada */}
-      <Html position={[-8, 8, 0]} style={{ color: 'white', fontSize: '12px' }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,40,0.95))',
-          padding: '15px',
-          borderRadius: '10px',
-          border: '1px solid rgba(0,212,255,0.3)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 0 20px rgba(0,212,255,0.2)'
-        }}>
-          <h4 style={{ color: '#00d4ff', margin: '0 0 10px 0', textAlign: 'center' }}>🧠 Sistema de Memoria 3D</h4>
+      <Html position={[-8, 8, 0]} style={{ color: theme.colors.text.primary, fontSize: '12px' }}>
+        <div style={panelStyle}>
+          <h4 style={{ color: memoryColors.accent, margin: '0 0 10px 0', textAlign: 'center' }}>🧠 Sistema de Memoria 3D</h4>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
             <div>
-              <p style={{ margin: '5px 0', color: '#00ff88', fontWeight: 'bold' }}>📚 Stack</p>
-              <p style={{ margin: '5px 0', fontSize: '11px', color: '#00ff88' }}>{state.memoryVisualization.stack.length} variables</p>
-              <p style={{ margin: '2px 0', fontSize: '9px', color: '#4ecdc4' }}>Auto-managed</p>
+              <p style={{ margin: '5px 0', color: memoryColors.stack, fontWeight: 'bold' }}>📚 Stack</p>
+              <p style={{ margin: '5px 0', fontSize: '11px', color: memoryColors.stack }}>{state.memoryVisualization.stack.length} variables</p>
+              <p style={{ margin: '2px 0', fontSize: '9px', color: memoryColors.secondary }}>Auto-managed</p>
             </div>
             <div>
-              <p style={{ margin: '5px 0', color: '#ff6b6b', fontWeight: 'bold' }}>🔥 Heap</p>
-              <p style={{ margin: '5px 0', fontSize: '11px', color: '#ff6b6b' }}>{state.memoryVisualization.heap.length} objetos</p>
-              <p style={{ margin: '2px 0', fontSize: '9px', color: '#ff8a80' }}>Manual cleanup</p>
+              <p style={{ margin: '5px 0', color: memoryColors.heap, fontWeight: 'bold' }}>🔥 Heap</p>
+              <p style={{ margin: '5px 0', fontSize: '11px', color: memoryColors.heap }}>{state.memoryVisualization.heap.length} objetos</p>
+              <p style={{ margin: '2px 0', fontSize: '9px', color: memoryColors.secondary }}>Manual cleanup</p>
             </div>
             <div>
-              <p style={{ margin: '5px 0', color: '#ffa500', fontWeight: 'bold' }}>🌐 Global</p>
-              <p style={{ margin: '5px 0', fontSize: '11px', color: '#ffa500' }}>{state.memoryVisualization.global.length} datos</p>
-              <p style={{ margin: '2px 0', fontSize: '9px', color: '#ffcc02' }}>Program lifetime</p>
+              <p style={{ margin: '5px 0', color: memoryColors.global, fontWeight: 'bold' }}>🌐 Global</p>
+              <p style={{ margin: '5px 0', fontSize: '11px', color: memoryColors.global }}>{state.memoryVisualization.global.length} datos</p>
+              <p style={{ margin: '2px 0', fontSize: '9px', color: memoryColors.secondary }}>Program lifetime</p>
             </div>
             <div>
-              <p style={{ margin: '5px 0', color: '#00d4ff', fontWeight: 'bold' }}>➡️ Punteros</p>
-              <p style={{ margin: '5px 0', fontSize: '11px', color: '#00d4ff' }}>{state.memoryVisualization.pointers.length} conexiones</p>
-              <p style={{ margin: '2px 0', fontSize: '9px', color: '#64b5f6' }}>Active references</p>
+              <p style={{ margin: '5px 0', color: memoryColors.pointer, fontWeight: 'bold' }}>➡️ Punteros</p>
+              <p style={{ margin: '5px 0', fontSize: '11px', color: memoryColors.pointer }}>{state.memoryVisualization.pointers.length} conexiones</p>
+              <p style={{ margin: '2px 0', fontSize: '9px', color: memoryColors.secondary }}>Active references</p>
             </div>
           </div>
           <div style={{ 
             margin: '10px 0 0 0', 
             fontSize: '10px', 
-            color: '#888', 
+            color: theme.colors.text.tertiary, 
             textAlign: 'center', 
-            borderTop: '1px solid rgba(255,255,255,0.1)', 
+            borderTop: `1px solid ${theme.colors.border.secondary}`, 
             paddingTop: '8px' 
           }}>
             <div style={{ marginBottom: '4px' }}>🖱️ Interactúa • 📏 Zoom • 🎯 Explora</div>
-            <div style={{ fontSize: '9px', color: '#666' }}>
+            <div style={{ fontSize: '9px', color: theme.colors.text.muted }}>
               🔴 Leak Detection • ⚠️ Dangling Pointers • 📊 Memory Analytics
             </div>
           </div>
@@ -945,24 +966,36 @@ const canvasProps = {
 
 // Componente principal exportado
 export default function MemoryVisualizer3D() {
+  const { theme } = useTheme();
+  
+  // Theme-aware canvas background
+  const canvasBackground = useMemo(() => {
+    const isDark = theme.mode === 'dark';
+    return isDark ? '#0f0f23' : '#f8fafc';
+  }, [theme.mode]);
+
+  const overlayStyle = useMemo(() => ({
+    position: 'absolute' as const,
+    top: '10px',
+    left: '10px',
+    color: theme.colors.text.primary,
+    fontSize: '12px',
+    background: theme.colors.background.overlay,
+    padding: '5px 10px',
+    borderRadius: '5px',
+    fontFamily: 'monospace',
+    backdropFilter: 'blur(10px)',
+    border: `1px solid ${theme.colors.border.secondary}`
+  }), [theme.colors]);
+
   return (
     <div style={{ width: '100%', height: '600px', position: 'relative' }}>
       <Suspense fallback={<LoadingFallback />}>
-        <Canvas {...canvasProps}>
+        <Canvas {...canvasProps} style={{ background: canvasBackground }}>
           <MemoryScene />
         </Canvas>
       </Suspense>
-      <div style={{
-        position: 'absolute',
-        top: '10px',
-        left: '10px',
-        color: 'white',
-        fontSize: '12px',
-        background: 'rgba(0,0,0,0.7)',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontFamily: 'monospace'
-      }}>
+      <div style={overlayStyle}>
         🖱️ {get3DLabel('controls.rotate', 'Click y arrastra para rotar')} • 📏 {get3DLabel('controls.zoom', 'Rueda para zoom')}
       </div>
     </div>

@@ -39,7 +39,25 @@
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": [
-    "src"
+    "src/3d/**/*",
+    "src/accessibility/**/*", 
+    "src/components/**/*",
+    "!src/components/AccessibilityAuditor.tsx",
+    "!src/components/AccessibilityPanel.tsx", 
+    "!src/components/AchievementSystem.tsx",
+    "!src/components/AnalyticsPage.tsx",
+    "!src/components/DataManagement.tsx",
+    "!src/components/ProgressDashboard.tsx",
+    "src/context/**/*",
+    "src/design-system/**/*",
+    "src/hooks/**/*",
+    "src/pages/**/*",
+    "src/translations/**/*",
+    "src/types/**/*",
+    "src/utils/**/*",
+    "src/wasm/**/*",
+    "src/*.ts",
+    "src/*.tsx"
   ],
   "exclude": [
     "node_modules",

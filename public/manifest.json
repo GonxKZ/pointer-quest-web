@@ -1,7 +1,7 @@
 {
   "short_name": "PointerQuest",
   "name": "Pointer Quest - C++ Interactive Learning Platform",
-  "description": "Interactive C++ pointers and memory management learning platform with 3D visualizations and hands-on exercises",
+  "description": "Master C++ pointers and memory management through interactive 3D visualizations, comprehensive lessons, and hands-on coding exercises. Learn safe memory practices, smart pointers, and advanced C++ patterns.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -22,17 +22,17 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/",
+  "start_url": "/?utm_source=pwa",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "theme_color": "#00d4ff",
   "background_color": "#0f0f23",
-  "categories": ["education", "developer", "productivity"],
-  "lang": "en",
+  "categories": ["education", "developer", "productivity", "games"],
+  "lang": "en-US",
   "dir": "ltr",
   "prefer_related_applications": false,
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "edge_side_panel": {
     "preferred_width": 400
   },
@@ -42,7 +42,57 @@
       "sizes": "512x512",
       "type": "image/png",
       "platform": "wide",
-      "label": "Pointer Quest Learning Interface"
+      "label": "Pointer Quest - Interactive C++ Learning Interface with 3D Memory Visualizations"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Learning",
+      "short_name": "Learn",
+      "description": "Begin your C++ pointer mastery journey",
+      "url": "/?shortcut=learn",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Practice Mode",
+      "short_name": "Practice",
+      "description": "Practice coding with interactive exercises",
+      "url": "/?shortcut=practice",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "3D Visualizer",
+      "short_name": "3D View",
+      "description": "Explore 3D memory visualizations",
+      "url": "/?shortcut=3d",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://github.com/your-username/pointer-quest-web"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+pqlesson",
+      "url": "/lesson/%s"
     }
   ]
 }

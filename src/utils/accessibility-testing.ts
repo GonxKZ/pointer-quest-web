@@ -5,8 +5,7 @@
  * Use in conjunction with manual testing and screen reader testing.
  */
 
-import { calculateContrast, isContrastCompliant, WCAG_AA_STANDARDS } from '../design-system/utils/accessibility';
-import { theme } from '../design-system/theme';
+import { isContrastCompliant, WCAG_AA_STANDARDS } from '../design-system/utils/accessibility';
 
 // Types for accessibility testing
 export interface A11yTestResult {

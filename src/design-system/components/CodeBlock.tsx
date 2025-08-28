@@ -12,7 +12,8 @@ import { IconButton } from './Button';
 
 // CodeBlock props interface
 export interface CodeBlockProps {
-  children: string;
+  children?: string;
+  code?: string;
   language?: 'cpp' | 'c' | 'javascript' | 'typescript' | 'bash' | 'text';
   title?: string;
   filename?: string;
@@ -288,6 +289,7 @@ const highlightCppSyntax = (code: string): string => {
 // Main component
 export const CodeBlockComponent: React.FC<CodeBlockProps> = ({
   children,
+  code,
   language = 'cpp',
   title,
   filename,
@@ -300,16 +302,18 @@ export const CodeBlockComponent: React.FC<CodeBlockProps> = ({
   annotations = [],
   className
 }) => {
+  // Use code prop if provided, otherwise fallback to children
+  const sourceCode = code || children || '';
   const [isEditing, setIsEditing] = useState(false);
-  const [editedCode, setEditedCode] = useState(children);
+  const [editedCode, setEditedCode] = useState(sourceCode);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
 
-  const lines = children.split('\n');
+  const lines = sourceCode.split('\n');
   const lineCount = lines.length;
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(children);
+      await navigator.clipboard.writeText(sourceCode);
       setShowCopyNotification(true);
       setTimeout(() => setShowCopyNotification(false), 2000);
     } catch (err) {
@@ -324,7 +328,7 @@ export const CodeBlockComponent: React.FC<CodeBlockProps> = ({
     setIsEditing(!isEditing);
   };
 
-  const highlightedCode = language === 'cpp' ? highlightCppSyntax(children) : children;
+  const highlightedCode = language === 'cpp' ? highlightCppSyntax(sourceCode) : sourceCode;
 
   return (
     <CodeContainer maxHeight={maxHeight} className={className}>

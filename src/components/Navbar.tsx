@@ -200,10 +200,38 @@ export default function Navbar() {
           </NavLink>
 
           <NavLink
+            to="/progress"
+            className={location.pathname === '/progress' ? 'active' : ''}
+          >
+            📊 {state.language === 'en' ? 'Progress' : 'Progreso'}
+          </NavLink>
+
+          <NavLink
+            to="/achievements"
+            className={location.pathname === '/achievements' ? 'active' : ''}
+          >
+            🏆 {state.language === 'en' ? 'Achievements' : 'Logros'}
+          </NavLink>
+
+          <NavLink
+            to="/analytics"
+            className={location.pathname === '/analytics' ? 'active' : ''}
+          >
+            📈 {state.language === 'en' ? 'Analytics' : 'Análisis'}
+          </NavLink>
+
+          <NavLink
+            to="/data"
+            className={location.pathname === '/data' ? 'active' : ''}
+          >
+            🔧 {state.language === 'en' ? 'Data' : 'Datos'}
+          </NavLink>
+
+          <NavLink
             to="/3d"
             className={location.pathname === '/3d' ? 'active' : ''}
           >
-            🕶️ {state.language === 'en' ? '3D Visualization' : 'Visualización 3D'}
+            🕶️ {state.language === 'en' ? '3D View' : 'Vista 3D'}
           </NavLink>
           
           <button 

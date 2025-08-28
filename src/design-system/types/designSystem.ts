@@ -30,10 +30,10 @@ export type JustifyContent = 'flex-start' | 'center' | 'flex-end' | 'space-betwe
 export type AlignItems = 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
 
 // Component variant types
-export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'ghost' | 'outline';
-export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'error' | 'ghost' | 'outline';
+export type ButtonSize = 'xs' | 'sm' | 'small' | 'md' | 'lg' | 'xl';
 export type InputVariant = 'default' | 'filled' | 'outline' | 'underlined';
-export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'error' | 'info';
 
 // Advanced lesson-specific types
 export interface AdvancedLessonMetadata {
@@ -166,12 +166,21 @@ export interface ConcurrencyVisualization {
 
 // Undefined behavior types
 export interface UndefinedBehaviorWarning {
-  severity: WarningLevel;
+  severity?: WarningLevel;
   title: string;
   description: string;
   codeExample?: string;
-  consequences: string[];
+  consequences?: string[];
   mitigation?: string[];
+}
+
+export interface UndefinedBehaviorWarningProps {
+  severity?: WarningLevel;
+  title: string;
+  description: string;
+  codeExample?: string;
+  consequences?: string[];
+  children?: ReactNode;
 }
 
 export interface UBDemonstration {
@@ -272,6 +281,7 @@ export interface LessonLayoutProps extends BaseComponentProps {
   title: string;
   subtitle?: string;
   lessonNumber: number;
+  lessonId?: string;
   topic?: LessonTopic;
   difficulty?: LessonDifficulty;
   progress?: number;
@@ -491,6 +501,43 @@ export interface DesignSystemConfig {
     hotReload: boolean;
     typeChecking: boolean;
   };
+}
+
+// Data Display Component Props
+export interface CardProps extends BaseComponentProps, AriaAttributes {
+  title?: string;
+  variant?: 'default' | 'outlined' | 'elevated' | 'flat';
+  padding?: 'none' | 'small' | 'medium' | 'large';
+  interactive?: boolean;
+  onClick?: () => void;
+}
+
+export interface BadgeProps extends BaseComponentProps {
+  variant?: BadgeVariant;
+  size?: 'small' | 'medium' | 'large';
+}
+
+export interface MetricProps extends BaseComponentProps {
+  label: string;
+  value: string | number;
+  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'danger' | 'info';
+  change?: {
+    value: number;
+    type: 'increase' | 'decrease';
+    period?: string;
+  };
+  icon?: ReactNode;
+  format?: 'number' | 'percentage' | 'time' | 'currency';
+}
+
+export interface ProgressProps extends BaseComponentProps {
+  value: number;
+  max?: number;
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'danger' | 'info';
+  size?: 'small' | 'medium' | 'large';
+  showLabel?: boolean;
+  label?: string;
+  animated?: boolean;
 }
 
 // Types-only module - all types are already exported above individually

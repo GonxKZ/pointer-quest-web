@@ -2,24 +2,38 @@ import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function MemoryMappedVisualization() {
   const [activeMapping, setActiveMapping] = useState(0);
   
   const mappings = [
-    { id: 'file_header', pos: [-4, 2, 0], color: '#00ff88', size: [1, 0.5, 0.2], label: 'File Header' },
-    { id: 'data_section', pos: [-2, 2, 0], color: '#00d4ff', size: [3, 0.5, 0.2], label: 'Data Section' },
-    { id: 'index_section', pos: [2, 2, 0], color: '#ff6b6b', size: [1.5, 0.5, 0.2], label: 'Index Section' },
-    { id: 'mapped_memory', pos: [-1, 0, 0], color: '#ffa500', size: [4, 0.3, 0.2], label: 'Virtual Memory' },
-  ];
+    { id: 'file_header', pos: [-4, 2, 0] as const, color: '#00ff88', size: [1, 0.5, 0.2] as const, label: 'File Header' },
+    { id: 'data_section', pos: [-2, 2, 0] as const, color: '#00d4ff', size: [3, 0.5, 0.2] as const, label: 'Data Section' },
+    { id: 'index_section', pos: [2, 2, 0] as const, color: '#ff6b6b', size: [1.5, 0.5, 0.2] as const, label: 'Index Section' },
+    { id: 'mapped_memory', pos: [-1, 0, 0] as const, color: '#ffa500', size: [4, 0.3, 0.2] as const, label: 'Virtual Memory' },
+  ] as const;
 
   return (
     <group>
       {mappings.map((mapping, index) => (
         <group key={mapping.id}>
           <Box
-            position={mapping.pos}
-            args={mapping.size}
+            position={mapping.pos as [number, number, number]}
+            args={mapping.size as [number, number, number]}
             onClick={() => setActiveMapping(index)}
           >
             <meshStandardMaterial
@@ -29,7 +43,7 @@ function MemoryMappedVisualization() {
             />
           </Box>
           <Text
-            position={[mapping.pos[0], mapping.pos[1] + 0.7, mapping.pos[2]]}
+            position={[mapping.pos[0], mapping.pos[1] + 0.7, mapping.pos[2]]}  // TypeScript now knows pos is a fixed tuple
             fontSize={0.3}
             color="white"
             anchorX="center"
@@ -614,9 +628,8 @@ public:
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Memory-Mapped File Techniques' : 'Técnicas de Archivos Mapeados'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Memory-Mapped File Techniques' : 'Técnicas de Archivos Mapeados'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -630,55 +643,55 @@ public:
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Virtual Memory Mapping' : 'Mapeo de Memoria Virtual'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Virtual Memory Mapping' : 'Mapeo de Memoria Virtual'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'Map file contents directly into process address space for efficient access without explicit I/O operations.'
                   : 'Mapea contenido de archivos directamente en el espacio de direcciones del proceso para acceso eficiente sin operaciones I/O explícitas.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Cross-Platform Support' : 'Soporte Multiplataforma'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Cross-Platform Support' : 'Soporte Multiplataforma'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Unified interface over platform-specific APIs (mmap/MapViewOfFile) for portable memory-mapped file access.'
                   : 'Interfaz unificada sobre APIs específicas de plataforma (mmap/MapViewOfFile) para acceso portable a archivos mapeados.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Large File Handling' : 'Manejo de Archivos Grandes'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Large File Handling' : 'Manejo de Archivos Grandes'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Efficient processing of large files through windowing, chunking, and streaming techniques.'
                   : 'Procesamiento eficiente de archivos grandes mediante técnicas de ventanas, fragmentación y streaming.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Advanced techniques including page prefaulting, access pattern hints, and memory locking for optimal performance.'
                   : 'Técnicas avanzadas incluyendo prefaulting de páginas, hints de patrones de acceso y bloqueo de memoria para rendimiento óptimo.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Always check mapping validity before accessing data to avoid segmentation faults'
@@ -705,7 +718,7 @@ public:
                 : 'Maneja diferencias de plataforma elegantemente con abstracciones unificadas'}
             </li>
           </ul>
-        </div>
+          </div>
       </div>
     </div>
   );

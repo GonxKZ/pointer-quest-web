@@ -507,9 +507,8 @@ const Lesson106_AdvancedDebuggingTechniques: React.FC = () => {
         <SectionTitle>
           {state.language === 'en' ? "Advanced Debugging Tools Visualization" : "Visualización de Herramientas de Depuración Avanzadas"}
         </SectionTitle>
-        
-        <ButtonGroup>
-          <Button 
+<ButtonGroup>
+            <Button 
             variant={state.debuggingTool === 'address_sanitizer' ? 'primary' : 'secondary'}
             onClick={() => selectDebuggingTool('address_sanitizer')}
           >
@@ -557,7 +556,8 @@ const Lesson106_AdvancedDebuggingTechniques: React.FC = () => {
           >
             {state.language === 'en' ? 'Production Debug' : 'Debug Producción'}
           </Button>
-        </ButtonGroup>
+          </ButtonGroup>
+        </InteractiveSection>
 
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
           <Button onClick={toggleAnimation} variant={state.isAnimating ? 'primary' : 'secondary'}>
@@ -566,7 +566,7 @@ const Lesson106_AdvancedDebuggingTechniques: React.FC = () => {
               (state.language === 'en' ? 'Start Analysis' : 'Iniciar Análisis')
             }
           </Button>
-        </div>
+          </div>
 
         <div style={{ height: '500px', background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', borderRadius: '12px', marginTop: '1rem' }}>
           <Canvas camera={{ position: [0, 2, 6], fov: 60 }}>
@@ -593,7 +593,6 @@ const Lesson106_AdvancedDebuggingTechniques: React.FC = () => {
             { name: state.language === 'en' ? 'Stack Corruption' : 'Corrupción de Stack', value: state.stackCorruption.toString() }
           ]}
         />
-      </InteractiveSection>
 
       <Section>
         <SectionTitle>

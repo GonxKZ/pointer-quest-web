@@ -4,6 +4,22 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  StepIndicator,
+  theme
+} from '../design-system';
+import { useApp } from '../context/AppContext';
+
+
 
 interface WeakPtrState {
   sharedPtr: {
@@ -54,81 +70,49 @@ interface ControlBlockVisual {
   objectAlive: boolean;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
 
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
 
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
   background: ${props => 
@@ -159,13 +143,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
   }
 `;
 
-const StatusDisplay = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  border: 1px solid #333;
-`;
+
 
 const LockResultDisplay = styled.div<{ result: 'success' | 'failed' | 'not_attempted' }>`
   background: ${props => 
@@ -181,13 +159,7 @@ const LockResultDisplay = styled.div<{ result: 'success' | 'failed' | 'not_attem
   margin: 15px 0;
 `;
 
-const StepIndicator = styled.div`
-  background: rgba(0, 100, 200, 0.2);
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0;
-  border-left: 3px solid #0099ff;
-`;
+
 
 const MemoryVisualization: React.FC<{
   state: WeakPtrState;
@@ -491,7 +463,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson16_WeakPtr: React.FC = () => {
+const Lesson16_WeakPtr: React.FC = () => {
   const [state, setState] = useState<WeakPtrState>({
     sharedPtr: { exists: false, value: 42, useCount: 0 },
     weakPtrs: [],
@@ -742,15 +714,27 @@ export const Lesson16_WeakPtr: React.FC = () => {
     });
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 16: std::weak_ptr</Title>
-        <Subtitle>Non-owning Smart Pointer y el Patrón lock()</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(16, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 16: std::weak_ptr"
+      subtitle="Non-owning Smart Pointer y el Patrón lock()"
+      lessonNumber={16}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 12], fov: 60 }}>
             <MemoryVisualization 
               state={state} 
@@ -762,11 +746,11 @@ export const Lesson16_WeakPtr: React.FC = () => {
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
-          <TheorySection>
-            <h3>🔗 std::weak_ptr&lt;T&gt;</h3>
-            <p>Smart pointer que observa sin poseer - rompe cycles de shared_ptr:</p>
-            <CodeBlock>{[
+        <TheoryPanel>
+          <Section>
+            <SectionTitle>🔗 std::weak_ptr&lt;T&gt;</SectionTitle>
+<p>Smart pointer que observa sin poseer - rompe cycles de shared_ptr:</p>
+            <CodeBlock>{`{[
               '// Crear weak_ptr desde shared_ptr',
               'auto shared = std::make_shared<int>(42);',
               'std::weak_ptr<int> weak = shared;',
@@ -783,8 +767,8 @@ export const Lesson16_WeakPtr: React.FC = () => {
               '// Verificar estado',
               'bool expired = weak.expired();',
               'size_t count = weak.use_count();',
-            ].join('\n')}</CodeBlock>
-          </TheorySection>
+            ].join('\n')}`}</CodeBlock>
+          </Section>
 
           <StepIndicator>
             <strong>Paso {state.demonstrationStep}/5:</strong> {
@@ -797,9 +781,10 @@ export const Lesson16_WeakPtr: React.FC = () => {
             }
           </StepIndicator>
 
-          <div>
-            <h4>🎮 Ciclo de Vida del Objeto</h4>
+          <InteractiveSection>
+          <SectionTitle>🎮 Ciclo de Vida del Objeto</SectionTitle>
             
+            <ButtonGroup>
             <Button onClick={createSharedPtr} variant="primary">
               1. Crear shared_ptr
             </Button>
@@ -819,11 +804,12 @@ export const Lesson16_WeakPtr: React.FC = () => {
             >
               4. Destruir shared_ptr
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔓 Operaciones de weak_ptr</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🔓 Operaciones de weak_ptr</SectionTitle>
+<ButtonGroup>
             <Button 
               onClick={attemptLock}
               disabled={state.weakPtrs.length === 0}
@@ -845,16 +831,17 @@ export const Lesson16_WeakPtr: React.FC = () => {
             >
               weak.use_count()
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
           <LockResultDisplay result={state.weakPtrs[0]?.lastLockResult || 'not_attempted'}>
-            <h4>🔒 Resultado de lock()</h4>
-            {state.weakPtrs.length > 0 && (
+            <SectionTitle>🔒 Resultado de lock()</SectionTitle>
+{state.weakPtrs.length > 0 && (
               <div>
                 {state.weakPtrs[0].lastLockResult === 'success' && (
                   <div style={{ color: '#00ff88' }}>
                     ✅ lock() retornó shared_ptr válido - acceso seguro garantizado
-                  </div>
+          </div>
                 )}
                 {state.weakPtrs[0].lastLockResult === 'failed' && (
                   <div style={{ color: '#ff6666' }}>
@@ -871,8 +858,9 @@ export const Lesson16_WeakPtr: React.FC = () => {
           </LockResultDisplay>
 
           <StatusDisplay>
-            <h4>📊 Estado del Sistema</h4>
-            <div>shared_ptr activo: {state.sharedPtr.exists ? 'Sí' : 'No'}</div>
+            <SectionTitle>📊 Estado del Sistema</SectionTitle>
+<div>shared_ptr activo: {state.sharedPtr.exists ? 'Sí' : 'No'}
+          </div>
             <div>weak_ptrs: {state.weakPtrs.length}</div>
             <div>Strong references: {state.controlBlock.strongRefs}</div>
             <div>Weak references: {state.controlBlock.weakRefs}</div>
@@ -880,8 +868,8 @@ export const Lesson16_WeakPtr: React.FC = () => {
             <div>Operación: {state.operation}</div>
           </StatusDisplay>
 
-          <TheorySection>
-            <h4>🎯 Patrón lock()</h4>
+          <Section>
+            <SectionTitle>🎯 Patrón lock()</SectionTitle>
             <p>La única forma segura de acceder al objeto mediante weak_ptr:</p>
             <CodeBlock>{[
               '// ✅ Patrón correcto',
@@ -897,10 +885,10 @@ export const Lesson16_WeakPtr: React.FC = () => {
               '    *shared;  // PELIGRO: potential crash',
               '}',
             ].join('\n')}</CodeBlock>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>💡 Casos de Uso Comunes</h4>
+          <Section>
+            <SectionTitle>💡 Casos de Uso Comunes</SectionTitle>
             <ul>
               <li><strong>Observer pattern:</strong> Observers no prolongan lifetime del Subject</li>
               <li><strong>Parent-child cycles:</strong> Child tiene weak_ptr a Parent</li>
@@ -909,11 +897,11 @@ export const Lesson16_WeakPtr: React.FC = () => {
               <li><strong>Event systems:</strong> Listeners con weak references</li>
               <li><strong>Tree traversal:</strong> Referencias temporales sin ownership</li>
             </ul>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>⚡ Consideraciones de Performance</h4>
-            <CodeBlock>{[
+          <Section>
+            <SectionTitle>⚡ Consideraciones de Performance</SectionTitle>
+            <CodeBlock>{`{[
               '// weak_ptr overhead mínimo',
               'sizeof(std::weak_ptr<T>) == sizeof(std::shared_ptr<T>)  // ~16 bytes',
               '',
@@ -931,14 +919,15 @@ export const Lesson16_WeakPtr: React.FC = () => {
               '        // work with locked - no atomic ops',
               '    }',
               '};',
-            ].join('\n')}</CodeBlock>
-          </TheorySection>
+            ].join('\n')}`}</CodeBlock>
+          </Section>
 
           <Button onClick={resetScene} variant="secondary">
             🔄 Reiniciar Demostración
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson16_WeakPtr;

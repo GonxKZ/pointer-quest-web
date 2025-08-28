@@ -1,41 +1,27 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
 
-const Container = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  color: white;
-  min-height: 100vh;
-`;
 
-const Title = styled.h1`
-  color: #ff6b6b;
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 2.5rem;
-`;
 
-const Description = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 10px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  line-height: 1.6;
-`;
 
-const CodeBlock = styled.pre`
-  background: #1e1e1e;
-  color: #d4d4d4;
-  padding: 1.5rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  border: 1px solid #444;
-  margin: 1rem 0;
-  font-family: 'Fira Code', monospace;
-`;
+
+
+
+
+
+
 
 export default function Lesson37_CyclicSharedPtr() {
   const [currentExample, setCurrentExample] = useState(0);
@@ -157,8 +143,8 @@ void Parent::add_child(std::shared_ptr<Child> child) {
           que pueden causar memory leaks cuando se usan shared_ptr incorrectamente.
         </p>
         
-        <h3>📚 Conceptos Clave:</h3>
-        <ul>
+        <SectionTitle>📚 Conceptos Clave:</SectionTitle>
+<ul>
           <li><strong>Ciclo de Referencias:</strong> Cuando dos o más objetos se referencian mutuamente</li>
           <li><strong>Memory Leak:</strong> Memoria que no se libera automáticamente</li>
           <li><strong>weak_ptr:</strong> Puntero que no afecta el reference count</li>
@@ -184,19 +170,19 @@ void Parent::add_child(std::shared_ptr<Child> child) {
             {example.title}
           </button>
         ))}
-      </div>
+          </div>
 
       <Description>
-        <h3>{examples[currentExample].title}</h3>
-        <p>{examples[currentExample].description}</p>
+        <SectionTitle>{examples[currentExample]?.title ?? ''}</SectionTitle>
+        <p>{examples[currentExample]?.description ?? ''}</p>
         
         <CodeBlock>
-          {examples[currentExample].code}
+          {examples[currentExample]?.code ?? ''}
         </CodeBlock>
       </Description>
 
       <Description>
-        <h3>🔧 Reglas de Diseño</h3>
+        <SectionTitle>🔧 Reglas de Diseño</SectionTitle>
         <ul>
           <li><strong>Principio de Ownership Único:</strong> Solo un objeto debe "poseer" otro</li>
           <li><strong>Referencias hacia arriba:</strong> Usar weak_ptr para referencias padre ← hijo</li>
@@ -204,7 +190,7 @@ void Parent::add_child(std::shared_ptr<Child> child) {
           <li><strong>Testing:</strong> Verificar que los destructores se llamen correctamente</li>
         </ul>
         
-        <h3>⚠️ Señales de Alerta</h3>
+        <SectionTitle>⚠️ Señales de Alerta</SectionTitle>
         <ul>
           <li>Reference count mayor a 1 cuando solo existe una variable local</li>
           <li>Destructores que nunca se ejecutan</li>
@@ -214,7 +200,7 @@ void Parent::add_child(std::shared_ptr<Child> child) {
       </Description>
 
       <Description>
-        <h3>✅ Ejemplo Completo Funcional</h3>
+        <SectionTitle>✅ Ejemplo Completo Funcional</SectionTitle>
         <CodeBlock>
 {`#include <iostream>
 #include <memory>

@@ -224,7 +224,7 @@ function SharedPtrArrayVisualization({ state }: { state: SharedPtrArrayState }) 
         color="#00d4ff"
         anchorX="center"
       >
-        shared_ptr&lt;T[]&gt; vs shared_ptr&lt;T&gt;
+        shared_ptr{'<T[]>'} vs shared_ptr{'<T>'}
       </Text>
       
       {/* Comparison */}
@@ -237,7 +237,7 @@ function SharedPtrArrayVisualization({ state }: { state: SharedPtrArrayState }) 
             color="#2ed573"
             anchorX="center"
           >
-            shared_ptr&lt;T[]&gt;
+            shared_ptr{'<T[]>'}
           </Text>
           
           <Box args={[2, 1.2, 0.3]}>
@@ -286,7 +286,7 @@ function SharedPtrArrayVisualization({ state }: { state: SharedPtrArrayState }) 
             color="#ffa500"
             anchorX="center"
           >
-            shared_ptr&lt;T&gt;
+            shared_ptr{'<T>'}
           </Text>
           
           <Box args={[2, 1.2, 0.3]}>
@@ -464,7 +464,7 @@ function SharedPtrArrayVisualization({ state }: { state: SharedPtrArrayState }) 
             color="white"
             anchorX="center"
           >
-            shared_ptr&lt;int[]&gt; arr(new int[10]);
+            shared_ptr{'<int[]>'} arr(new int[10]);
           </Text>
           <Text
             position={[0, -0.15, 0.15]}
@@ -522,7 +522,7 @@ function SharedPtrArrayVisualization({ state }: { state: SharedPtrArrayState }) 
           color="#2ed573"
           anchorX="center"
         >
-          ✅ Prefer std::vector&lt;T&gt; for most use cases
+          ✅ Prefer std::vector{'<T>'} for most use cases
         </Text>
         <Text
           position={[0, -0.3, 0]}
@@ -530,7 +530,7 @@ function SharedPtrArrayVisualization({ state }: { state: SharedPtrArrayState }) 
           color="#888"
           anchorX="center"
         >
-          Use shared_ptr&lt;T[]&gt; only when shared ownership is essential
+          Use shared_ptr{'<T[]>'} only when shared ownership is essential
         </Text>
       </group>
     </group>
@@ -804,7 +804,7 @@ sizeof(int) * 1000;                    // 4000 bytes (raw data)
   return (
     <Container>
       <Header>
-        <Title>📊 shared_ptr&lt;T[]&gt; Arrays</Title>
+        <Title>📊 shared_ptr{'<T[]>'} Arrays</Title>
         <Subtitle>Array specialization vs alternatives in modern C++</Subtitle>
       </Header>
 
@@ -813,7 +813,7 @@ sizeof(int) * 1000;                    // 4000 bytes (raw data)
           <h3>📚 Array Specialization Theory</h3>
           
           <StatusDisplay $type="info">
-            <strong>shared_ptr&lt;T[]&gt; (C++17)</strong><br/>
+            <strong>shared_ptr{'<T[]>'} (C++17)</strong><br/>
             Array specialization of shared_ptr with automatic delete[] and operator[] access.
             Usually std::vector is a better choice for most use cases.
           </StatusDisplay>
@@ -1039,7 +1039,7 @@ raw_array[i];     // 0.9x (direct access, no safety)
               • <Highlight $color="#2ed573">Prefer std::vector</Highlight> for most array needs<br/>
               • <Highlight $color="#00d4ff">Use std::array</Highlight> for fixed-size arrays<br/>
               • <Highlight $color="#ffa500">shared_ptr&lt;T[]&gt;</Highlight> only for shared ownership<br/>
-              • <Highlight $color="#ff6b7a">Never</Highlight> use shared_ptr&lt;T&gt; for arrays<br/>
+              • <Highlight $color="#ff6b7a">Never</Highlight> use shared_ptr{'<T>'} for arrays<br/>
               • <Highlight>Consider unique_ptr&lt;T[]&gt;</Highlight> for exclusive ownership
             </StatusDisplay>
           </ControlsArea>

@@ -3,72 +3,37 @@ import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface Lesson38Props {
   onComplete: (score: number) => void;
   isCompleted: boolean;
 }
 
-const Container = styled.div`
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
 
-const Title = styled.h1`
-  color: #4a9eff;
-  margin-bottom: 30px;
-  text-align: center;
-  font-size: 2.5rem;
-  text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
-`;
 
-const Description = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-`;
 
-const CodeBlock = styled.pre`
-  background: #1a1a1a;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-x: auto;
-  border-left: 4px solid #4a9eff;
-  margin: 20px 0;
-  font-family: 'Courier New', monospace;
-  
-  code {
-    color: #e0e0e0;
-    
-    .keyword { color: #569cd6; }
-    .string { color: #ce9178; }
-    .comment { color: #6a9955; }
-    .type { color: #4ec9b0; }
-    .number { color: #b5cea8; }
-    .error { color: #f44336; background: rgba(244, 67, 54, 0.1); }
-    .good { color: #4caf50; background: rgba(76, 175, 80, 0.1); }
-  }
-`;
 
-const CanvasContainer = styled.div`
-  height: 500px;
-  margin: 20px 0;
-  border: 2px solid #4a9eff;
-  border-radius: 10px;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f23 100%);
-`;
 
-const QuizContainer = styled.div`
-  background: rgba(74, 158, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin: 20px 0;
-`;
+
+
+
+
+
+
 
 const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; incorrect?: boolean }>`
   display: block;
@@ -95,19 +60,9 @@ const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; inc
   }
 `;
 
-const ScoreDisplay = styled.div`
-  text-align: center;
-  font-size: 1.2rem;
-  color: #4a9eff;
-  margin: 20px 0;
-`;
 
-const SimulationControls = styled.div`
-  display: flex;
-  gap: 10px;
-  margin: 20px 0;
-  flex-wrap: wrap;
-`;
+
+
 
 const ControlButton = styled.button<{ active?: boolean }>`
   padding: 10px 20px;
@@ -313,7 +268,7 @@ function AtomicSimulation({ scenario, isRunning }: { scenario: number; isRunning
       {currentScenario.threads.map((thread, index) => (
         <ThreadVisualization
           key={index}
-          position={thread.pos}
+          position={thread.pos as [number, number, number]}
           color={thread.color}
           label={thread.label}
           isActive={isRunning}
@@ -442,14 +397,14 @@ export default function Lesson38_AtomicSharedPtr({ onComplete, isCompleted }: Le
       <Title>⚛️ Lección 38: atomic&lt;shared_ptr&gt; Lock-Free</Title>
       
       <Description>
-        <h3>🎯 Objetivo</h3>
-        <p>
+        <SectionTitle>🎯 Objetivo</SectionTitle>
+<p>
           En C++20, atomic&lt;shared_ptr&gt; proporciona operaciones thread-safe sin mutexes 
           para compartir punteros entre threads. Esta lección explora cuándo, cómo y por qué 
           usar atomic shared_ptr para programación concurrente segura y eficiente.
         </p>
 
-        <h4>⚠️ El Problema: Race Conditions con shared_ptr</h4>
+        <SectionTitle>⚠️ El Problema: Race Conditions con shared_ptr</SectionTitle>
         <p>
           Aunque el control block de shared_ptr es thread-safe, las operaciones en el 
           shared_ptr mismo no lo son.
@@ -483,7 +438,7 @@ void writer_thread() {
 // - Behavior undefined`}
         </CodeBlock>
 
-        <h4>✅ La Solución: atomic&lt;shared_ptr&gt;</h4>
+        <SectionTitle>✅ La Solución: atomic&lt;shared_ptr&gt;</SectionTitle>
         <CodeBlock>
           {`// ✅ SOLUCIÓN: Operaciones atómicas
 std::atomic<std::shared_ptr<int>> atomic_ptr = 
@@ -531,7 +486,7 @@ void safe_writer() {
       </SimulationControls>
 
       <Description>
-        <h4>🔧 Operaciones Avanzadas</h4>
+        <SectionTitle>🔧 Operaciones Avanzadas</SectionTitle>
         
         <h5>Compare-Exchange para Updates Condicionales:</h5>
         <CodeBlock>
@@ -585,7 +540,7 @@ public:
 };`}
         </CodeBlock>
 
-        <h4>⚡ Consideraciones de Rendimiento</h4>
+        <SectionTitle>⚡ Consideraciones de Rendimiento</SectionTitle>
         <ul>
           <li><strong>Memory Ordering:</strong> memory_order_acq_rel por defecto</li>
           <li><strong>Cache Lines:</strong> atomic&lt;shared_ptr&gt; es más grande (~16 bytes)</li>
@@ -601,10 +556,10 @@ atomic_ptr.store(new_ptr, std::memory_order_release);`}
       </Description>
 
       <QuizContainer>
-        <h3>🧠 Evaluación de Conocimientos</h3>
+        <SectionTitle>🧠 Evaluación de Conocimientos</SectionTitle>
         {questions.map((q, qIndex) => (
           <div key={qIndex} style={{ marginBottom: '20px' }}>
-            <h4>{q.question}</h4>
+            <SectionTitle>{q.question}</SectionTitle>
             {q.options.map((option, oIndex) => (
               <QuestionButton
                 key={oIndex}
@@ -639,7 +594,7 @@ atomic_ptr.store(new_ptr, std::memory_order_release);`}
         
         {showResults && (
           <ScoreDisplay>
-            <h3>📊 Resultado Final</h3>
+            <SectionTitle>📊 Resultado Final</SectionTitle>
             <p>Has obtenido {score.toFixed(1)}% de aciertos</p>
             <p>
               {score >= 80 ? '🎉 ¡Excelente! Dominas atomic<shared_ptr>' :

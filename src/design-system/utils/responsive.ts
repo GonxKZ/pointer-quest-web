@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { css } from 'styled-components';
+import { css, Interpolation } from 'styled-components';
 import { theme } from '../theme';
 
 // Breakpoint values from theme
@@ -51,7 +51,7 @@ export const media = {
 };
 
 // Responsive value generator
-export function responsive<T>(values: {
+export function responsive<T extends Interpolation<object>>(values: {
   xs?: T;
   sm?: T;
   md?: T;

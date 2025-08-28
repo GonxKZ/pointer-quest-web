@@ -8,18 +8,7 @@
 import React, { ButtonHTMLAttributes, ReactNode } from 'react';
 import styled, { css } from 'styled-components';
 import { theme } from '../theme';
-
-// Button variant types
-export type ButtonVariant = 
-  | 'primary' 
-  | 'secondary' 
-  | 'success' 
-  | 'warning' 
-  | 'danger' 
-  | 'ghost' 
-  | 'outline';
-
-export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
+import { ButtonVariant, ButtonSize } from '../types/designSystem';
 
 // Button props interface
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -109,6 +98,21 @@ const variantStyles = {
     }
   `,
   
+  error: css`
+    background: linear-gradient(45deg, ${theme.colors.error}, #FF5252);
+    color: ${theme.colors.text.primary};
+    border: none;
+    
+    &:hover {
+      background: linear-gradient(45deg, #FF5252, #F44336);
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+    
+    &:active {
+      background: linear-gradient(45deg, #F44336, #E53935);
+    }
+  `,
+  
   ghost: css`
     background: transparent;
     color: ${theme.colors.primary[500]};
@@ -144,7 +148,19 @@ const variantStyles = {
 
 // Size styles
 const sizeStyles = {
+  xs: css`
+    padding: ${theme.spacing[1]} ${theme.spacing[2]};
+    font-size: ${theme.typography.fontSize.xs || '0.75rem'};
+    min-height: 1.5rem;
+  `,
+  
   sm: css`
+    padding: ${theme.spacing[2]} ${theme.spacing[3]};
+    font-size: ${theme.typography.fontSize.sm};
+    min-height: 2rem;
+  `,
+  
+  small: css`
     padding: ${theme.spacing[2]} ${theme.spacing[3]};
     font-size: ${theme.typography.fontSize.sm};
     min-height: 2rem;

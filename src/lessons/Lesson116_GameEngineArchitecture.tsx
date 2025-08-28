@@ -2,6 +2,20 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder, Cone } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface GameEngineMetrics {
   componentSystemEfficiency: number;
@@ -2582,8 +2596,8 @@ public:
 
       <div className="lesson-content">
         <div className="visualization-section">
-          <h3>{state.language === 'en' ? 'Game Engine Architecture Visualization' : 'Visualización de Arquitectura del Motor de Juegos'}</h3>
-          <div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
+          <SectionTitle>{state.language === 'en' ? 'Game Engine Architecture Visualization' : 'Visualización de Arquitectura del Motor de Juegos'}</SectionTitle>
+<div className="canvas-container" style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px', marginBottom: '20px' }}>
             <Canvas camera={{ position: [8, 5, 8] }}>
               <ambientLight intensity={0.6} />
               <pointLight position={[10, 10, 10]} />
@@ -2596,12 +2610,12 @@ public:
           </div>
           
           <div className="pattern-info">
-            <h4>{state.language === 'en' ? 'Game Engine Metrics' : 'Métricas del Motor de Juegos'}</h4>
-            <div className="metrics-grid">
+            <SectionTitle>{state.language === 'en' ? 'Game Engine Metrics' : 'Métricas del Motor de Juegos'}</SectionTitle>
+<div className="metrics-grid">
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Component System Efficiency' : 'Eficiencia Sistema Componentes'}:</span>
                 <span className="metric-value">{(metrics.componentSystemEfficiency * 100).toFixed(1)}%</span>
-              </div>
+          </div>
               <div className="metric">
                 <span className="metric-label">{state.language === 'en' ? 'Memory Pool Utilization' : 'Utilización Pool de Memoria'}:</span>
                 <span className="metric-value">{(metrics.memoryPoolUtilization * 100).toFixed(1)}%</span>
@@ -2622,9 +2636,8 @@ public:
         </div>
 
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Game Engine Architecture Examples' : 'Ejemplos de Arquitectura del Motor de Juegos'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Game Engine Architecture Examples' : 'Ejemplos de Arquitectura del Motor de Juegos'}</SectionTitle>
+<div className="example-tabs">
             {Object.keys(examples).map(key => (
               <button
                 key={key}
@@ -2638,57 +2651,56 @@ public:
 
           <div className="example-content">
             <div className="code-block">
-              <h4>{currentExample.title}</h4>
-              <pre>
+              <SectionTitle>{currentExample.title}</SectionTitle>
+<pre>
                 <code>{currentExample.code}</code>
               </pre>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="key-concepts-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          
-          <div className="concepts-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concepts-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Component Systems with Pointers' : 'Sistemas de Componentes con Punteros'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Component Systems with Pointers' : 'Sistemas de Componentes con Punteros'}</SectionTitle>
               <ul>
                 <li>{state.language === 'en' ? 'Type-safe component management with CRTP patterns' : 'Gestión de componentes type-safe con patrones CRTP'}</li>
                 <li>{state.language === 'en' ? 'Optimized component pools for cache-friendly access' : 'Pools de componentes optimizados para acceso cache-friendly'}</li>
                 <li>{state.language === 'en' ? 'Component storage with efficient pointer management' : 'Almacenamiento de componentes con gestión eficiente de punteros'}</li>
                 <li>{state.language === 'en' ? 'Factory patterns for game object creation' : 'Patrones factory para creación de objetos de juego'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Entity-Component-System (ECS) Patterns' : 'Patrones Entity-Component-System (ECS)'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Entity-Component-System (ECS) Patterns' : 'Patrones Entity-Component-System (ECS)'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Dense component arrays for optimal cache utilization' : 'Arrays densos de componentes para utilización óptima del cache'}</li>
                 <li>{state.language === 'en' ? 'Component signatures using bitsets for fast queries' : 'Firmas de componentes usando bitsets para consultas rápidas'}</li>
                 <li>{state.language === 'en' ? 'System-based processing with entity filtering' : 'Procesamiento basado en sistemas con filtrado de entidades'}</li>
                 <li>{state.language === 'en' ? 'ECS coordinator for unified entity management' : 'Coordinador ECS para gestión unificada de entidades'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Memory Pools for Game Objects' : 'Pools de Memoria para Objetos de Juego'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Memory Pools for Game Objects' : 'Pools de Memoria para Objetos de Juego'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Fixed-size allocators for predictable performance' : 'Asignadores de tamaño fijo para rendimiento predecible'}</li>
                 <li>{state.language === 'en' ? 'Object recycling with generational handles' : 'Reciclaje de objetos con handles generacionales'}</li>
                 <li>{state.language === 'en' ? 'Stack allocators for temporary game objects' : 'Asignadores de stack para objetos temporales de juego'}</li>
                 <li>{state.language === 'en' ? 'Multi-size pools for varied object types' : 'Pools de múltiples tamaños para tipos de objetos variados'}</li>
               </ul>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Performance-Critical Pointer Usage' : 'Uso de Punteros Crítico para Rendimiento'}</h4>
-              <ul>
+              <SectionTitle>{state.language === 'en' ? 'Performance-Critical Pointer Usage' : 'Uso de Punteros Crítico para Rendimiento'}</SectionTitle>
+<ul>
                 <li>{state.language === 'en' ? 'Structure of Arrays (SoA) for SIMD optimization' : 'Structure of Arrays (SoA) para optimización SIMD'}</li>
                 <li>{state.language === 'en' ? 'Cache-aligned data structures and prefetching' : 'Estructuras de datos alineadas al cache y prefetch'}</li>
                 <li>{state.language === 'en' ? 'Pointer-stable containers for long-lived references' : 'Contenedores estables de punteros para referencias duraderas'}</li>
                 <li>{state.language === 'en' ? 'Performance profiling and cache miss analysis' : 'Perfilado de rendimiento y análisis de cache miss'}</li>
               </ul>
-            </div>
+          </div>
           </div>
         </div>
       </div>

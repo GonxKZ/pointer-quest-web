@@ -4,6 +4,21 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+import { useApp } from '../context/AppContext';
+
+
 
 interface ConstState {
   widgets: Array<{
@@ -54,81 +69,49 @@ interface SmartPointerVisual {
   isActive: boolean;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
 
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
 
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
   background: ${props => 
@@ -159,13 +142,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
   }
 `;
 
-const ConstAnalysisPanel = styled.div`
-  background: rgba(100, 50, 150, 0.2);
-  border: 1px solid #6633aa;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 15px 0;
-`;
+
 
 const ErrorPanel = styled.div<{ show: boolean }>`
   background: rgba(255, 0, 0, 0.2);
@@ -433,7 +410,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson21_ConstDeep: React.FC = () => {
+const Lesson21_ConstDeep: React.FC = () => {
   const [state, setState] = useState<ConstState>({
     widgets: [],
     smartPointers: [],
@@ -701,15 +678,27 @@ export const Lesson21_ConstDeep: React.FC = () => {
     setSmartPointers([]);
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 21: Deep Const Correctness</Title>
-        <Subtitle>const Pointer vs const Pointee - Semántica Profunda</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(21, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 21: Deep Const Correctness"
+      subtitle="const Pointer vs const Pointee - Semántica Profunda"
+      lessonNumber={21}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
             <MemoryVisualization 
               state={state} 
@@ -720,7 +709,7 @@ export const Lesson21_ConstDeep: React.FC = () => {
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
+        <TheoryPanel>
           <div>
             <TabButton 
               active={state.currentVariation === 'basic'}
@@ -744,10 +733,10 @@ export const Lesson21_ConstDeep: React.FC = () => {
 
           {state.currentVariation === 'basic' && (
             <>
-              <TheorySection>
-                <h3>🔒 const Variations</h3>
-                <p>Diferentes niveles de const correctness con smart pointers:</p>
-                <CodeBlock>{[
+              <Section>
+                <SectionTitle>🔒 const Variations</SectionTitle>
+<p>Diferentes niveles de const correctness con smart pointers:</p>
+                <CodeBlock>{`{[
                   '// Mutable pointer, mutable pointee',
                   'std::unique_ptr<Widget> ptr;',
                   'ptr.reset(new Widget());  // ✅ OK',
@@ -767,13 +756,14 @@ export const Lesson21_ConstDeep: React.FC = () => {
                   'const std::unique_ptr<const Widget> const_both(new Widget());',
                   '// const_both.reset(...); // ❌ ERROR: const pointer',
                   '// const_both->modify();  // ❌ ERROR: const pointee',
-                ].join('\n')}</CodeBlock>
-              </TheorySection>
+                ].join('\n')}`}</CodeBlock>
+              </Section>
 
-              <div>
-                <h4>🎮 Crear Variaciones</h4>
+              <InteractiveSection>
+          <SectionTitle>🎮 Crear Variaciones</SectionTitle>
                 
-                <Button onClick={createBasicExample} variant="primary">
+                <ButtonGroup>
+            <Button onClick={createBasicExample} variant="primary">
                   1. Mutable ptr & pointee
                 </Button>
                 
@@ -800,12 +790,13 @@ export const Lesson21_ConstDeep: React.FC = () => {
                 >
                   4. const Both
                 </Button>
-              </div>
+          </ButtonGroup>
+        </InteractiveSection>
 
-              <div>
-                <h4>🔧 Probar Modificaciones</h4>
-                
-                <Button onClick={() => attemptModification('ptr_mutable', 'pointer')}>
+              <InteractiveSection>
+          <SectionTitle>🔧 Probar Modificaciones</SectionTitle>
+<ButtonGroup>
+            <Button onClick={() => attemptModification('ptr_mutable', 'pointer')}>
                   Reasignar ptr mutable
                 </Button>
                 
@@ -820,16 +811,17 @@ export const Lesson21_ConstDeep: React.FC = () => {
                 <Button onClick={() => attemptModification('ptr_const_pointee', 'pointee')}>
                   ❌ Modificar const pointee
                 </Button>
-              </div>
+          </ButtonGroup>
+          </InteractiveSection>
             </>
           )}
 
           {state.currentVariation === 'deep' && (
             <>
-              <TheorySection>
-                <h3>🏗️ Deep Const vs Shallow Const</h3>
-                <p>const no se propaga automáticamente a través de indirections:</p>
-                <CodeBlock>{[
+              <Section>
+                <SectionTitle>🏗️ Deep Const vs Shallow Const</SectionTitle>
+<p>const no se propaga automáticamente a través de indirections:</p>
+                <CodeBlock>{`{[
                   'class Container {',
                   '    std::unique_ptr<Widget> widget_;',
                   'public:',
@@ -863,12 +855,12 @@ export const Lesson21_ConstDeep: React.FC = () => {
                   '        return cache_->get();',
                   '    }',
                   '};',
-                ].join('\n')}</CodeBlock>
-              </TheorySection>
+                ].join('\n')}`}</CodeBlock>
+              </Section>
 
-              <TheorySection>
-                <h4>🎯 Patterns para Deep Const</h4>
-                <CodeBlock>{[
+              <Section>
+                <SectionTitle>🎯 Patterns para Deep Const</SectionTitle>
+                <CodeBlock>{`{[
                   '// Pattern 1: const member types',
                   'class DeepConstContainer {',
                   '    std::unique_ptr<const Data> data_;  // Data never modifiable',
@@ -902,17 +894,17 @@ export const Lesson21_ConstDeep: React.FC = () => {
                   '        return *cache_;',
                   '    }',
                   '};',
-                ].join('\n')}</CodeBlock>
-              </TheorySection>
+                ].join('\n')}`}</CodeBlock>
+              </Section>
             </>
           )}
 
           {state.currentVariation === 'propagation' && (
             <>
-              <TheorySection>
-                <h3>🌊 Const Propagation</h3>
+              <Section>
+                <SectionTitle>🌊 Const Propagation</SectionTitle>
                 <p>Cómo const se propaga (o no) a través del código:</p>
-                <CodeBlock>{[
+                <CodeBlock>{`{[
                   'class Widget {',
                   '    int value_;',
                   '    std::unique_ptr<Detail> detail_;',
@@ -953,12 +945,12 @@ export const Lesson21_ConstDeep: React.FC = () => {
                   '    ',
                   '    auto str = w.to_string();       // ✅ const method (logical const)',
                   '}',
-                ].join('\n')}</CodeBlock>
-              </TheorySection>
+                ].join('\n')}`}</CodeBlock>
+              </Section>
 
-              <TheorySection>
-                <h4>🔍 const Overloading</h4>
-                <CodeBlock>{[
+              <Section>
+                <SectionTitle>🔍 const Overloading</SectionTitle>
+                <CodeBlock>{`{[
                   'class SmartContainer {',
                   '    std::unique_ptr<Data> data_;',
                   '    ',
@@ -994,14 +986,15 @@ export const Lesson21_ConstDeep: React.FC = () => {
                   '    container->modify();           // ✅ Non-const operator->',
                   '    // const_ref->modify();        // ❌ const operator-> returns const*',
                   '}',
-                ].join('\n')}</CodeBlock>
-              </TheorySection>
+                ].join('\n')}`}</CodeBlock>
+              </Section>
             </>
           )}
 
           <ConstAnalysisPanel>
-            <h4>🔍 Análisis de Constness</h4>
-            <div>Pointer constness: {state.constAnalysis.pointerConstness}</div>
+            <SectionTitle>🔍 Análisis de Constness</SectionTitle>
+            <div>Pointer constness: {state.constAnalysis.pointerConstness}
+          </div>
             <div>Pointee constness: {state.constAnalysis.pointeeConstness}</div>
             {state.constAnalysis.violationAttempted && (
               <div style={{ color: '#ff6666' }}>
@@ -1011,16 +1004,16 @@ export const Lesson21_ConstDeep: React.FC = () => {
           </ConstAnalysisPanel>
 
           <ErrorPanel show={state.constAnalysis.violationAttempted}>
-            <h4>💥 Const Violation</h4>
+            <SectionTitle>💥 Const Violation</SectionTitle>
             <p>{state.constAnalysis.errorMessage}</p>
-            <CodeBlock>{`// El compilador detecta violaciones de const:
+            <CodeBlock language="cpp">{`// El compilador detecta violaciones de const:
 // error: cannot assign to variable 'ptr' with const-qualified type
 // error: member function 'modify' not viable: 'this' argument has 
 //        type 'const Widget', but function is not marked const`}</CodeBlock>
           </ErrorPanel>
 
-          <TheorySection>
-            <h4>📋 Const Guidelines</h4>
+          <Section>
+            <SectionTitle>📋 Const Guidelines</SectionTitle>
             <ul>
               <li><strong>const by default:</strong> Make everything const unless it needs to mutate</li>
               <li><strong>const correctness:</strong> Propagate const through your API design</li>
@@ -1029,13 +1022,14 @@ export const Lesson21_ConstDeep: React.FC = () => {
               <li><strong>const member types:</strong> For truly immutable data</li>
               <li><strong>const methods:</strong> Don't modify object state (except mutable)</li>
             </ul>
-          </TheorySection>
+          </Section>
 
           <Button onClick={resetDemo} variant="secondary">
             🔄 Reiniciar Demostración
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson21_ConstDeep;

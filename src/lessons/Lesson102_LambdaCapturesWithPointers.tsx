@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function LambdaCaptureVisualization() {
   const [captureMetrics, setCaptureMetrics] = useState({
@@ -27,18 +41,18 @@ function LambdaCaptureVisualization() {
   }, []);
 
   const captureTypes = [
-    { name: 'valueCapture', pos: [-3, 2, 0], color: '#00ff88', label: 'Smart Ptr Copy' },
-    { name: 'moveCapture', pos: [-1, 2, 0], color: '#00d4ff', label: 'Move Capture' },
-    { name: 'weakCapture', pos: [1, 2, 0], color: '#ff6b6b', label: 'Weak Capture' },
-    { name: 'generalized', pos: [3, 2, 0], color: '#ffa500', label: 'Generalized' },
-  ];
+    { name: 'valueCapture', pos: [-3, 2, 0] as const, color: '#00ff88', label: 'Smart Ptr Copy' },
+    { name: 'moveCapture', pos: [-1, 2, 0] as const, color: '#00d4ff', label: 'Move Capture' },
+    { name: 'weakCapture', pos: [1, 2, 0] as const, color: '#ff6b6b', label: 'Weak Capture' },
+    { name: 'generalized', pos: [3, 2, 0] as const, color: '#ffa500', label: 'Generalized' },
+  ] as const;
 
   return (
     <group>
       {captureTypes.map((type) => (
         <group key={type.name}>
           <Box
-            position={type.pos}
+            position={type.pos as [number, number, number]}
             args={[1.4, 0.8, 0.4]}
           >
             <meshStandardMaterial
@@ -1546,9 +1560,8 @@ void demonstrate_memory_safety() {
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Advanced Lambda Capture Techniques' : 'Técnicas Avanzadas de Captura Lambda'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Advanced Lambda Capture Techniques' : 'Técnicas Avanzadas de Captura Lambda'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -1562,55 +1575,55 @@ void demonstrate_memory_safety() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Expert-Level Concepts' : 'Conceptos de Nivel Experto'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Expert-Level Concepts' : 'Conceptos de Nivel Experto'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Smart Pointer Capture Mastery' : 'Maestría en Captura de Punteros Inteligentes'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Smart Pointer Capture Mastery' : 'Maestría en Captura de Punteros Inteligentes'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'Master value, reference, and move capture patterns with shared_ptr, unique_ptr, and weak_ptr for safe lifetime management.'
                   : 'Domina patrones de captura por valor, referencia y movimiento con shared_ptr, unique_ptr y weak_ptr para gestión segura del ciclo de vida.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Generalized Capture with Move Semantics' : 'Captura Generalizada con Semántica de Movimiento'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Generalized Capture with Move Semantics' : 'Captura Generalizada con Semántica de Movimiento'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Implement advanced move capture patterns, perfect forwarding, and multi-pointer captures for optimal performance.'
                   : 'Implementa patrones avanzados de captura por movimiento, perfect forwarding y capturas multi-puntero para rendimiento óptimo.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Custom Capture Wrappers' : 'Wrappers de Captura Personalizados'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Custom Capture Wrappers' : 'Wrappers de Captura Personalizados'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Design thread-safe, lazy, cacheable, and conditional capture wrappers for complex lambda lifetime scenarios.'
                   : 'Diseña wrappers de captura thread-safe, lazy, cacheables y condicionales para escenarios complejos de ciclo de vida lambda.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Memory Safety Patterns' : 'Patrones de Seguridad de Memoria'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Memory Safety Patterns' : 'Patrones de Seguridad de Memoria'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Implement comprehensive memory safety with RAII closures, automatic cleanup, and stack overflow protection.'
                   : 'Implementa seguridad de memoria comprensiva con clausuras RAII, limpieza automática y protección contra desbordamiento de pila.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Expert Best Practices' : 'Mejores Prácticas de Experto'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Expert Best Practices' : 'Mejores Prácticas de Experto'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Always capture shared_ptr by value for asynchronous operations to ensure object lifetime'
@@ -1637,46 +1650,46 @@ void demonstrate_memory_safety() {
                 : 'Usa capturas weak_ptr para romper dependencias circulares y permitir verificación segura del ciclo de vida del objeto'}
             </li>
           </ul>
-        </div>
+          </div>
 
         <div className="advanced-techniques">
-          <h3>{state.language === 'en' ? 'Advanced Techniques Mastered' : 'Técnicas Avanzadas Dominadas'}</h3>
-          <div className="techniques-grid">
+          <SectionTitle>{state.language === 'en' ? 'Advanced Techniques Mastered' : 'Técnicas Avanzadas Dominadas'}</SectionTitle>
+<div className="techniques-grid">
             <div className="technique-item">
               <span className="technique-icon">🎯</span>
-              <h4>{state.language === 'en' ? 'Perfect Capture Initialization' : 'Inicialización Perfecta de Captura'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Perfect Capture Initialization' : 'Inicialización Perfecta de Captura'}</SectionTitle>
               <p>{state.language === 'en' ? 'Universal reference capture with type deduction' : 'Captura de referencia universal con deducción de tipos'}</p>
-            </div>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">🔒</span>
-              <h4>{state.language === 'en' ? 'Thread-Safe Lambda Closures' : 'Clausuras Lambda Thread-Safe'}</h4>
-              <p>{state.language === 'en' ? 'Mutex-protected captures with shared/exclusive locking' : 'Capturas protegidas con mutex con bloqueo compartido/exclusivo'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'Thread-Safe Lambda Closures' : 'Clausuras Lambda Thread-Safe'}</SectionTitle>
+<p>{state.language === 'en' ? 'Mutex-protected captures with shared/exclusive locking' : 'Capturas protegidas con mutex con bloqueo compartido/exclusivo'}</p>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">⚡</span>
-              <h4>{state.language === 'en' ? 'Lazy & Cached Evaluation' : 'Evaluación Lazy y Cacheada'}</h4>
-              <p>{state.language === 'en' ? 'Deferred initialization and memoization patterns' : 'Inicialización diferida y patrones de memoización'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'Lazy & Cached Evaluation' : 'Evaluación Lazy y Cacheada'}</SectionTitle>
+<p>{state.language === 'en' ? 'Deferred initialization and memoization patterns' : 'Inicialización diferida y patrones de memoización'}</p>
+          </div>
             
             <div className="technique-item">
               <span className="technique-icon">🛡️</span>
-              <h4>{state.language === 'en' ? 'Memory Safety Guarantees' : 'Garantías de Seguridad de Memoria'}</h4>
-              <p>{state.language === 'en' ? 'RAII cleanup, stack protection, and lifetime tracking' : 'Limpieza RAII, protección de pila y seguimiento de ciclo de vida'}</p>
-            </div>
+              <SectionTitle>{state.language === 'en' ? 'Memory Safety Guarantees' : 'Garantías de Seguridad de Memoria'}</SectionTitle>
+<p>{state.language === 'en' ? 'RAII cleanup, stack protection, and lifetime tracking' : 'Limpieza RAII, protección de pila y seguimiento de ciclo de vida'}</p>
+          </div>
           </div>
         </div>
 
         <div className="warning-section">
-          <h3>{state.language === 'en' ? '⚠️ Critical Safety Considerations' : '⚠️ Consideraciones Críticas de Seguridad'}</h3>
-          <div className="warning-content">
+          <SectionTitle>{state.language === 'en' ? '⚠️ Critical Safety Considerations' : '⚠️ Consideraciones Críticas de Seguridad'}</SectionTitle>
+<div className="warning-content">
             <div className="warning-item">
               <strong>{state.language === 'en' ? 'Reference Capture Dangers:' : 'Peligros de Captura por Referencia:'}</strong>
               <span>{state.language === 'en' 
                 ? 'Never capture local variables by reference in lambdas that outlive their scope'
                 : 'Nunca captures variables locales por referencia en lambdas que sobreviven su scope'}</span>
-            </div>
+          </div>
             
             <div className="warning-item">
               <strong>{state.language === 'en' ? 'Circular Dependencies:' : 'Dependencias Circulares:'}</strong>

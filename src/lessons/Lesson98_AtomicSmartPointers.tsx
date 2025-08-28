@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function AtomicPointerVisualization() {
   const [atomicOps, setAtomicOps] = useState(0);
@@ -20,18 +34,18 @@ function AtomicPointerVisualization() {
   }, []);
 
   const operations = [
-    { name: 'store', pos: [-3, 2, 0], color: '#00ff88' },
-    { name: 'load', pos: [-1, 2, 0], color: '#00d4ff' },
-    { name: 'exchange', pos: [1, 2, 0], color: '#ff6b6b' },
-    { name: 'compare_exchange', pos: [3, 2, 0], color: '#ffa500' }
-  ];
+    { name: 'store', pos: [-3, 2, 0] as const, color: '#00ff88' },
+    { name: 'load', pos: [-1, 2, 0] as const, color: '#00d4ff' },
+    { name: 'exchange', pos: [1, 2, 0] as const, color: '#ff6b6b' },
+    { name: 'compare_exchange', pos: [3, 2, 0] as const, color: '#ffa500' }
+  ] as const;
 
   return (
     <group>
       {operations.map((op) => (
         <group key={op.name}>
           <Box
-            position={op.pos}
+            position={op.pos as [number, number, number]}
             args={[1.5, 0.6, 0.3]}
             onClick={() => setActiveOperation(op.name)}
           >
@@ -42,7 +56,7 @@ function AtomicPointerVisualization() {
             />
           </Box>
           <Text
-            position={[op.pos[0], op.pos[1] + 0.8, op.pos[2]]}
+            position={[op.pos[0], op.pos[1] + 0.8, op.pos[2]]}  // TypeScript now knows pos is a fixed tuple
             fontSize={0.3}
             color="white"
             anchorX="center"
@@ -1075,9 +1089,8 @@ void production_example() {
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Atomic Smart Pointer Patterns' : 'Patrones de Punteros Inteligentes Atómicos'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Atomic Smart Pointer Patterns' : 'Patrones de Punteros Inteligentes Atómicos'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -1091,55 +1104,55 @@ void production_example() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Atomic Operations' : 'Operaciones Atómicas'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Atomic Operations' : 'Operaciones Atómicas'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'Store, load, exchange, and compare-exchange operations on smart pointers without explicit locking.'
                   : 'Operaciones store, load, exchange y compare-exchange en punteros inteligentes sin bloqueos explícitos.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Memory Ordering' : 'Ordenamiento de Memoria'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Memory Ordering' : 'Ordenamiento de Memoria'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Control over memory synchronization with acquire-release, sequential consistency, and relaxed ordering.'
                   : 'Control sobre sincronización de memoria con acquire-release, consistencia secuencial y ordenamiento relajado.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Lock-Free Data Structures' : 'Estructuras de Datos Lock-Free'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Lock-Free Data Structures' : 'Estructuras de Datos Lock-Free'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Implementation of concurrent data structures using atomic smart pointers for high-performance systems.'
                   : 'Implementación de estructuras de datos concurrentes usando punteros inteligentes atómicos para sistemas de alto rendimiento.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Memory ordering selection, contention reduction, and performance benchmarking for optimal throughput.'
                   : 'Selección de ordenamiento de memoria, reducción de contención y benchmarking de rendimiento para throughput óptimo.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Use appropriate memory ordering - acquire-release for synchronization, relaxed for counters'
@@ -1166,7 +1179,7 @@ void production_example() {
                 : 'Implementa limpieza apropiada y gestión de recursos en estructuras lock-free'}
             </li>
           </ul>
-        </div>
+          </div>
       </div>
     </div>
   );

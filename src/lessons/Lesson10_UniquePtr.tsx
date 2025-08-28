@@ -265,7 +265,7 @@ const StatusIndicator: React.FC<{
 };
 
 export default function Lesson10_UniquePtr() {
-  const { dispatch } = useApp();
+  const { state: appState } = useApp();
   
   const [state, setState] = useState<SmartPtrState>({
     hasObject: false,
@@ -517,12 +517,12 @@ std::unique_ptr<Widget> factory() {
       title="Tarea 10: std::unique_ptr - Introducción a Smart Pointers"
       difficulty="Básico"
       topic="basic"
-      estimatedTime="25 minutos"
+      estimatedTime={25}
     >
       <TheoryPanel>
         <Section>
           <SectionTitle>🚀 std::unique_ptr&lt;T&gt;</SectionTitle>
-          <p>
+<p>
             <strong>std::unique_ptr</strong> es el primer smart pointer que todo desarrollador C++ 
             debe dominar. Garantiza ownership exclusivo de un recurso y destrucción automática 
             usando RAII (Resource Acquisition Is Initialization).
@@ -574,7 +574,9 @@ std::unique_ptr<Widget> factory() {
                 reset(new int(99))
               </Button>
             </ButtonGroup>
+          </InteractiveSection>
 
+          <InteractiveSection>
             <ButtonGroup>
               <Button 
                 onClick={demonstrateRelease} 
@@ -632,7 +634,8 @@ std::unique_ptr<Widget> factory() {
             border: '1px solid #333'
           }}>
             <h4>📊 Estado Actual</h4>
-            <div>unique_ptr: {state.hasObject ? `valor ${state.value}` : 'vacío'}</div>
+            <div>unique_ptr: {state.hasObject ? `valor ${state.value}` : 'vacío'}
+          </div>
             <div>unique_ptr2: {state.swapPartner.hasObject ? `valor ${state.swapPartner.value}` : 'vacío'}</div>
             <div>Operación: {state.operation}</div>
             {state.rawPtr.visible && (
@@ -661,7 +664,7 @@ std::unique_ptr<Widget> factory() {
 
         <Section>
           <SectionTitle>⚡ RAII vs Raw Pointers</SectionTitle>
-          <CodeBlock>{raiiAdvantagesCode}</CodeBlock>
+<CodeBlock>{raiiAdvantagesCode}</CodeBlock>
         </Section>
 
         <Section>
@@ -691,7 +694,7 @@ std::unique_ptr<Widget> factory() {
 
         <Section>
           <SectionTitle>🔗 Transición a Smart Pointers</SectionTitle>
-          <p>
+<p>
             Esta lección marca la <strong>transición crucial</strong> de raw pointers a smart pointers. 
             unique_ptr es la base para entender shared_ptr, weak_ptr y toda la gestión moderna 
             de memoria en C++.
@@ -715,7 +718,8 @@ std::unique_ptr<Widget> factory() {
           zIndex: 100,
           fontFamily: 'monospace'
         }}>
-          <div>🎯 Tarea 10: std::unique_ptr</div>
+          <div>🎯 Tarea 10: std::unique_ptr
+          </div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
           <div>🔗 Operación: {state.operation}</div>
           <div>📦 Objeto: {state.hasObject ? 'existe' : 'vacío'}</div>

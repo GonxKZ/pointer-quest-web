@@ -255,7 +255,7 @@ function Lesson02Scene({ state }: { state: NullPtrState }) {
 }
 
 export default function Lesson02_NullPtr() {
-  const { dispatch } = useApp();
+  const { state: appState } = useApp();
   
   const [state, setState] = useState<NullPtrState>({
     x: 42,
@@ -441,8 +441,8 @@ int main() {
               <Button onClick={resetToNull}>
                 Reset
               </Button>
-            </ButtonGroup>
-          </InteractiveSection>
+          </ButtonGroup>
+        </InteractiveSection>
 
           {attemptedDereference && state.isNullPtr && (
             <ErrorBox>
@@ -495,7 +495,8 @@ int main() {
       
       <VisualizationPanel topic="basic">
         <StatusDisplay>
-          <div>🎯 Tarea 2: nullptr Safety</div>
+          <div>🎯 Tarea 2: nullptr Safety
+          </div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
           <div>🔗 Estado: {state.status}</div>
           <div>🛡️ Bloqueado: {state.blockingInput ? 'SÍ' : 'NO'}</div>

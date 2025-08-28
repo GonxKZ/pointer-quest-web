@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function LockFreeVisualization() {
   const [operations, setOperations] = useState({ push: 0, pop: 0, enqueue: 0, dequeue: 0 });
@@ -21,18 +35,18 @@ function LockFreeVisualization() {
   }, []);
 
   const structures = [
-    { name: 'stack', pos: [-3, 1.5, 0], color: '#00ff88', label: 'Lock-Free Stack' },
-    { name: 'queue', pos: [-1, 1.5, 0], color: '#00d4ff', label: 'Lock-Free Queue' },
-    { name: 'hash', pos: [1, 1.5, 0], color: '#ff6b6b', label: 'Lock-Free Hash' },
-    { name: 'tree', pos: [3, 1.5, 0], color: '#ffa500', label: 'Lock-Free Tree' }
-  ];
+    { name: 'stack', pos: [-3, 1.5, 0] as const, color: '#00ff88', label: 'Lock-Free Stack' },
+    { name: 'queue', pos: [-1, 1.5, 0] as const, color: '#00d4ff', label: 'Lock-Free Queue' },
+    { name: 'hash', pos: [1, 1.5, 0] as const, color: '#ff6b6b', label: 'Lock-Free Hash' },
+    { name: 'tree', pos: [3, 1.5, 0] as const, color: '#ffa500', label: 'Lock-Free Tree' }
+  ] as const;
 
   return (
     <group>
       {structures.map((struct) => (
         <group key={struct.name}>
           <Box
-            position={struct.pos}
+            position={struct.pos as [number, number, number]}
             args={[1.5, 0.8, 0.4]}
             onClick={() => setActiveStructure(struct.name)}
           >
@@ -43,7 +57,7 @@ function LockFreeVisualization() {
             />
           </Box>
           <Text
-            position={[struct.pos[0], struct.pos[1] + 1, struct.pos[2]]}
+            position={[struct.pos[0], struct.pos[1] + 1, struct.pos[2]]}  // TypeScript now knows pos is a fixed tuple
             fontSize={0.25}
             color="white"
             anchorX="center"
@@ -1393,9 +1407,8 @@ public:
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Lock-Free Data Structure Implementations' : 'Implementaciones de Estructuras de Datos Lock-Free'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Lock-Free Data Structure Implementations' : 'Implementaciones de Estructuras de Datos Lock-Free'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -1409,55 +1422,55 @@ public:
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'ABA Problem Prevention' : 'Prevención del Problema ABA'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'ABA Problem Prevention' : 'Prevención del Problema ABA'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'Use generation counters, hazard pointers, or epoch-based reclamation to prevent ABA scenarios in lock-free structures.'
                   : 'Usa contadores de generación, hazard pointers o reclamación basada en épocas para prevenir escenarios ABA en estructuras lock-free.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Memory Reclamation' : 'Reclamación de Memoria'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Memory Reclamation' : 'Reclamación de Memoria'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Safe memory reclamation strategies including hazard pointers, epochs, and RCU for preventing use-after-free.'
                   : 'Estrategias seguras de reclamación de memoria incluyendo hazard pointers, épocas y RCU para prevenir use-after-free.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Scalability Patterns' : 'Patrones de Escalabilidad'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Scalability Patterns' : 'Patrones de Escalabilidad'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Design patterns for minimizing contention and maximizing throughput in highly concurrent environments.'
                   : 'Patrones de diseño para minimizar contención y maximizar throughput en ambientes altamente concurrentes.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Performance Analysis' : 'Análisis de Rendimiento'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Performance Analysis' : 'Análisis de Rendimiento'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Benchmarking techniques, contention analysis, and fairness measurement for lock-free algorithms.'
                   : 'Técnicas de benchmarking, análisis de contención y medición de fairness para algoritmos lock-free.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Implement proper memory reclamation to prevent memory leaks and use-after-free bugs'
@@ -1484,7 +1497,7 @@ public:
                 : 'Considera estrategias de fallback para escenarios de contención extrema'}
             </li>
           </ul>
-        </div>
+          </div>
       </div>
     </div>
   );

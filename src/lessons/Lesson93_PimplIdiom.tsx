@@ -150,7 +150,7 @@ const AdvancedPimplVisualization: React.FC<{
     ];
 
     return dependencies.map((dep, index) => (
-      <mesh key={index} position={dep.pos}>
+      <mesh key={index} position={dep.pos as [number, number, number]}>
         <boxGeometry args={[0.8, 0.5, 0.2]} />
         <meshStandardMaterial 
           color={dep.color} 

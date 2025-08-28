@@ -4,6 +4,21 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { Mesh, Group } from 'three';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+import { useApp } from '../context/AppContext';
+
+
 
 interface ESFTState {
   widget: {
@@ -54,81 +69,49 @@ interface WeakPtrVisual {
   expired: boolean;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
-  color: white;
-  font-family: 'Consolas', 'Monaco', monospace;
-`;
+// Using design system - no need for styled components
 
-const Header = styled.div`
-  padding: 20px;
-  text-align: center;
-  background: rgba(0, 100, 200, 0.1);
-  border-bottom: 2px solid #0066cc;
-`;
+const InputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    margin: '10px 0',
+    flexWrap: 'wrap'
+  }}>
+    {children}</div>
+);
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2.5em;
-  background: linear-gradient(45deg, #66ccff, #0099ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(102, 204, 255, 0.5);
-`;
+const Input = ({ type, min, max, value, onChange, ...props }: {
+  type?: string;
+  min?: string;
+  max?: string;
+  value?: number | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  [key: string]: any;
+}) => (
+  <input
+    type={type}
+    min={min}
+    max={max}
+    value={value}
+    onChange={onChange}
+    style={{
+      background: 'rgba(0, 0, 0, 0.3)',
+      border: `1px solid ${theme.colors.primary}`,
+      borderRadius: '4px',
+      padding: '8px 12px',
+      color: 'white',
+      fontFamily: 'inherit',
+      width: type === 'number' ? '80px' : '200px'
+    }}
+    {...props}
+  />
+);
 
-const Subtitle = styled.h2`
-  margin: 10px 0 0 0;
-  font-size: 1.2em;
-  color: #99ccff;
-  font-weight: normal;
-`;
 
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-`;
 
-const VisualizationPanel = styled.div`
-  flex: 2;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  position: relative;
-  overflow: hidden;
-`;
 
-const ControlPanel = styled.div`
-  flex: 1;
-  background: rgba(0, 50, 100, 0.2);
-  border-radius: 10px;
-  border: 1px solid #0066cc;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const TheorySection = styled.div`
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 100, 200, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid #0099ff;
-`;
-
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  overflow-x: auto;
-  font-size: 0.9em;
-  color: #e0e0e0;
-  margin: 10px 0;
-`;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' }>`
   background: ${props => 
@@ -174,21 +157,9 @@ const ErrorPanel = styled.div<{ show: boolean }>`
   }
 `;
 
-const StatusPanel = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  border: 1px solid #333;
-`;
 
-const StepIndicator = styled.div`
-  background: rgba(0, 100, 200, 0.2);
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0;
-  border-left: 3px solid #0099ff;
-`;
+
+
 
 const MemoryVisualization: React.FC<{
   state: ESFTState;
@@ -445,7 +416,7 @@ const MemoryVisualization: React.FC<{
   );
 };
 
-export const Lesson18_EnableSharedFromThis: React.FC = () => {
+const Lesson18_EnableSharedFromThis: React.FC = () => {
   const [state, setState] = useState<ESFTState>({
     widget: {
       exists: false,
@@ -692,15 +663,27 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
     });
   };
 
-  return (
-    <Container>
-      <Header>
-        <Title>Lección 18: enable_shared_from_this</Title>
-        <Subtitle>Patrón CRTP para Obtener shared_ptr desde this</Subtitle>
-      </Header>
+  const { updateProgress } = useApp();
+  
+  useEffect(() => {
+    updateProgress(18, {
+      completed: false,
+      timeSpent: 0,
+      hintsUsed: 0,
+      errors: 0
+    });
+  }, [updateProgress]);
 
-      <MainContent>
-        <VisualizationPanel>
+  const lessonColors = theme.colors.intermediate;
+
+  return (
+    <LessonLayout
+      title="Lección 18: enable_shared_from_this"
+      subtitle="Patrón CRTP para Obtener shared_ptr desde this"
+      lessonNumber={18}
+      topic="intermediate"
+    >
+      <VisualizationPanel>
           <Canvas camera={{ position: [0, 5, 12], fov: 60 }}>
             <MemoryVisualization 
               state={state} 
@@ -712,11 +695,11 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
           </Canvas>
         </VisualizationPanel>
 
-        <ControlPanel>
-          <TheorySection>
-            <h3>🔗 enable_shared_from_this</h3>
-            <p>CRTP pattern para obtener shared_ptr válido desde this pointer:</p>
-            <CodeBlock>{[
+        <TheoryPanel>
+          <Section>
+            <SectionTitle>🔗 enable_shared_from_this</SectionTitle>
+<p>CRTP pattern para obtener shared_ptr válido desde this pointer:</p>
+            <CodeBlock>{`{[
               'class Widget : public std::enable_shared_from_this<Widget> {',
               'public:',
               '    std::shared_ptr<Widget> getSelf() {',
@@ -738,8 +721,8 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
               '// ❌ ERROR - objeto no controlado por shared_ptr',
               'Widget* raw = new Widget();',
               'auto self = raw->shared_from_this();  // std::bad_weak_ptr',
-            ].join('\n')}</CodeBlock>
-          </TheorySection>
+            ].join('\n')}`}</CodeBlock>
+          </Section>
 
           <StepIndicator>
             <strong>Paso {state.currentStep}/5:</strong> {
@@ -752,9 +735,10 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
             }
           </StepIndicator>
 
-          <div>
-            <h4>🎮 Creación de Objetos</h4>
+          <InteractiveSection>
+          <SectionTitle>🎮 Creación de Objetos</SectionTitle>
             
+            <ButtonGroup>
             <Button onClick={createRawWidget} variant="warning">
               1. ❌ new Widget()
             </Button>
@@ -762,11 +746,12 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
             <Button onClick={createSharedWidget} variant="success">
               2. ✅ make_shared&lt;Widget&gt;()
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔄 shared_from_this()</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🔄 shared_from_this()</SectionTitle>
+<ButtonGroup>
             <Button 
               onClick={callSharedFromThis}
               disabled={!state.widget.exists}
@@ -778,11 +763,12 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
             <Button onClick={demonstrateWrongUsage} variant="danger">
               ❌ Wrong Usage
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
-          <div>
-            <h4>🔬 Análisis Interno</h4>
-            
+          <InteractiveSection>
+          <SectionTitle>🔬 Análisis Interno</SectionTitle>
+<ButtonGroup>
             <Button onClick={showWeakPtrMechanism}>
               4. Mostrar weak_ptr interno
             </Button>
@@ -790,11 +776,12 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
             <Button onClick={demonstrateMultipleInheritance}>
               5. Multiple Inheritance
             </Button>
-          </div>
+          </ButtonGroup>
+          </InteractiveSection>
 
           <ErrorPanel show={state.errorState.hasError}>
-            <h4>💥 {state.errorState.errorType}</h4>
-            <p>{state.errorState.errorMessage}</p>
+            <SectionTitle>💥 {state.errorState.errorType}</SectionTitle>
+<p>{state.errorState.errorMessage}</p>
             <CodeBlock>{[
               '// Causa del error:',
               'Widget widget;  // Stack object o new Widget()',
@@ -806,8 +793,9 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
           </ErrorPanel>
 
           <StatusPanel>
-            <h4>📊 Estado del Widget</h4>
-            <div>Objeto existe: {state.widget.exists ? 'Sí' : 'No'}</div>
+            <SectionTitle>📊 Estado del Widget</SectionTitle>
+            <div>Objeto existe: {state.widget.exists ? 'Sí' : 'No'}
+          </div>
             <div>Hereda de ESFT: {state.widget.hasESFTBase ? 'Sí' : 'No'}</div>
             <div>weak_ptr inicializado: {state.widget.isInitialized ? 'Sí' : 'No'}</div>
             <div>shared_ptrs externos: {state.widget.externalSharedCount}</div>
@@ -815,9 +803,9 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
             <div>Total use_count: {state.widget.externalSharedCount + state.widget.sharedFromThisCount}</div>
           </StatusPanel>
 
-          <TheorySection>
-            <h4>🏗️ Implementación Interna</h4>
-            <CodeBlock>{[
+          <Section>
+            <SectionTitle>🏗️ Implementación Interna</SectionTitle>
+            <CodeBlock>{`{[
               'template<class T>',
               'class enable_shared_from_this {',
               'private:',
@@ -837,11 +825,11 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
               '        weak_this_ = owner;',
               '    }',
               '};',
-            ].join('\n')}</CodeBlock>
-          </TheorySection>
+            ].join('\n')}`}</CodeBlock>
+          </Section>
 
-          <TheorySection>
-            <h4>💡 Casos de Uso Comunes</h4>
+          <Section>
+            <SectionTitle>💡 Casos de Uso Comunes</SectionTitle>
             <ul>
               <li><strong>Async callbacks:</strong> Mantener objeto vivo en lambdas</li>
               <li><strong>Observer pattern:</strong> Subject se registra como observer</li>
@@ -850,11 +838,11 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
               <li><strong>Circular references:</strong> Romper cycles con weak_ptr</li>
               <li><strong>Thread safety:</strong> Garantizar lifetime en concurrencia</li>
             </ul>
-          </TheorySection>
+          </Section>
 
-          <TheorySection>
-            <h4>⚠️ Restricciones y Cuidados</h4>
-            <CodeBlock>{[
+          <Section>
+            <SectionTitle>⚠️ Restricciones y Cuidados</SectionTitle>
+            <CodeBlock>{`{[
               '// ❌ No llamar en constructor',
               'class Widget : public enable_shared_from_this<Widget> {',
               'public:',
@@ -877,14 +865,15 @@ export const Lesson18_EnableSharedFromThis: React.FC = () => {
               'private:',
               '    Widget() = default;  // No public constructor',
               '};',
-            ].join('\n')}</CodeBlock>
-          </TheorySection>
+            ].join('\n')}`}</CodeBlock>
+          </Section>
 
           <Button onClick={resetDemo} variant="secondary">
             🔄 Reiniciar Demostración
           </Button>
-        </ControlPanel>
-      </MainContent>
-    </Container>
+              </TheoryPanel>
+    </LessonLayout>
   );
 };
+
+export default Lesson18_EnableSharedFromThis;

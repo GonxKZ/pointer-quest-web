@@ -1,0 +1,948 @@
+{
+  "total": 121,
+  "successful": 107,
+  "failed": 3,
+  "skipped": 11,
+  "details": [
+    {
+      "file": "Lesson01_RawPtr.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.934Z"
+    },
+    {
+      "file": "Lesson02_NullPtr.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.938Z"
+    },
+    {
+      "file": "Lesson03_DanglingPtr.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.941Z"
+    },
+    {
+      "file": "Lesson04_HeapOwnership.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.945Z"
+    },
+    {
+      "file": "Lesson05_DeleteUB.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.949Z"
+    },
+    {
+      "file": "Lesson06_ArrayAllocation.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.952Z"
+    },
+    {
+      "file": "Lesson07_ConstPointers.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.955Z"
+    },
+    {
+      "file": "Lesson08_DoublePointer.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.958Z"
+    },
+    {
+      "file": "Lesson09_ParameterOutput.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:00.961Z"
+    },
+    {
+      "file": "Lesson100_AdvancedPointerPatterns.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 100,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:00.973Z"
+    },
+    {
+      "file": "Lesson101_IntrusiveRefCounting.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 101,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:00.983Z"
+    },
+    {
+      "file": "Lesson102_LambdaCapturesWithPointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 102,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:00.995Z"
+    },
+    {
+      "file": "Lesson103_UndefinedBehaviorMuseum.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 103,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.006Z"
+    },
+    {
+      "file": "Lesson104_MemoryAlignmentMastery.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 104,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.017Z"
+    },
+    {
+      "file": "Lesson105_CompilerOptimizationInsights.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 105,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.031Z"
+    },
+    {
+      "file": "Lesson106_AdvancedDebuggingTechniques.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 106,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.043Z"
+    },
+    {
+      "file": "Lesson107_PerformanceProfiling.tsx",
+      "success": false,
+      "reason": "No changes needed",
+      "timestamp": "2025-08-27T08:51:01.047Z"
+    },
+    {
+      "file": "Lesson108_CrossPlatformConsiderations.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 108,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.061Z"
+    },
+    {
+      "file": "Lesson109_ModernCppFeaturesIntegration.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 109,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.073Z"
+    },
+    {
+      "file": "Lesson10_UniquePtr.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:01.075Z"
+    },
+    {
+      "file": "Lesson110_EnterprisePatternsCapstone.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 110,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.086Z"
+    },
+    {
+      "file": "Lesson111_ReleaseManagementPatterns.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 111,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.097Z"
+    },
+    {
+      "file": "Lesson112_StdFunctionPointerCallbacks.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 112,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.109Z"
+    },
+    {
+      "file": "Lesson113_AdvancedTemplateMetaprogramming.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 113,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.121Z"
+    },
+    {
+      "file": "Lesson114_ConcurrencyPatternsAdvanced.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 114,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.133Z"
+    },
+    {
+      "file": "Lesson115_EmbeddedSystemsOptimization.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 115,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.144Z"
+    },
+    {
+      "file": "Lesson116_GameEngineArchitecture.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 116,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.157Z"
+    },
+    {
+      "file": "Lesson117_NetworkProgrammingPointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 117,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.168Z"
+    },
+    {
+      "file": "Lesson118_DatabaseIntegrationPatterns.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 118,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.181Z"
+    },
+    {
+      "file": "Lesson119_TestingValidationStrategies.tsx",
+      "success": false,
+      "reason": "No changes needed",
+      "timestamp": "2025-08-27T08:51:01.185Z"
+    },
+    {
+      "file": "Lesson11_UniquePtrArray.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 11,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.193Z"
+    },
+    {
+      "file": "Lesson120_MastersFinalExamination.tsx",
+      "success": false,
+      "reason": "No changes needed",
+      "timestamp": "2025-08-27T08:51:01.198Z"
+    },
+    {
+      "file": "Lesson12_UniquePtrMovable.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 12,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.208Z"
+    },
+    {
+      "file": "Lesson13_CustomDeleter.tsx",
+      "success": true,
+      "changes": 3,
+      "lessonNumber": 13,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.217Z"
+    },
+    {
+      "file": "Lesson14_SharedPtr.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 14,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.227Z"
+    },
+    {
+      "file": "Lesson15_SharedPtrCycle.tsx",
+      "success": true,
+      "changes": 3,
+      "lessonNumber": 15,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.237Z"
+    },
+    {
+      "file": "Lesson16_WeakPtr.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 16,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.246Z"
+    },
+    {
+      "file": "Lesson17_MakeShared.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 17,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.257Z"
+    },
+    {
+      "file": "Lesson18_EnableSharedFromThis.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 18,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.267Z"
+    },
+    {
+      "file": "Lesson19_AliasingConstructor.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 19,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.277Z"
+    },
+    {
+      "file": "Lesson20_PointersVsReferences.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 20,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.286Z"
+    },
+    {
+      "file": "Lesson21_ConstDeep.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 21,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.295Z"
+    },
+    {
+      "file": "Lesson22_FunctionPointers.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 22,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.304Z"
+    },
+    {
+      "file": "Lesson23_MemberDataPointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 23,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.314Z"
+    },
+    {
+      "file": "Lesson24_PointerArithmetic.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 24,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.323Z"
+    },
+    {
+      "file": "Lesson25_Span.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 25,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.336Z"
+    },
+    {
+      "file": "Lesson26_VectorInvalidation.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 26,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.347Z"
+    },
+    {
+      "file": "Lesson27_DequeStability.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 27,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.356Z"
+    },
+    {
+      "file": "Lesson28_CastLaboratory.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 28,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.364Z"
+    },
+    {
+      "file": "Lesson29_Alignment.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 29,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.373Z"
+    },
+    {
+      "file": "Lesson30_PlacementNew.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 30,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.381Z"
+    },
+    {
+      "file": "Lesson31_CInterfaces.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 31,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.391Z"
+    },
+    {
+      "file": "Lesson32_ExceptionLeaks.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 32,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.400Z"
+    },
+    {
+      "file": "Lesson33_SharedPtrCustomDeleter.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 33,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.410Z"
+    },
+    {
+      "file": "Lesson34_SharedPtrArray.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 34,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.419Z"
+    },
+    {
+      "file": "Lesson35_NotNull.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 35,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.429Z"
+    },
+    {
+      "file": "Lesson36_ExplicitOwnership.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 36,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.438Z"
+    },
+    {
+      "file": "Lesson37_CyclicSharedPtr.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 37,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.447Z"
+    },
+    {
+      "file": "Lesson38_AtomicSharedPtr.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 38,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.455Z"
+    },
+    {
+      "file": "Lesson39_VirtualDestructors.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 39,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.466Z"
+    },
+    {
+      "file": "Lesson40_DeleterState.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 40,
+      "topic": "intermediate",
+      "timestamp": "2025-08-27T08:51:01.475Z"
+    },
+    {
+      "file": "Lesson41_ConstCastTraps.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 41,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.484Z"
+    },
+    {
+      "file": "Lesson42_FactoryPatterns.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 42,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.493Z"
+    },
+    {
+      "file": "Lesson43_MakeSharedPerformance.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 43,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.502Z"
+    },
+    {
+      "file": "Lesson44_ObserverPattern.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 44,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.513Z"
+    },
+    {
+      "file": "Lesson45_CommandPattern.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 45,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.523Z"
+    },
+    {
+      "file": "Lesson46_PimplIdiom.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 46,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.535Z"
+    },
+    {
+      "file": "Lesson47_StrategyPattern.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 47,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.545Z"
+    },
+    {
+      "file": "Lesson48_TemplateMetaprogramming.tsx",
+      "success": true,
+      "changes": 2,
+      "lessonNumber": 48,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.555Z"
+    },
+    {
+      "file": "Lesson49_DoubleDeleteDetection.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 49,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.565Z"
+    },
+    {
+      "file": "Lesson50_VectorUniquePtrReallocation.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 50,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.575Z"
+    },
+    {
+      "file": "Lesson51_SharedPtrMultipleInheritance.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 51,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.585Z"
+    },
+    {
+      "file": "Lesson52_InteractiveSignatureAnalyzer.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 52,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.595Z"
+    },
+    {
+      "file": "Lesson53_LambdaCapturesSmartPointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 53,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.607Z"
+    },
+    {
+      "file": "Lesson54_InteriorPointersStringViewSpan.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 54,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.618Z"
+    },
+    {
+      "file": "Lesson55_OwnershipAuditSystem.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 55,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.629Z"
+    },
+    {
+      "file": "Lesson56_ABISimulatorFunctionPointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 56,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.640Z"
+    },
+    {
+      "file": "Lesson57_CInteropRAIIWrappers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 57,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.651Z"
+    },
+    {
+      "file": "Lesson58_PerformanceBattleCopyVsMove.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 58,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.661Z"
+    },
+    {
+      "file": "Lesson59_SharedOwnerWithViewAliasing.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 59,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.672Z"
+    },
+    {
+      "file": "Lesson60_FinalExamination.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 60,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.683Z"
+    },
+    {
+      "file": "Lesson61_StrictAliasing.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 61,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.694Z"
+    },
+    {
+      "file": "Lesson62_BitCast.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 62,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.703Z"
+    },
+    {
+      "file": "Lesson63_Launder.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 63,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.719Z"
+    },
+    {
+      "file": "Lesson64_PlacementNew.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 64,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.734Z"
+    },
+    {
+      "file": "Lesson65_AdvancedPlacementNew.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 65,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.749Z"
+    },
+    {
+      "file": "Lesson66_TypePunning.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 66,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.762Z"
+    },
+    {
+      "file": "Lesson67_MemoryAliasing.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 67,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.787Z"
+    },
+    {
+      "file": "Lesson68_ObjectLifetime.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 68,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.799Z"
+    },
+    {
+      "file": "Lesson69_LowLevelMemory.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 69,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.810Z"
+    },
+    {
+      "file": "Lesson70_AdvancedMemoryPatterns.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 70,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.820Z"
+    },
+    {
+      "file": "Lesson71_WeakPtr.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 71,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.832Z"
+    },
+    {
+      "file": "Lesson72_StringView.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 72,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.845Z"
+    },
+    {
+      "file": "Lesson73_Span.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 73,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.854Z"
+    },
+    {
+      "file": "Lesson74_PMR.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 74,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.864Z"
+    },
+    {
+      "file": "Lesson75_CustomDeleters.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 75,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.875Z"
+    },
+    {
+      "file": "Lesson76_ResourceGuards.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 76,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.888Z"
+    },
+    {
+      "file": "Lesson77_StringOptimization.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 77,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.898Z"
+    },
+    {
+      "file": "Lesson78_MemoryArenas.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 78,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.916Z"
+    },
+    {
+      "file": "Lesson79_MemoryTracking.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 79,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.935Z"
+    },
+    {
+      "file": "Lesson80_MemoryDebugging.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 80,
+      "topic": "advanced",
+      "timestamp": "2025-08-27T08:51:01.946Z"
+    },
+    {
+      "file": "Lesson81_VirtualDestructors.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 81,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.958Z"
+    },
+    {
+      "file": "Lesson82_MakeShared.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 82,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.969Z"
+    },
+    {
+      "file": "Lesson83_RAIIHandles.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 83,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.980Z"
+    },
+    {
+      "file": "Lesson84_ResourcePooling.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 84,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:01.990Z"
+    },
+    {
+      "file": "Lesson85_SmartHandlePatterns.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 85,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.002Z"
+    },
+    {
+      "file": "Lesson86_RAIIScopeGuards.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 86,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.012Z"
+    },
+    {
+      "file": "Lesson87_ExceptionSafeRAII.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 87,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.024Z"
+    },
+    {
+      "file": "Lesson88_RAIILifetimeManagement.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 88,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.036Z"
+    },
+    {
+      "file": "Lesson89_ResourceOwnership.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 89,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.048Z"
+    },
+    {
+      "file": "Lesson90_AdvancedRAIIPatterns.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 90,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.061Z"
+    },
+    {
+      "file": "Lesson91_TaggedPointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 91,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.073Z"
+    },
+    {
+      "file": "Lesson92_PointerCompression.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 92,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.087Z"
+    },
+    {
+      "file": "Lesson93_PimplIdiom.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 93,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.097Z"
+    },
+    {
+      "file": "Lesson94_OpaquePointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 94,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.108Z"
+    },
+    {
+      "file": "Lesson95_HandleSystems.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 95,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.118Z"
+    },
+    {
+      "file": "Lesson96_MemoryMappedFiles.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 96,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.128Z"
+    },
+    {
+      "file": "Lesson97_ThreadSafePointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 97,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.143Z"
+    },
+    {
+      "file": "Lesson98_AtomicSmartPointers.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 98,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.154Z"
+    },
+    {
+      "file": "Lesson99_LockFreeDataStructures.tsx",
+      "success": true,
+      "changes": 0,
+      "lessonNumber": 99,
+      "topic": "expert",
+      "timestamp": "2025-08-27T08:51:02.167Z"
+    },
+    {
+      "file": "LessonDemoWasm.tsx",
+      "success": false,
+      "reason": "Already migrated or invalid",
+      "timestamp": "2025-08-27T08:51:02.171Z"
+    }
+  ]
+}

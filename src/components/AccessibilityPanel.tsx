@@ -321,12 +321,12 @@ const ScoreCircle = styled.div<{ score: number }>`
   font-size: ${props => props.theme.typography.fontSize.lg};
   font-weight: ${props => props.theme.typography.fontWeight.bold};
   position: relative;
-  background: conic-gradient(
-    ${props => props.score >= 90 ? props.theme.colors.success : 
-               props.score >= 70 ? props.theme.colors.warning : 
-               props.theme.colors.error} 0deg ${props.score * 3.6}deg,
-    ${props => props.theme.colors.background.input} ${props.score * 3.6}deg 360deg
-  );
+  background: ${props => `conic-gradient(
+    ${props.score >= 90 ? props.theme.colors.success : 
+      props.score >= 70 ? props.theme.colors.warning : 
+      props.theme.colors.error} 0deg ${props.score * 3.6}deg,
+    ${props.theme.colors.background.input} ${props.score * 3.6}deg 360deg
+  )`};
 
   &::before {
     content: '';

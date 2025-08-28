@@ -10,20 +10,6 @@ import { theme as baseTheme } from './theme';
 // Theme mode types
 export type ThemeMode = 'dark' | 'light' | 'auto';
 
-// Base theme colors that remain consistent across modes
-const brandColors = {
-  primary: baseTheme.colors.primary,
-  secondary: baseTheme.colors.secondary,
-  topics: baseTheme.colors.topics,
-  memory: baseTheme.colors.memory,
-  status: {
-    success: '#00FF88',
-    warning: '#FFCA28',
-    error: '#FF6B6B',
-    info: '#00D4FF',
-  }
-};
-
 // Dark theme configuration (current default)
 const darkTheme = {
   ...baseTheme,

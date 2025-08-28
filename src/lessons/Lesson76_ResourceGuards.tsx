@@ -2144,7 +2144,7 @@ int main() {
           backgroundColor: '#2e2e1a', 
           padding: '1.5rem', 
           borderRadius: '8px', 
-          border: '1px solid '#880'
+          border: '1px solid #880'
         }}>
           <h4 style={{ color: '#ffff88', marginBottom: '1rem' }}>
             {state.language === 'en' ? '📊 Optimization Techniques:' : '📊 Técnicas de Optimización:'}
@@ -2191,7 +2191,7 @@ int main() {
           backgroundColor: '#2e1a2e', 
           padding: '1.5rem', 
           borderRadius: '8px', 
-          border: '1px solid '#808'
+          border: '1px solid #808'
         }}>
           <h4 style={{ color: '#ff88ff', marginBottom: '1rem' }}>
             {state.language === 'en' ? '💪 Implementation Challenges:' : '💪 Desafíos de Implementación:'}

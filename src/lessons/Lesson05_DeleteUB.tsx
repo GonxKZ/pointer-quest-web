@@ -1,74 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import styled from 'styled-components';
 import { useApp } from '../context/AppContext';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
 
-const LessonContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  gap: 1rem;
-  padding: 1rem;
-`;
 
-const TheoryPanel = styled.div`
-  background: rgba(26, 26, 46, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-`;
 
-const VisualizationPanel = styled.div`
-  background: rgba(22, 33, 62, 0.9);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-`;
 
-const Title = styled.h1`
-  color: #00d4ff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px #00d4ff;
-`;
 
-const Section = styled.div`
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-left: 3px solid #00d4ff;
-  border-radius: 5px;
-`;
 
-const SectionTitle = styled.h3`
-  color: #4ecdc4;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
 
-const CodeBlock = styled.pre`
-  background: rgba(0, 0, 0, 0.7);
-  padding: 1rem;
-  border-radius: 8px;
-  color: #f8f8f2;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
 
-const Interactive = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-`;
+
+
+
+
+
+
+
+
+
+
 
 const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'success' | 'critical' }>`
   padding: 0.8rem 1.5rem;
@@ -127,39 +92,9 @@ const Button = styled.button<{ variant?: 'primary' | 'danger' | 'warning' | 'suc
   `}
 `;
 
-const CriticalError = styled.div`
-  background: linear-gradient(45deg, rgba(139, 0, 0, 0.2), rgba(220, 20, 60, 0.2));
-  border: 2px solid #ff0000;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #ff0000;
-  font-weight: bold;
-  animation: criticalPulse 1s infinite;
-  
-  @keyframes criticalPulse {
-    0%, 100% { 
-      border-color: #ff0000;
-      background: linear-gradient(45deg, rgba(139, 0, 0, 0.2), rgba(220, 20, 60, 0.2));
-    }
-    50% { 
-      border-color: #ff6666;
-      background: linear-gradient(45deg, rgba(139, 0, 0, 0.4), rgba(220, 20, 60, 0.4));
-    }
-  }
-`;
 
-const StatusDisplay = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 1rem;
-  border-radius: 8px;
-  color: white;
-  z-index: 100;
-  font-family: monospace;
-`;
+
+
 
 interface DeleteState {
   pointer: number | null;
@@ -442,7 +377,7 @@ function Lesson05Scene({ state }: { state: DeleteState }) {
 }
 
 export default function Lesson05_DeleteUB() {
-  const { dispatch } = useApp();
+  const { state: appState } = useApp();
   
   const [state, setState] = useState<DeleteState>({
     pointer: 0x2000000,
@@ -619,7 +554,7 @@ delete ptr;  // OK - no hace nada
         
         <Section>
           <SectionTitle>🗑️ Operador delete: Liberación Manual</SectionTitle>
-          <p>
+<p>
             El operador <strong>delete</strong> libera memoria previamente asignada con <strong>new</strong>.
             Es la contrapartida obligatoria de new para evitar memory leaks.
           </p>
@@ -675,8 +610,8 @@ delete ptr;  // OK - no hace nada
               <Button onClick={reset}>
                 Reset
               </Button>
-            </ButtonGroup>
-          </InteractiveSection>
+          </ButtonGroup>
+        </InteractiveSection>
 
           {state.status === 'critical_ub' && (
             <CriticalError>
@@ -749,7 +684,7 @@ delete ptr;  // OK - no hace nada
 
         <Section>
           <SectionTitle>📚 Referencias Profesionales</SectionTitle>
-          <ul style={{ lineHeight: '1.6' }}>
+<ul style={{ lineHeight: '1.6' }}>
             <li>
               <a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Res-raii" 
                  style={{ color: '#00d4ff' }} target="_blank" rel="noopener noreferrer">
@@ -765,7 +700,8 @@ delete ptr;  // OK - no hace nada
       
       <VisualizationPanel topic="basic">
         <StatusDisplay>
-          <div>🎯 Tarea 5: Delete Operations</div>
+          <div>🎯 Tarea 5: Delete Operations
+          </div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
           <div>🔗 Estado: {state.status}</div>
           <div>🗑️ Deletes: {state.deleteCount}</div>

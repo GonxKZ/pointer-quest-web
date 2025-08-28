@@ -3,73 +3,37 @@ import styled from 'styled-components';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import { THREE } from '../utils/three';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface Lesson43Props {
   onComplete: (score: number) => void;
   isCompleted: boolean;
 }
 
-const Container = styled.div`
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
 
-const Title = styled.h1`
-  color: #4a9eff;
-  margin-bottom: 30px;
-  text-align: center;
-  font-size: 2.5rem;
-  text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
-`;
 
-const Description = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-`;
 
-const CodeBlock = styled.pre`
-  background: #1a1a1a;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-x: auto;
-  border-left: 4px solid #4a9eff;
-  margin: 20px 0;
-  font-family: 'Courier New', monospace;
-  
-  code {
-    color: #e0e0e0;
-    
-    .keyword { color: #569cd6; }
-    .string { color: #ce9178; }
-    .comment { color: #6a9955; }
-    .type { color: #4ec9b0; }
-    .number { color: #b5cea8; }
-    .fast { color: #4caf50; background: rgba(76, 175, 80, 0.1); padding: 2px; }
-    .slow { color: #f44336; background: rgba(244, 67, 54, 0.1); padding: 2px; }
-    .highlight { background: rgba(255, 235, 59, 0.2); padding: 2px; }
-  }
-`;
 
-const CanvasContainer = styled.div`
-  height: 500px;
-  margin: 20px 0;
-  border: 2px solid #4a9eff;
-  border-radius: 10px;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f23 100%);
-`;
 
-const QuizContainer = styled.div`
-  background: rgba(74, 158, 255, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-  margin: 20px 0;
-`;
+
+
+
+
+
+
 
 const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; incorrect?: boolean }>`
   display: block;
@@ -96,19 +60,9 @@ const QuestionButton = styled.button<{ selected: boolean; correct?: boolean; inc
   }
 `;
 
-const ScoreDisplay = styled.div`
-  text-align: center;
-  font-size: 1.2rem;
-  color: #4a9eff;
-  margin: 20px 0;
-`;
 
-const ComparisonSelector = styled.div`
-  display: flex;
-  gap: 10px;
-  margin: 20px 0;
-  flex-wrap: wrap;
-`;
+
+
 
 const ComparisonButton = styled.button<{ active: boolean; type?: 'fast' | 'slow' }>`
   padding: 10px 20px;
@@ -127,35 +81,7 @@ const ComparisonButton = styled.button<{ active: boolean; type?: 'fast' | 'slow'
   }
 `;
 
-const PerformanceChart = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  padding: 20px;
-  border-radius: 8px;
-  margin: 20px 0;
-  
-  .bar {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-    
-    .label {
-      width: 200px;
-      color: #fff;
-      font-size: 0.9rem;
-    }
-    
-    .bar-fill {
-      height: 25px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      color: white;
-      font-weight: bold;
-      font-size: 0.8rem;
-    }
-  }
-`;
+
 
 interface MemoryLayoutProps {
   approach: number;
@@ -262,7 +188,7 @@ function PerformanceVisualization({ approach }: MemoryLayoutProps) {
       {currentApproach.blocks.map((block, index) => (
         <MemoryBlock
           key={index}
-          position={block.pos}
+          position={block.pos as [number, number, number]}
           size={block.size}
           label={block.label}
           color={block.color}
@@ -387,15 +313,15 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
       <Title>⚡ Lección 43: make_shared vs shared_ptr(new T)</Title>
       
       <Description>
-        <h3>🎯 Objetivo</h3>
-        <p>
+        <SectionTitle>🎯 Objetivo</SectionTitle>
+<p>
           Entender las diferencias de rendimiento entre make_shared y shared_ptr(new T), 
           incluyendo allocaciones de memoria, cache locality, exception safety y cuándo 
           usar cada aproximación.
         </p>
 
-        <h4>🚀 Performance: make_shared vs shared_ptr(new T)</h4>
-        <CodeBlock>
+        <SectionTitle>🚀 Performance: make_shared vs shared_ptr(new T)</SectionTitle>
+        <CodeBlock>{`
 {[
 "// ❌ LENTO: Dos allocaciones separadas",
 "auto ptr1 = std::shared_ptr<MyClass>(new MyClass(args));",
@@ -414,11 +340,12 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
 "// 3. new(ptr+offset) ControlBlock",
 "// Resultado: Memoria contigua + cache friendly",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
 
         <PerformanceChart>
           <div className="bar">
-            <div className="label">shared_ptr(new T):</div>
+            <div className="label">shared_ptr(new T):
+          </div>
             <div className="bar-fill" style={{ width: '300px', background: 'linear-gradient(90deg, #f44336, #ff6b6b)' }}>
               2 allocations + fragmentation
             </div>
@@ -431,8 +358,8 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
           </div>
         </PerformanceChart>
 
-        <h4>🧠 Exception Safety</h4>
-        <CodeBlock>
+        <SectionTitle>🧠 Exception Safety</SectionTitle>
+<CodeBlock>{`
 {[
 "// ❌ PELIGROSO: Posible memory leak",
 "void dangerous_function(std::shared_ptr<A> a, std::shared_ptr<B> b);",
@@ -454,7 +381,7 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
 "    std::make_shared<B>()        // ← Atómica: todo o nada",
 " );",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
       </Description>
 
       <CanvasContainer>
@@ -493,10 +420,10 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
       </ComparisonSelector>
 
       <Description>
-        <h4>⚠️ Desventajas de make_shared</h4>
+        <SectionTitle>⚠️ Desventajas de make_shared</SectionTitle>
         
         <h5>1. Custom Deleters:</h5>
-        <CodeBlock>
+        <CodeBlock>{`
 {[
 "// ❌ make_shared NO puede usar custom deleters",
 "auto file_ptr = std::make_shared<FILE>(); // ¡No puede pasar custom deleter!",
@@ -507,10 +434,10 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
 "    [](FILE* f) { if (f) fclose(f); } // Custom deleter",
 " );",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
 
         <h5>2. Delayed Deallocation con weak_ptr:</h5>
-        <CodeBlock>
+        <CodeBlock>{`
 {[
 "// Problema: memory NO se libera hasta que weak_ptr expire",
 "std::weak_ptr<LargeObject> weak_ref;",
@@ -532,9 +459,9 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
 "// - Object se libera cuando shared_ptr expire",
 "// - Control block se libera cuando weak_ptr expire",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
 
-        <h4>📊 Cuándo Usar Cada Uno</h4>
+        <SectionTitle>📊 Cuándo Usar Cada Uno</SectionTitle>
         
         <h5>✅ Usar make_shared cuando:</h5>
         <ul>
@@ -552,8 +479,8 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
           <li>🎯 <strong>Necesitas constructor protegido/privado</strong></li>
         </ul>
 
-        <h4>🔬 Medición de Performance</h4>
-        <CodeBlock>
+        <SectionTitle>🔬 Medición de Performance</SectionTitle>
+        <CodeBlock>{`
 {[
 "// Benchmark simple",
 "#include <chrono>",
@@ -578,14 +505,14 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
 "",
 "// Típicamente make_shared es ~15-30% más rápido",
 ].join('\n')}
-        </CodeBlock>
+        `}</CodeBlock>
       </Description>
 
       <QuizContainer>
-        <h3>🧠 Evaluación de Conocimientos</h3>
+        <SectionTitle>🧠 Evaluación de Conocimientos</SectionTitle>
         {questions.map((q, qIndex) => (
           <div key={qIndex} style={{ marginBottom: '20px' }}>
-            <h4>{q.question}</h4>
+            <SectionTitle>{q.question}</SectionTitle>
             {q.options.map((option, oIndex) => (
               <QuestionButton
                 key={oIndex}
@@ -620,7 +547,7 @@ export default function Lesson43_MakeSharedPerformance({ onComplete, isCompleted
         
         {showResults && (
           <ScoreDisplay>
-            <h3>📊 Resultado Final</h3>
+            <SectionTitle>📊 Resultado Final</SectionTitle>
             <p>Has obtenido {score.toFixed(1)}% de aciertos</p>
             <p>
               {score >= 80 ? '🎉 ¡Excelente! Entiendes las optimizaciones de make_shared' :

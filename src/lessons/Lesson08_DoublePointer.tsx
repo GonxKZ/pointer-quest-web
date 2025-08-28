@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
@@ -281,7 +281,7 @@ function Lesson08Scene({ state }: { state: DoublePointerState }) {
 }
 
 export default function Lesson08_DoublePointer() {
-  const { dispatch } = useApp();
+  const { state: appState } = useApp();
   
   const [state, setState] = useState<DoublePointerState>({
     value: 42,
@@ -487,13 +487,13 @@ ppp = &other_ppp;       // Modifica el puntero triple
       title="Tarea 8: Double Pointers - Indirección Múltiple"
       difficulty="Básico"
       topic="basic"
-      estimatedTime="18 minutos"
+      estimatedTime={18}
     >
       <TheoryPanel>
         
         <Section>
           <SectionTitle>🔗 Concepto: Puntero a Puntero</SectionTitle>
-          <p>
+<p>
             Un <strong>double pointer</strong> (int**) es un puntero que apunta a otro puntero.
             Permite modificar punteros a través de indirección, esencial para APIs C y output parameters.
           </p>
@@ -547,12 +547,12 @@ ppp = &other_ppp;       // Modifica el puntero triple
             <Button onClick={reset}>
               Reset
             </Button>
-          </InteractiveSection>
+        </InteractiveSection>
         </Section>
 
         <Section>
           <SectionTitle>🔧 Caso de Uso: APIs C Output Parameters</SectionTitle>
-          <CodeBlock>{cApiUseCaseCode}</CodeBlock>
+<CodeBlock>{cApiUseCaseCode}</CodeBlock>
         </Section>
 
         <Section>
@@ -593,7 +593,7 @@ ppp = &other_ppp;       // Modifica el puntero triple
 
         <Section>
           <SectionTitle>🛠️ Debugging y Herramientas</SectionTitle>
-          <ul style={{ lineHeight: '1.6' }}>
+<ul style={{ lineHeight: '1.6' }}>
             <li><strong>gdb/lldb:</strong> p *pp, p **pp para inspeccionar indirecciones</li>
             <li><strong>Visual Studio:</strong> Watch window con expresiones *ptr</li>
             <li><strong>AddressSanitizer:</strong> Detecta dereferences inválidos</li>
@@ -619,7 +619,8 @@ ppp = &other_ppp;       // Modifica el puntero triple
 
       <VisualizationPanel>
         <StatusDisplay>
-          <div>🎯 Tarea 8: Double Pointers</div>
+          <div>🎯 Tarea 8: Double Pointers
+          </div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
           <div>🔗 Indirección: {state.indirectionLevel}</div>
           <div>📊 Acceso: {state.accessType}</div>

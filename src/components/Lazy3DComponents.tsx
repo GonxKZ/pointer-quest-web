@@ -5,7 +5,7 @@
  * to improve initial loading performance.
  */
 
-import React, { lazy, Suspense, ComponentType, useState } from 'react';
+import React, { lazy, Suspense, ComponentType, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 

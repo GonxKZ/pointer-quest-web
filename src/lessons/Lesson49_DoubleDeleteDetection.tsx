@@ -294,7 +294,7 @@ function DetectionVisualization({ scenario }: MemoryVisualizationProps) {
       {currentScenario.cells.map((cell, index) => (
         <MemoryCell
           key={index}
-          position={cell.pos}
+          position={cell.pos as [number, number, number]}
           isAllocated={cell.allocated}
           isCorrupted={cell.corrupted}
           label={cell.label}

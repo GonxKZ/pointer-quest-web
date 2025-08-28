@@ -287,7 +287,7 @@ function SpanVisualization({ state }: { state: SpanState }) {
           color="#00d4ff"
           anchorX="center"
         >
-          span&lt;T&gt; View {isSubspanActive ? '(subspan)' : ''}
+          span{'<T>'} View {isSubspanActive ? '(subspan)' : ''}
         </Text>
         
         {/* Span boundary box */}
@@ -461,7 +461,7 @@ ${showSubspan ? `\n// Create subspan\nauto sub = span.subspan(${subspanStart}, $
   return (
     <Container>
       <Header>
-        <Title>📊 std::span&lt;T&gt;</Title>
+        <Title>📊 std::span{'<T>'}</Title>
         <Subtitle>Non-owning view over contiguous memory sequences</Subtitle>
       </Header>
 
@@ -470,7 +470,7 @@ ${showSubspan ? `\n// Create subspan\nauto sub = span.subspan(${subspanStart}, $
           <h3>📚 std::span Theory</h3>
           
           <StatusDisplay $type="info">
-            <strong>std::span&lt;T&gt;</strong><br/>
+            <strong>std::span{'<T>'}</strong><br/>
             A lightweight, non-owning view over a contiguous sequence of objects.
             Zero-cost abstraction for array-like access.
           </StatusDisplay>

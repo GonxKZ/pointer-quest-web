@@ -2,6 +2,20 @@ import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, Sphere, Cylinder, Cone, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 interface DatabaseMetrics {
   ormEfficiency: number;
@@ -2911,10 +2925,10 @@ private:
       </div>
 
       <div className="key-concepts-section">
-        <h3>{state.language === 'en' ? 'Key Database Integration Concepts' : 'Conceptos Clave de Integración de Base de Datos'}</h3>
-        <div className="concepts-grid">
+        <SectionTitle>{state.language === 'en' ? 'Key Database Integration Concepts' : 'Conceptos Clave de Integración de Base de Datos'}</SectionTitle>
+<div className="concepts-grid">
           <div className="concept-card">
-            <h4>{state.language === 'en' ? 'ORM with Smart Pointers' : 'ORM con Smart Pointers'}</h4>
+            <SectionTitle>{state.language === 'en' ? 'ORM with Smart Pointers' : 'ORM con Smart Pointers'}</SectionTitle>
             <ul>
               <li>{state.language === 'en' ? 'Entity lifecycle management with shared ownership' : 'Gestión de ciclo de vida de entidades con propiedad compartida'}</li>
               <li>{state.language === 'en' ? 'Repository pattern with smart pointer caching' : 'Patrón Repository con caché de smart pointers'}</li>
@@ -2925,8 +2939,8 @@ private:
           </div>
           
           <div className="concept-card">
-            <h4>{state.language === 'en' ? 'Connection Pooling Architecture' : 'Arquitectura de Pool de Conexiones'}</h4>
-            <ul>
+            <SectionTitle>{state.language === 'en' ? 'Connection Pooling Architecture' : 'Arquitectura de Pool de Conexiones'}</SectionTitle>
+<ul>
               <li>{state.language === 'en' ? 'RAII connection handles with automatic release' : 'Handles RAII de conexiones con liberación automática'}</li>
               <li>{state.language === 'en' ? 'Thread-safe connection pool with lifecycle management' : 'Pool de conexiones thread-safe con gestión de ciclo de vida'}</li>
               <li>{state.language === 'en' ? 'Health monitoring and automatic reconnection' : 'Monitoreo de salud y reconexión automática'}</li>
@@ -2936,8 +2950,8 @@ private:
           </div>
           
           <div className="concept-card">
-            <h4>{state.language === 'en' ? 'Result Set Management' : 'Gestión de Conjuntos de Resultados'}</h4>
-            <ul>
+            <SectionTitle>{state.language === 'en' ? 'Result Set Management' : 'Gestión de Conjuntos de Resultados'}</SectionTitle>
+<ul>
               <li>{state.language === 'en' ? 'Lazy loading result sets with smart iterators' : 'Conjuntos de resultados con carga perezosa e iteradores inteligentes'}</li>
               <li>{state.language === 'en' ? 'Memory-efficient chunked processing' : 'Procesamiento por chunks eficiente en memoria'}</li>
               <li>{state.language === 'en' ? 'Result set aggregation with pointer management' : 'Agregación de conjuntos de resultados con gestión de punteros'}</li>
@@ -2947,8 +2961,8 @@ private:
           </div>
           
           <div className="concept-card">
-            <h4>{state.language === 'en' ? 'Transaction Boundaries' : 'Límites Transaccionales'}</h4>
-            <ul>
+            <SectionTitle>{state.language === 'en' ? 'Transaction Boundaries' : 'Límites Transaccionales'}</SectionTitle>
+<ul>
               <li>{state.language === 'en' ? 'RAII transaction scopes with automatic rollback' : 'Ámbitos transaccionales RAII con rollback automático'}</li>
               <li>{state.language === 'en' ? 'Two-phase commit protocol implementation' : 'Implementación de protocolo de commit de dos fases'}</li>
               <li>{state.language === 'en' ? 'Savepoint management for nested transactions' : 'Gestión de savepoints para transacciones anidadas'}</li>

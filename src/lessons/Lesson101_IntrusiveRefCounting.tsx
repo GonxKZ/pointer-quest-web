@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Line } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function IntrusiveRefVisualization() {
   const [refCounts, setRefCounts] = useState({ 
@@ -25,18 +39,18 @@ function IntrusiveRefVisualization() {
   }, []);
 
   const refTypes = [
-    { name: 'strong', pos: [-3, 2, 0], color: '#00ff88', label: 'Strong Refs' },
-    { name: 'weak', pos: [-1, 2, 0], color: '#00d4ff', label: 'Weak Refs' },
-    { name: 'cyclic', pos: [1, 2, 0], color: '#ff6b6b', label: 'Cycles' },
-    { name: 'performance', pos: [3, 2, 0], color: '#ffa500', label: 'Performance' }
-  ];
+    { name: 'strong', pos: [-3, 2, 0] as const, color: '#00ff88', label: 'Strong Refs' },
+    { name: 'weak', pos: [-1, 2, 0] as const, color: '#00d4ff', label: 'Weak Refs' },
+    { name: 'cyclic', pos: [1, 2, 0] as const, color: '#ff6b6b', label: 'Cycles' },
+    { name: 'performance', pos: [3, 2, 0] as const, color: '#ffa500', label: 'Performance' }
+  ] as const;
 
   return (
     <group>
       {refTypes.map((type) => (
         <group key={type.name}>
           <Box
-            position={type.pos}
+            position={type.pos as [number, number, number]}
             args={[1.4, 0.8, 0.4]}
           >
             <meshStandardMaterial
@@ -1332,9 +1346,8 @@ void run_performance_comparison() {
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Advanced Intrusive Reference Counting' : 'Conteo de Referencias Intrusivo Avanzado'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Advanced Intrusive Reference Counting' : 'Conteo de Referencias Intrusivo Avanzado'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -1348,55 +1361,55 @@ void run_performance_comparison() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Thread-Safe Reference Counting' : 'Conteo de Referencias Thread-Safe'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Thread-Safe Reference Counting' : 'Conteo de Referencias Thread-Safe'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'Implement atomic reference counting with proper memory ordering for high-performance multithreaded systems.'
                   : 'Implementa conteo de referencias atómico con ordenamiento de memoria apropiado para sistemas multihilo de alto rendimiento.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Weak Reference Support' : 'Soporte para Referencias Débiles'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Weak Reference Support' : 'Soporte para Referencias Débiles'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Advanced weak pointer implementation with safe promotion to strong references and cycle prevention.'
                   : 'Implementación avanzada de punteros débiles con promoción segura a referencias fuertes y prevención de ciclos.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Custom Allocator Integration' : 'Integración con Allocadores Personalizados'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Custom Allocator Integration' : 'Integración con Allocadores Personalizados'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Seamless integration with custom allocators including pool allocators for optimal memory management.'
                   : 'Integración perfecta con allocadores personalizados incluyendo pool allocators para gestión óptima de memoria.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Performance Optimization' : 'Optimización de Rendimiento'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Comprehensive performance analysis and optimization techniques compared to standard library alternatives.'
                   : 'Análisis comprensivo de rendimiento y técnicas de optimización comparadas con alternativas de la librería estándar.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Use weak references to break cycles in parent-child relationships automatically'
@@ -1423,7 +1436,7 @@ void run_performance_comparison() {
                 : 'Implementa herramientas comprensivas de detección de ciclos para debug de grafos de objetos complejos'}
             </li>
           </ul>
-        </div>
+          </div>
       </div>
     </div>
   );

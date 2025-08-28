@@ -578,7 +578,7 @@ export class StudentProgressManager {
     if (!this.profile) return;
 
     const achievements: Achievement[] = [];
-    const stats = this.getProgressStats();
+    const _stats = this.getProgressStats();
 
     // First lesson completed
     if (this.profile.lessonsCompleted === 1) {

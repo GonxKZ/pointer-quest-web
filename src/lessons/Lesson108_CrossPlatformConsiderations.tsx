@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Sphere, Cylinder } from '@react-three/drei';
 import { useApp } from '../context/AppContext';
+import {
+  LessonLayout,
+  TheoryPanel,
+  VisualizationPanel,
+  Section,
+  SectionTitle,
+  CodeBlock,
+  InteractiveSection,
+  StatusDisplay,
+  ButtonGroup,
+  theme
+} from '../design-system';
+
+
 
 function CrossPlatformVisualization() {
   const [platformMetrics, setPlatformMetrics] = useState({
@@ -46,7 +60,7 @@ function CrossPlatformVisualization() {
         return (
           <group key={platform.name}>
             <Box
-              position={platform.pos}
+              position={platform.pos as [number, number, number]}
               args={[1.2, 0.8, 0.4]}
               onClick={() => setActivePlatform(platform.name)}
             >
@@ -1988,9 +2002,8 @@ void optimization_demo() {
 
       <div className="content-container">
         <div className="examples-section">
-          <h3>{state.language === 'en' ? 'Cross-Platform Development Techniques' : 'Técnicas de Desarrollo Multiplataforma'}</h3>
-          
-          <div className="example-tabs">
+          <SectionTitle>{state.language === 'en' ? 'Cross-Platform Development Techniques' : 'Técnicas de Desarrollo Multiplataforma'}</SectionTitle>
+<div className="example-tabs">
             {examples.map((example, index) => (
               <button
                 key={index}
@@ -2004,64 +2017,64 @@ void optimization_demo() {
 
           <div className="example-content">
             <pre className="code-block">
-              <code>{examples[currentExample].code}</code>
+              <code>{examples[currentExample]?.code ?? ''}</code>
             </pre>
           </div>
         </div>
 
         <div className="theory-section">
-          <h3>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</h3>
-          <div className="concept-grid">
+          <SectionTitle>{state.language === 'en' ? 'Key Concepts' : 'Conceptos Clave'}</SectionTitle>
+<div className="concept-grid">
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Platform Detection' : 'Detección de Plataforma'}</h4>
+              <SectionTitle>{state.language === 'en' ? 'Platform Detection' : 'Detección de Plataforma'}</SectionTitle>
               <p>
                 {state.language === 'en' 
                   ? 'Comprehensive runtime and compile-time detection of platform capabilities, architecture, and features.'
                   : 'Detección comprensiva en tiempo de ejecución y compilación de capacidades, arquitectura y características de plataforma.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'ABI Compatibility' : 'Compatibilidad ABI'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'ABI Compatibility' : 'Compatibilidad ABI'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Design patterns and techniques for maintaining binary compatibility across different platforms and compilers.'
                   : 'Patrones de diseño y técnicas para mantener compatibilidad binaria entre diferentes plataformas y compiladores.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Memory Layout Awareness' : 'Conciencia de Layout de Memoria'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Memory Layout Awareness' : 'Conciencia de Layout de Memoria'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Understanding and handling differences in stack growth, heap organization, and memory addressing across platforms.'
                   : 'Entendimiento y manejo de diferencias en crecimiento de stack, organización de heap y direccionamiento de memoria entre plataformas.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Cross-Platform File I/O' : 'E/S de Archivos Multiplataforma'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Cross-Platform File I/O' : 'E/S de Archivos Multiplataforma'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Unified file handling across platforms with proper encoding support, path normalization, and memory-mapped file access.'
                   : 'Manejo unificado de archivos entre plataformas con soporte adecuado de codificación, normalización de rutas y acceso a archivos mapeados en memoria.'}
               </p>
-            </div>
+          </div>
             
             <div className="concept-card">
-              <h4>{state.language === 'en' ? 'Platform Optimization' : 'Optimización por Plataforma'}</h4>
-              <p>
+              <SectionTitle>{state.language === 'en' ? 'Platform Optimization' : 'Optimización por Plataforma'}</SectionTitle>
+<p>
                 {state.language === 'en'
                   ? 'Leveraging platform-specific features like SIMD instructions, cache optimization, and hardware capabilities.'
                   : 'Aprovechamiento de características específicas de plataforma como instrucciones SIMD, optimización de caché y capacidades de hardware.'}
               </p>
-            </div>
+          </div>
           </div>
         </div>
 
         <div className="best-practices">
-          <h3>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</h3>
-          <ul>
+          <SectionTitle>{state.language === 'en' ? 'Best Practices' : 'Mejores Prácticas'}</SectionTitle>
+<ul>
             <li>
               {state.language === 'en'
                 ? 'Use compile-time feature detection combined with runtime capability checks'
@@ -2093,7 +2106,7 @@ void optimization_demo() {
                 : 'Prueba exhaustivamente en todas las plataformas objetivo para detectar problemas específicos de plataforma temprano'}
             </li>
           </ul>
-        </div>
+          </div>
       </div>
     </div>
   );

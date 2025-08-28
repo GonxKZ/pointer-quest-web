@@ -3,7 +3,7 @@
  * Provides accessible theme switching controls with visual feedback
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { ThemeName } from '../design-system/themes';
@@ -152,7 +152,7 @@ const ThemeIcon = styled.span`
   display: inline-block;
 `;
 
-const ThemeName = styled.span`
+const ThemeLabel = styled.span`
   flex: 1;
 `;
 
@@ -246,12 +246,12 @@ interface ThemeToggleProps {
  */
 export function ThemeToggle({ 
   className,
-  showLabel = false,
-  size = 'medium',
+  showLabel: _showLabel = false,
+  size: _size = 'medium',
   variant = 'dropdown'
 }: ThemeToggleProps) {
   const { 
-    theme, 
+    theme: _theme, 
     themeName, 
     setTheme, 
     toggleTheme, 
@@ -349,7 +349,7 @@ export function ThemeToggle({
             aria-label={`${themeConfig[themeOption].label} theme`}
           >
             <ThemeIcon>{themeConfig[themeOption].icon}</ThemeIcon>
-            <ThemeName>{themeConfig[themeOption].label}</ThemeName>
+            <ThemeLabel>{themeConfig[themeOption].label}</ThemeLabel>
             {themeName === themeOption && isSystemTheme && (
               <SystemIndicator>(auto)</SystemIndicator>
             )}

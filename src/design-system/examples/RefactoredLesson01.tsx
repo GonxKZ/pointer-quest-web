@@ -34,14 +34,13 @@ import {
   // Theme and types
   theme,
   type MemoryState,
-  type LessonProgress,
   
   // Accessibility
   ScreenReaderOnly
 } from '../index';
 
 // 3D Scene Components (refactored for better performance and accessibility)
-import { MemoryScene, EducationalPointerScene } from '../../3d';
+import { MemoryScene } from '../../3d';
 
 // Enhanced memory state interface
 interface EnhancedMemoryState extends MemoryState {
@@ -55,7 +54,7 @@ interface EnhancedMemoryState extends MemoryState {
 }
 
 export const RefactoredLesson01_RawPtr: React.FC = () => {
-  const { state, dispatch } = useApp();
+  const { state } = useApp();
   const performanceMonitor = PerformanceMonitor.getInstance();
   const announcer = AccessibilityAnnouncer.getInstance();
   
@@ -75,16 +74,6 @@ export const RefactoredLesson01_RawPtr: React.FC = () => {
   });
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [lessonProgress, setLessonProgress] = useState<LessonProgress>({
-    lessonNumber: 1,
-    completed: false,
-    timeSpent: 0,
-    attempts: 0,
-    objectivesCompleted: [],
-    mistakesMade: [],
-    conceptsUnderstood: [],
-    lastAccessed: new Date()
-  });
 
   // Learning objectives
   const learningObjectives = [
@@ -187,11 +176,6 @@ export const RefactoredLesson01_RawPtr: React.FC = () => {
         : 'Comprende que los punteros almacenan direcciones, que permanecen constantes',
       action: () => {
         announcer.announceSuccess('Lesson completed! You understand basic pointer concepts.');
-        setLessonProgress(prev => ({
-          ...prev,
-          completed: true,
-          conceptsUnderstood: [...prev.conceptsUnderstood, 'basic-pointers', 'address-stability']
-        }));
       },
       actionLabel: state.language === 'en' ? 'Complete Lesson' : 'Completar Lección',
       completed: currentStep >= 4,
@@ -206,19 +190,6 @@ export const RefactoredLesson01_RawPtr: React.FC = () => {
       performanceMonitor.endTiming('lesson-01-render');
     };
   }, [performanceMonitor]);
-
-  // Step completion handler
-  const handleStepComplete = (stepIndex: number) => {
-    setCurrentStep(Math.max(currentStep, stepIndex + 1));
-    setLessonProgress(prev => ({
-      ...prev,
-      attempts: prev.attempts + 1,
-      objectivesCompleted: [
-        ...prev.objectivesCompleted,
-        ...(learningObjectives[stepIndex]?.id ? [learningObjectives[stepIndex]!.id] : [])
-      ].filter((id, index, array) => array.indexOf(id) === index) // Remove duplicates
-    }));
-  };
 
   // Reset lesson state
   const resetLesson = () => {

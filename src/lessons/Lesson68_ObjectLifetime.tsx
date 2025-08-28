@@ -7,7 +7,7 @@ import {
 } from '../design-system';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box, Line } from '@react-three/drei';
-import * * as THREE from 'three';
+import * as THREE from 'three';
 
 interface ObjectLifetimeState {
   demonstrationType: 'trivial_relocation' | 'const_objects' | 'virtual_inheritance' | 'launder_cases';

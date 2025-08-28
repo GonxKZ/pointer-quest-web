@@ -17,7 +17,6 @@ import {
   ButtonGroup
 } from '../design-system';
 
-
 const ComparisonPanel: React.FC<{ type: 'legacy' | 'modern' | 'active'; children: React.ReactNode }> = ({ type, children }) => {
   const getStyles = () => {
     const colorMap = {
@@ -309,7 +308,7 @@ function Lesson09Scene({ state }: { state: OutputParameterState }) {
 }
 
 export default function Lesson09_ParameterOutput() {
-  const { dispatch } = useApp();
+  const { state: appState } = useApp();
   
   const [state, setState] = useState<OutputParameterState>({
     currentMethod: 'none',
@@ -557,13 +556,13 @@ auto create_widget() -> std::unique_ptr<Widget> {
       title="Tarea 9: Output Parameters - Legacy vs Modern"
       difficulty="Básico"
       topic="basic"
-      estimatedTime="20 minutos"
+      estimatedTime={20}
     >
       <TheoryPanel>
         
         <Section>
           <SectionTitle>🔄 Parámetros de Salida: Evolución del Patrón</SectionTitle>
-          <p>
+<p>
             Los parámetros de salida permiten que una función "devuelva" múltiples valores o 
             modifique objetos del caller. El enfoque ha evolucionado desde double pointers 
             (C-style) hacia referencias y smart pointers (C++ moderno).
@@ -631,7 +630,7 @@ auto create_widget() -> std::unique_ptr<Widget> {
             <Button onClick={reset}>
               Reset
             </Button>
-          </InteractiveSection>
+        </InteractiveSection>
 
           {state.debtBalance > 0 && (
             <DebtIndicator>
@@ -682,7 +681,7 @@ auto create_widget() -> std::unique_ptr<Widget> {
 
         <Section>
           <SectionTitle>📚 Referencias y Evolución</SectionTitle>
-          <ul style={{ lineHeight: '1.6' }}>
+<ul style={{ lineHeight: '1.6' }}>
             <li>
               <a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-out" 
                  style={{ color: '#00d4ff' }} target="_blank" rel="noopener noreferrer">
@@ -699,7 +698,8 @@ auto create_widget() -> std::unique_ptr<Widget> {
 
       <VisualizationPanel>
         <StatusDisplay>
-          <div>🎯 Tarea 9: Output Parameters</div>
+          <div>🎯 Tarea 9: Output Parameters
+          </div>
           <div>📍 Paso: {currentStep + 1}/{steps.length}</div>
           <div>🔗 Método: {state.currentMethod}</div>
           <div>💳 Deuda: {state.debtBalance}</div>

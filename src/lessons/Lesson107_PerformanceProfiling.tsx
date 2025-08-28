@@ -244,7 +244,7 @@ const PerformanceProfilingVisualization: React.FC<{
 
       {/* Profiling phase indicator */}
       <group position={[0, 3, 0]}>
-        <mesh scale={visualization.scale}>
+        <mesh scale={visualization.scale as [number, number, number]}>
           <ringGeometry args={[0.8, 1.2, 8]} />
           <meshBasicMaterial
             color={getProfilerColor(profilerTool)}
@@ -310,7 +310,7 @@ const Lesson107_PerformanceProfiling: React.FC = () => {
       ...prev,
       currentStep: Math.min(prev.currentStep + 1, prev.totalSteps),
       completedSteps: [...prev.completedSteps, prev.currentStep],
-      score: prev.score + 10
+      score: (prev.score ?? 0) + 10
     }));
   }, []);
 
@@ -1043,11 +1043,10 @@ void sigusr1_handler(int sig) {
             ? "Performance Profiling Visualization" 
             : "Visualización de Perfilado de Rendimiento"}
         </SectionTitle>
-        
         <div style={{ 
           height: '400px', 
           background: theme.colors.dark.secondary,
-          borderRadius: theme.borders.radius.large,
+          borderRadius: theme.borderRadius.lg,
           marginBottom: theme.spacing.large 
         }}>
           <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
@@ -1060,7 +1059,7 @@ void sigusr1_handler(int sig) {
               onMetrics={handleMetricsUpdate}
             />
           </Canvas>
-        </div>
+          </div>
 
         <div style={{ 
           display: 'grid', 
@@ -1071,7 +1070,7 @@ void sigusr1_handler(int sig) {
           <div style={{ 
             padding: theme.spacing.medium, 
             background: theme.colors.dark.tertiary, 
-            borderRadius: theme.borders.radius.medium 
+            borderRadius: theme.borderRadius.md 
           }}>
             <div style={{ color: theme.colors.primary, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               {lessonState.language === 'en' ? 'CPU Utilization' : 'Utilización de CPU'}
@@ -1084,7 +1083,7 @@ void sigusr1_handler(int sig) {
           <div style={{ 
             padding: theme.spacing.medium, 
             background: theme.colors.dark.tertiary, 
-            borderRadius: theme.borders.radius.medium 
+            borderRadius: theme.borderRadius.md 
           }}>
             <div style={{ color: theme.colors.primary, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               {lessonState.language === 'en' ? 'Cache Hit Ratio' : 'Ratio de Aciertos de Caché'}
@@ -1097,7 +1096,7 @@ void sigusr1_handler(int sig) {
           <div style={{ 
             padding: theme.spacing.medium, 
             background: theme.colors.dark.tertiary, 
-            borderRadius: theme.borders.radius.medium 
+            borderRadius: theme.borderRadius.md 
           }}>
             <div style={{ color: theme.colors.primary, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               {lessonState.language === 'en' ? 'Branch Misprediction' : 'Predicción de Ramas Errónea'}
@@ -1110,7 +1109,7 @@ void sigusr1_handler(int sig) {
           <div style={{ 
             padding: theme.spacing.medium, 
             background: theme.colors.dark.tertiary, 
-            borderRadius: theme.borders.radius.medium 
+            borderRadius: theme.borderRadius.md 
           }}>
             <div style={{ color: theme.colors.primary, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               {lessonState.language === 'en' ? 'Profiling Overhead' : 'Sobrecarga de Perfilado'}
@@ -1132,7 +1131,6 @@ void sigusr1_handler(int sig) {
             ? "Profiler Tool Selection" 
             : "Selección de Herramienta de Perfilado"}
         </SectionTitle>
-        
         <ButtonGroup>
           {(['perf', 'vtune', 'valgrind', 'gperftools', 'custom', 'production'] as const).map((tool) => (
             <Button
@@ -1145,18 +1143,19 @@ void sigusr1_handler(int sig) {
             </Button>
           ))}
         </ButtonGroup>
+      </InteractiveSection>
 
         <div style={{ 
           marginTop: theme.spacing.medium, 
           padding: theme.spacing.medium,
           background: theme.colors.dark.tertiary,
-          borderRadius: theme.borders.radius.medium 
+          borderRadius: theme.borderRadius.md 
         }}>
           <strong>
             {lessonState.profilerTool.toUpperCase()}
           </strong>
           : {profilerDescriptions[lessonState.profilerTool][lessonState.language]}
-        </div>
+          </div>
 
         <ButtonGroup style={{ marginTop: theme.spacing.medium }}>
           {(['setup', 'sampling', 'analysis', 'optimization', 'validation'] as const).map((phase) => (
@@ -1180,7 +1179,6 @@ void sigusr1_handler(int sig) {
             : (lessonState.language === 'en' ? 'Start Animation' : 'Iniciar Animación')
           }
         </Button>
-      </InteractiveSection>
 
       <Section>
         <SectionTitle>
@@ -1268,7 +1266,7 @@ void sigusr1_handler(int sig) {
         <div style={{ 
           background: theme.colors.dark.tertiary, 
           padding: theme.spacing.medium,
-          borderRadius: theme.borders.radius.medium,
+          borderRadius: theme.borderRadius.md,
           marginBottom: theme.spacing.medium 
         }}>
           <h4 style={{ color: theme.colors.primary, marginBottom: theme.spacing.small }}>
@@ -1287,7 +1285,7 @@ void sigusr1_handler(int sig) {
                 <strong style={{ color: '#ffffff' }}>{hotspot.function}</strong>
                 <div style={{ fontSize: '0.85rem', color: theme.colors.textSecondary }}>
                   {hotspot.instructions.toLocaleString()} {lessonState.language === 'en' ? 'instructions' : 'instrucciones'}
-                </div>
+          </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ 
@@ -1308,7 +1306,7 @@ void sigusr1_handler(int sig) {
         <div style={{ 
           background: theme.colors.dark.tertiary, 
           padding: theme.spacing.medium,
-          borderRadius: theme.borders.radius.medium 
+          borderRadius: theme.borderRadius.md 
         }}>
           <h4 style={{ color: theme.colors.primary, marginBottom: theme.spacing.small }}>
             {lessonState.language === 'en' ? 'Memory Profile Summary' : 'Resumen del Perfil de Memoria'}
@@ -1377,11 +1375,10 @@ void sigusr1_handler(int sig) {
             ? "Advanced Profiling Techniques Summary" 
             : "Resumen de Técnicas Avanzadas de Perfilado"}
         </SectionTitle>
-        
-        <div style={{ 
+<div style={{ 
           background: theme.colors.dark.tertiary, 
           padding: theme.spacing.large,
-          borderRadius: theme.borders.radius.medium 
+          borderRadius: theme.borderRadius.md 
         }}>
           <h3 style={{ color: theme.colors.primary, marginBottom: theme.spacing.medium }}>
             {lessonState.language === 'en' ? 'Key Takeaways' : 'Puntos Clave'}
@@ -1434,7 +1431,7 @@ void sigusr1_handler(int sig) {
               }
             </li>
           </ul>
-        </div>
+          </div>
       </Section>
 
       <PerformanceMonitor />
